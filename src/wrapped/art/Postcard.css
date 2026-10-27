@@ -1,0 +1,184 @@
+/* Beste vakt – postkortet. Prefiks .pcd- (ikke .pc-, som brukes andre steder i appen).
+   Grunn-CSS er sluttbildet: et stille, litt skrått kort (også redusert bevegelse). */
+.pcd-flip {
+  width: min(300px, 100%);
+  perspective: 900px;
+}
+.wslide[data-mode='play'] .pcd-flip {
+  animation: pcdFlip 600ms var(--ease-decel) backwards;
+}
+@keyframes pcdFlip {
+  from {
+    opacity: 0;
+    transform: perspective(900px) rotateY(70deg) translateY(30px);
+  }
+}
+.pcd {
+  rotate: 2deg;
+  background: #fffdf9;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  color: #17231f;
+}
+
+/* Bildesiden: gull-kjeks med ikon, gnister og frimerke */
+.pcd-top {
+  position: relative;
+  height: min(46cqw, 188px, 30cqh);
+  min-height: 132px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(140deg, #ffe7c7, #ffd9e5);
+}
+.pcd-cookie {
+  display: block;
+}
+.wslide[data-mode='play'] .pcd-cookie.w-pop {
+  animation-duration: 350ms;
+}
+.pcd-spark {
+  position: absolute;
+  display: block;
+  line-height: 0;
+}
+.pcd-spark svg {
+  display: block;
+}
+.pcd-s1 {
+  left: 20%;
+  top: 16%;
+}
+.pcd-s2 {
+  right: 22%;
+  top: 58%;
+}
+.pcd-s3 {
+  left: 28%;
+  bottom: 12%;
+}
+
+/* Frimerket: perforert kant (halvsirkler bare langs kanten), indre ramme, beløpet */
+.pcd-stamp {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 66px;
+  height: 80px;
+  rotate: -4deg;
+  background: #fffdf9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  /* hull med radius 4 hver 11. px (bredde) / 10. px (høyde) sentrert på kanten; en hel flate dekker innsiden */
+  -webkit-mask:
+    radial-gradient(circle 4px at 50% 50%, #0000 98%, #000) -5.5px -5px / 11px 10px,
+    linear-gradient(#000 0 0) 50% 50% / calc(100% - 8px) calc(100% - 8px) no-repeat;
+  mask:
+    radial-gradient(circle 4px at 50% 50%, #0000 98%, #000) -5.5px -5px / 11px 10px,
+    linear-gradient(#000 0 0) 50% 50% / calc(100% - 8px) calc(100% - 8px) no-repeat;
+}
+.pcd-stamp::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 2px solid #bf7a12;
+  border-radius: 4px;
+}
+.pcd-stamp > svg {
+  color: #bf7a12;
+  margin-bottom: 1px;
+}
+.pcd-amount {
+  /* 15 px i spesen ble 50,3 px bredt – akkurat bredden inni rammen (50 px). 14 px gir luft. */
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: #17231f;
+}
+.pcd-kr {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #6e3f02;
+}
+.wslide[data-mode='play'] .pcd-stamp.w-stamp {
+  animation-name: pcdStamp;
+}
+@keyframes pcdStamp {
+  from {
+    opacity: 0;
+    scale: 1.4;
+    rotate: var(--r0, 8deg);
+  }
+}
+
+/* Skrivesiden */
+.pcd-body {
+  padding: 16px 18px 18px;
+}
+.pcd-date {
+  font-family: 'Fraunces Variable', Georgia, serif;
+  font-style: italic;
+  font-size: 24px;
+  line-height: 1.15;
+  color: #17231f;
+}
+/* Kveldens øyeblikk: et lite notat med klokke-ikon, uten anførselstegn – ingen sa det */
+.pcd-note {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 15px;
+  line-height: 1.35;
+  font-style: italic;
+  color: #4b5a54;
+}
+.pcd-note > svg {
+  flex: none;
+  /* midt på første linje (15 × 1,35 ≈ 20 px) */
+  margin-top: 2.5px;
+  color: #bf7a12;
+}
+.pcd-note > span {
+  min-width: 0;
+  /* kursiven henger litt utenfor boksen; uten luft klipper overflow siste bokstav */
+  padding-right: 0.2em;
+  text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.pcd-chips {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pcd-chip {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff0dc;
+  color: #6e3f02;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pcd-chip > svg {
+  flex: none;
+}

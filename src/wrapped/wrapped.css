@@ -1,0 +1,773 @@
+/* ══ Månedshistorien («Din september») ═══════════════════════════════════════
+   Mørke bokstøtter (åpning, del) og lyse Flyt-kort imellom. Hvert kapittel har fargen til sin ring:
+   grønn = folk, bær = deg/penger/kropp, lavendel = smak, gull = rekorder.
+   Bevegelse: nøkkelrammer går bare FRA (fill backwards) – grunn-CSS er sluttbildet og er også redusert bevegelse. */
+
+.wrapped {
+  position: absolute;
+  inset: 0;
+  z-index: 85;
+  display: flex;
+  flex-direction: column;
+  background: #23314f;
+  color: #fff;
+  animation: fadeIn 260ms var(--ease-standard);
+  --w-chrome: #fff;
+  --w-track: rgba(255, 255, 255, 0.28);
+  --w-btn: rgba(255, 255, 255, 0.16);
+}
+.wrapped[data-ink='light'] {
+  --w-chrome: #17231f;
+  --w-track: rgba(23, 35, 31, 0.15);
+  --w-btn: rgba(23, 35, 31, 0.08);
+}
+.wrapped:focus {
+  outline: none;
+}
+/* Tydelig fokusring på alle tonene: kromfargen i toppen, blekkfargen inni kortene */
+.wrapped :focus-visible {
+  outline: 3px solid var(--w-chrome);
+  outline-offset: 2px;
+}
+.wslide :focus-visible {
+  outline-color: var(--w-ink);
+}
+
+/* ── Topp: fremdrift, ordmerke, pause og lukk ── */
+.w-top {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: calc(var(--top-inset) + 8px) 14px 0;
+  color: var(--w-chrome);
+  transition: color var(--dur-medium) var(--ease-standard);
+  pointer-events: none;
+}
+.w-top button {
+  pointer-events: auto;
+}
+.w-progress {
+  display: flex;
+  gap: 4px;
+}
+.w-progress > span {
+  position: relative;
+  flex: 1;
+  height: 3px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--w-track);
+  transition: background-color var(--dur-medium) var(--ease-standard);
+}
+.w-progress > span.done::after,
+.w-progress .w-fill {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--w-chrome);
+  border-radius: inherit;
+}
+.w-progress .w-fill {
+  transform-origin: left;
+  animation: wFill var(--dur, 4500ms) linear forwards;
+}
+.wrapped[data-paused='true'] .w-fill {
+  animation-play-state: paused;
+}
+@keyframes wFill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.w-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.w-brand {
+  flex: 1;
+  font-family: 'Fraunces Variable', Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.0625rem;
+}
+.w-iconbtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--w-btn);
+  color: var(--w-chrome);
+  transition:
+    background-color var(--dur-medium) var(--ease-standard),
+    color var(--dur-medium) var(--ease-standard);
+}
+.w-iconbtn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ── Sporet med kort ── */
+.w-track {
+  flex: 1;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+  outline: none;
+}
+.w-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Kortet ── */
+.wslide {
+  position: relative;
+  flex: 0 0 100%;
+  height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  overflow: hidden;
+  background: var(--w-bg);
+  color: var(--w-ink);
+  container-type: size;
+}
+.w-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  padding: calc(var(--top-inset) + 76px) 24px calc(var(--bottom-inset) + 26px);
+}
+.wslide[data-mode='pre'] .w-content {
+  opacity: 0;
+}
+.w-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.w-eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--w-eyebrow);
+}
+.w-hero {
+  font-weight: 800;
+  font-size: var(--fs-mega, 4rem);
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+  color: var(--w-ink);
+}
+.w-hero.word {
+  font-size: var(--fs-hero, 3rem);
+  line-height: 1;
+}
+.w-hero.q {
+  font-size: 1.875rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.w-unit {
+  font-size: 1.75rem;
+  letter-spacing: -0.02em;
+}
+.w-caption {
+  font-size: var(--fs-lead, 1.125rem);
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--w-muted);
+  margin: 0;
+}
+/* Scenen: illustrasjonen er kortets helt. Den fyller bredden og får gå litt ut i margen (--w-bleed),
+   og ledig høyde deles 1:2 over/under, så bildet ligger nær tallet sitt i stedet for midt i et tomrom. */
+.w-stage {
+  --w-bleed: 12px;
+  --w-gap: 12px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--w-gap);
+}
+.w-stage::before,
+.w-stage::after {
+  content: '';
+  flex: 1 1 0;
+  margin-bottom: calc(-1 * var(--w-gap));
+}
+.w-stage::after {
+  flex-grow: 2;
+  margin: calc(-1 * var(--w-gap)) 0 0;
+}
+.w-stage > svg,
+.w-art {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: visible;
+}
+/* Frittstående SVG-er (kalender, gate, kassalapp, sti, merke) går ut i margen; høyden holdes innenfor scenen */
+.w-stage > svg.w-art {
+  flex: none;
+  width: calc(100% + 2 * var(--w-bleed));
+  max-width: 460px;
+}
+/* Innpakkede illustrasjoner (brett, trapp, tråd) bruker hele scenebredden, også på store telefoner */
+.w-stage > :is(.dt, .rs, .kt) {
+  max-width: 100%;
+}
+/* Del-kortet: plakaten er en forhåndsvisning og klippes aldri. Scenen er en egen container (wdel),
+   så trinnene følger plassen som faktisk er igjen – også i telefonrammen på en PC-skjerm.
+   Lavere scene: først kompakte valg (to rader, hjelpeteksten bare for skjermleser), så krympes plakaten litt.
+   Skulle det likevel bli for trangt, kan scenen rulles i stedet for å klippe. */
+.w-stage:has(> .w-chips) {
+  container: wdel / size;
+  justify-content: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Luft i rullefeltet, så fokusringen på knappene langs kanten ikke kuttes */
+  margin: -6px -8px;
+  padding: 6px 8px;
+}
+.w-stage > .sp {
+  flex-shrink: 0;
+  max-height: none;
+}
+@container wdel (max-height: 626px) {
+  .w-stage > .w-chips {
+    gap: 6px;
+  }
+  .w-stage > .w-chips .w-chip {
+    min-height: 34px;
+    padding: 0 10px;
+    gap: 4px;
+    font-size: 0.8125rem;
+  }
+  .w-stage > .w-hint {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .w-stage > .w-actions .btn {
+    min-height: 46px;
+  }
+  .w-stage > .sp .sp-band .cal-mini,
+  .w-stage > .sp[data-density] .sp-band .cal-mini {
+    height: 40px;
+  }
+  .w-stage > .sp .sp-badge svg {
+    width: 52px;
+    height: 52px;
+  }
+}
+@container wdel (max-height: 487px) {
+  .w-stage > .sp {
+    zoom: 0.95;
+  }
+}
+@container wdel (max-height: 470px) {
+  .w-stage > .sp {
+    zoom: 0.9;
+  }
+}
+@container wdel (max-height: 453px) {
+  .w-stage > .sp {
+    zoom: 0.85;
+  }
+}
+@container wdel (max-height: 436px) {
+  .w-stage > .sp {
+    zoom: 0.8;
+  }
+}
+@container wdel (max-height: 419px) {
+  .w-stage > .sp {
+    zoom: 0.75;
+  }
+}
+@container wdel (max-height: 401px) {
+  .w-stage > .sp {
+    zoom: 0.7;
+  }
+}
+@container wdel (max-height: 384px) {
+  .w-stage > .sp {
+    zoom: 0.65;
+  }
+}
+@container wdel (max-height: 367px) {
+  .w-stage > .sp {
+    zoom: 0.6;
+  }
+}
+.w-art text {
+  font-family: var(--sans);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Bakgrunnsformer ── */
+.w-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.w-bg svg {
+  position: absolute;
+}
+.w-bg-a {
+  right: -110px;
+  top: 40px;
+}
+.w-bg-b {
+  left: -80px;
+  bottom: 60px;
+}
+.wslide[data-mode='play'] .w-bg svg {
+  animation: wBgTurn 1200ms var(--ease-data) backwards;
+}
+@keyframes wBgTurn {
+  from {
+    rotate: -15deg;
+  }
+}
+
+/* ── Toner (bakgrunn, blekk, aksent) ── */
+.wslide[data-tone='night'] {
+  --w-bg: radial-gradient(260px 180px at 100% 0%, rgba(255, 255, 255, 0.16), transparent 70%), linear-gradient(165deg, #23314f 0%, #3b3a8a 55%, #5a47b8 100%);
+  --w-ink: #fff;
+  --w-muted: #e2defc;
+  --w-eyebrow: #e2defc;
+  --w-a1: #9fe3bf;
+  --w-a2: #ffffff;
+  --w-deco: rgba(255, 255, 255, 0.06);
+}
+.wslide[data-tone='lag'] {
+  --w-bg: linear-gradient(165deg, #dcf4e8, #e6f1ff);
+  --w-ink: #17231f;
+  --w-muted: #4b5a54;
+  --w-eyebrow: #1f6e48;
+  --w-a1: #3a9d6c;
+  --w-a2: #1f6e48;
+  --w-deco: rgba(46, 140, 94, 0.08);
+}
+.wslide[data-tone='deg'] {
+  --w-bg: linear-gradient(165deg, #fdeaf1, #ece9ff);
+  --w-ink: #17231f;
+  --w-muted: #4b5a54;
+  --w-eyebrow: #8a1f44;
+  --w-a1: #d0456e;
+  --w-a2: #8a1f44;
+  --w-deco: rgba(208, 69, 110, 0.08);
+}
+.wslide[data-tone='smak'] {
+  --w-bg: linear-gradient(165deg, #ece8ff, #e2f4ee);
+  --w-ink: #17231f;
+  --w-muted: #4b5a54;
+  --w-eyebrow: #4a3fa0;
+  --w-a1: #8f82e6;
+  --w-a2: #6f5bc9;
+  --w-deco: rgba(111, 91, 201, 0.08);
+}
+.wslide[data-tone='dessert'] {
+  --w-bg: linear-gradient(165deg, #fff4e3, #ece8ff);
+  --w-ink: #17231f;
+  --w-muted: #4b5a54;
+  --w-eyebrow: #4a3fa0;
+  --w-a1: #8f82e6;
+  --w-a2: #6f5bc9;
+  --w-deco: rgba(111, 91, 201, 0.07);
+}
+.wslide[data-tone='rekord'] {
+  --w-bg: linear-gradient(165deg, #ffe7c7, #ffd9e5);
+  --w-ink: #17231f;
+  --w-muted: #4b5a54;
+  --w-eyebrow: #6e3f02;
+  --w-a1: #bf7a12;
+  --w-a2: #9c5c08;
+  --w-deco: rgba(191, 122, 18, 0.09);
+}
+.wslide[data-tone='rekord-r'] {
+  --w-bg: linear-gradient(165deg, #ffd9e5, #ffe7c7);
+  --w-ink: #17231f;
+  --w-muted: #4b5a54;
+  --w-eyebrow: #6e3f02;
+  --w-a1: #bf7a12;
+  --w-a2: #9c5c08;
+  --w-deco: rgba(191, 122, 18, 0.09);
+}
+.wslide[data-tone='blend'] {
+  --w-bg: linear-gradient(165deg, #1f6e48 0%, #3b3a8a 55%, #5a47b8 100%);
+  --w-ink: #fff;
+  --w-muted: #e2defc;
+  --w-eyebrow: #e2defc;
+  --w-a1: #9fe3bf;
+  --w-a2: #ffffff;
+  --w-deco: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Navigasjon for tastatur og mus ── */
+.w-nav {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  margin-top: -22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--w-btn);
+  color: var(--w-chrome);
+  opacity: 0;
+  transition: opacity var(--dur-short) var(--ease-standard);
+}
+.w-nav svg {
+  width: 20px;
+  height: 20px;
+}
+.w-nav.prev {
+  left: 8px;
+}
+.w-nav.next {
+  right: 8px;
+}
+.w-nav:focus-visible {
+  opacity: 1;
+}
+/* Pilene vises bare når musa er ved kanten (eller ved tastaturfokus) – de skal ikke ligge over illustrasjonene */
+@media (hover: hover) {
+  .w-nav:hover:not([aria-disabled]) {
+    opacity: 0.9;
+  }
+}
+/* Første/siste kort: pilen er borte, men knappen beholder fokus (aria-disabled) */
+.w-nav[aria-disabled='true'] {
+  opacity: 0;
+  pointer-events: none;
+}
+.w-nav[aria-disabled='true']:focus-visible {
+  opacity: 0.35;
+}
+/* Mens lokkene i gjettekortet kan trykkes, skal ingen usynlig pil ligge over dem */
+.wrapped:has(.wslide:not([inert]) .cl-btn) .w-nav {
+  pointer-events: none;
+}
+
+/* ══ Bevegelsesbibliotek ══════════════════════════════════════════════════
+   Brukes i illustrasjonene med --i (rekkefølge), --st (forsinkelse per element) og --d (startforsinkelse).
+   Kjører bare når kortet spilles (data-mode=play). */
+.wslide[data-mode='play'] :is(.w-up, .w-fade, .w-pop, .w-popturn, .w-growy, .w-growx, .w-draw, .w-print, .w-stamp, .w-bubble, .w-spin, .w-fly, .w-twinkle, .w-hop4, .w-wobble) {
+  animation-delay: calc(var(--d, 0ms) + var(--i, 0) * var(--st, 0ms));
+  animation-fill-mode: backwards;
+}
+.wslide[data-mode='play'] .w-up {
+  animation-name: wUp;
+  animation-duration: 360ms;
+  animation-timing-function: var(--ease-decel);
+}
+.wslide[data-mode='play'] .w-fade {
+  animation-name: wFade;
+  animation-duration: 300ms;
+  animation-timing-function: var(--ease-standard);
+}
+.wslide[data-mode='play'] .w-pop {
+  animation-name: wPop;
+  animation-duration: 380ms;
+  animation-timing-function: var(--ease-pop);
+}
+.wslide[data-mode='play'] .w-popturn {
+  animation-name: wPopTurn;
+  animation-duration: 380ms;
+  animation-timing-function: var(--ease-pop);
+}
+.wslide[data-mode='play'] .w-growy {
+  animation-name: wGrowY;
+  animation-duration: 420ms;
+  animation-timing-function: var(--ease-data);
+}
+.wslide[data-mode='play'] .w-growx {
+  animation-name: wGrowX;
+  animation-duration: 420ms;
+  animation-timing-function: var(--ease-data);
+}
+.wslide[data-mode='play'] .w-draw {
+  animation-name: wDraw;
+  animation-duration: 600ms;
+  animation-timing-function: var(--ease-data);
+}
+.wslide[data-mode='play'] .w-print {
+  animation-name: wPrint;
+  animation-duration: 1200ms;
+  animation-timing-function: cubic-bezier(0.25, 0.8, 0.3, 1);
+}
+.wslide[data-mode='play'] .w-stamp {
+  animation-name: wStamp;
+  animation-duration: 260ms;
+  animation-timing-function: var(--ease-pop);
+}
+.wslide[data-mode='play'] .w-bubble {
+  animation-name: wBubble;
+  animation-duration: 280ms;
+  animation-timing-function: var(--ease-pop);
+}
+.wslide[data-mode='play'] .w-spin {
+  animation-name: wSpin;
+  animation-duration: 700ms;
+  animation-timing-function: var(--ease-pop);
+}
+.wslide[data-mode='play'] .w-fly {
+  animation-name: wFly;
+  animation-duration: 450ms;
+  animation-timing-function: var(--ease-decel);
+}
+.wslide[data-mode='play'] .w-twinkle {
+  animation-name: wTwinkle;
+  animation-duration: 500ms;
+  animation-timing-function: var(--ease-pop);
+}
+.wslide[data-mode='play'] .w-wobble {
+  animation-name: wWobble;
+  animation-duration: 1.6s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: 2;
+  animation-fill-mode: none;
+}
+/* SVG-elementer skaleres rundt sitt eget midtpunkt */
+.w-pop,
+.w-popturn,
+.w-stamp,
+.w-spin,
+.w-fly,
+.w-twinkle,
+.w-growy,
+.w-growx,
+.w-bubble,
+.w-wobble {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.w-growy {
+  transform-origin: bottom;
+}
+.w-growx {
+  transform-origin: left;
+}
+.w-draw {
+  stroke-dasharray: 1;
+}
+.w-print {
+  transform-box: fill-box;
+}
+@keyframes wUp {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+}
+@keyframes wFade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes wPop {
+  from {
+    opacity: 0;
+    scale: 0.3;
+  }
+}
+@keyframes wPopTurn {
+  from {
+    opacity: 0;
+    scale: 0.3;
+    rotate: -30deg;
+  }
+}
+@keyframes wGrowY {
+  from {
+    scale: 1 0;
+  }
+}
+@keyframes wGrowX {
+  from {
+    scale: 0 1;
+  }
+}
+@keyframes wDraw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+@keyframes wPrint {
+  from {
+    translate: 0 100%;
+  }
+}
+@keyframes wStamp {
+  from {
+    opacity: 0;
+    scale: 1.6;
+    rotate: var(--r0, 0deg);
+  }
+}
+@keyframes wBubble {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+@keyframes wSpin {
+  from {
+    opacity: 0;
+    scale: 0;
+    rotate: -120deg;
+  }
+}
+@keyframes wFly {
+  from {
+    opacity: 0;
+    scale: 0.4;
+    translate: calc(var(--dx, 0px) * -1) calc(var(--dy, 0px) * -1);
+  }
+}
+@keyframes wTwinkle {
+  0% {
+    opacity: 0;
+    scale: 0;
+  }
+  60% {
+    scale: 1.15;
+  }
+}
+@keyframes wWobble {
+  25% {
+    rotate: -3deg;
+  }
+  75% {
+    rotate: 3deg;
+  }
+}
+
+/* Pause: kortets animasjoner og tidslinjen står stille sammen */
+.wrapped[data-paused='true'] .wslide[data-mode='play'] *,
+.wrapped[data-paused='true'] .wslide[data-mode='play'] *::before,
+.wrapped[data-paused='true'] .wslide[data-mode='play'] *::after {
+  animation-play-state: paused !important;
+}
+
+/* Lavere skjermer: mindre tall og ingen bildetekst */
+@container (max-height: 660px) {
+  .w-hero {
+    font-size: 3rem;
+  }
+  .w-hero.word {
+    font-size: 2.25rem;
+  }
+  .w-caption {
+    display: none;
+  }
+}
+
+/* Redusert bevegelse: sluttbildet, uten unntak (overstyrer den globale 1 ms-regelen) */
+@media (prefers-reduced-motion: reduce) {
+  .wrapped,
+  .wrapped *,
+  .wrapped *::before,
+  .wrapped *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .wslide[data-mode='pre'] .w-content {
+    opacity: 1;
+  }
+}
+
+/* Usynlig tidsur (gjettekortet): står stille på pause sammen med alt annet på kortet */
+.w-timer {
+  position: absolute;
+  width: 0;
+  height: 0;
+  animation: wTimer var(--t, 4500ms) linear;
+}
+@keyframes wTimer {
+  to {
+    opacity: 0;
+  }
+}
+
+/* ── Del-kortet: valg og knapper ── */
+.w-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.w-chip {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+.w-chip svg {
+  width: 14px;
+  height: 14px;
+}
+.w-chip[aria-checked='true'] {
+  background: #fff;
+  color: #23314f;
+  border-color: #fff;
+}
+.w-chip[aria-disabled='true'] {
+  opacity: 0.45;
+}
+.w-hint {
+  margin: -2px 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.86);
+  text-align: center;
+}
+.w-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+.w-actions .btn {
+  flex: 1;
+}
+.w-btn-light {
+  background: #fff;
+  color: #23314f;
+}
+.w-btn-ghost {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}

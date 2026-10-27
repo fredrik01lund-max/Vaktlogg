@@ -1,0 +1,11 @@
+node_modules
+dist
+*.local
+qr-*.png
+.DS_Store
+dist-fil
+Vaktlogg-app
+Vaktlogg-app.zip
+skjermbilder/
+r-*.png
+Vaktlogg-prototype.html

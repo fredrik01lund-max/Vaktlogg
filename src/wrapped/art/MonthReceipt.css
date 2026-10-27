@@ -1,0 +1,69 @@
+/* Kassalappen (MonthReceipt). Grunn-CSS er sluttbildet; bevegelsen kommer fra bevegelsesbiblioteket i wrapped.css. */
+
+.rc-art .rc-brand {
+  font-family: 'Fraunces Variable', Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 18px;
+  fill: #17231f;
+}
+.rc-art .rc-sub {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  fill: #5c6a64;
+}
+.rc-art .rc-day {
+  font-size: 13px;
+  font-weight: 600;
+  fill: #4b5a54;
+  /* Papirfarget kant under teksten: prikklinjen bak stopper med litt luft etter dagnavnet */
+  paint-order: stroke;
+  stroke: #fffdf9;
+  stroke-width: 10px;
+  stroke-linejoin: round;
+}
+.rc-art .rc-amt {
+  font-size: 13px;
+  font-weight: 700;
+  fill: #17231f;
+}
+.rc-art .rc-totl {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  fill: #17231f;
+}
+.rc-art .rc-total {
+  font-size: 22px;
+  font-weight: 800;
+  fill: #17231f;
+}
+
+/* Stempelet hviler skrått; .w-stamp lander fra rett (rotate 0) og stort. */
+.rc-art .rc-stamp {
+  rotate: -12deg;
+  --r0: 0deg;
+}
+.rc-art .rc-tips-h,
+.rc-art .rc-tips-kr {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  fill: #8a1f44;
+}
+.rc-art .rc-tips-kr {
+  letter-spacing: 0.04em;
+}
+.rc-art .rc-tips {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  font-variant-numeric: proportional-nums; /* et enkelt beløp, ikke en kolonne – gir luft inne i stempelet */
+  fill: #8a1f44;
+}
+
+/* Rekordblomstene spretter raskere enn standard .w-pop */
+.wslide[data-mode='play'] .rc-art .rc-rec {
+  animation-duration: 260ms;
+}

@@ -1,0 +1,171 @@
+/* gjett – lokkene (Cloches). Grunn-CSS er sluttbildet; lokkløftet er skrevet som FRA-nøkkelramme
+   med sluttilstanden i grunnregelen, så det også holder ved pause og redusert bevegelse. */
+
+/* Flaten har tegningens sideforhold (360 × 480), så knapper og navn i prosent treffer alltid.
+   Bredden går litt ut i margen, men flaten blir aldri høyere enn scenen etter avsløringen:
+   --cl-rest er toppfelt, overskrift (svaret), mellomrom, bildetekst og bunnmarg. */
+.cl-wrap {
+  --cl-rest: 232px;
+  position: relative;
+  flex: none;
+  width: min(calc(100% + 2 * var(--w-bleed, 0px)), 440px, calc((100cqh - var(--top-inset, 0px) - var(--bottom-inset, 0px) - var(--cl-rest)) * 360 / 480));
+  aspect-ratio: 360 / 480;
+  /* Navnene skaleres med tegningen */
+  container-type: inline-size;
+}
+/* Lave kort viser ikke bildeteksten og har mindre overskrift */
+@container (max-height: 660px) {
+  .cl-wrap {
+    --cl-rest: 196px;
+  }
+}
+/* Smale og lave telefoner: spørsmålet går over to linjer */
+@container (max-height: 660px) and (max-width: 359px) {
+  .cl-wrap {
+    --cl-rest: 232px;
+  }
+}
+.cl-wrap > .cl-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+}
+.cl-svg:focus {
+  outline: none;
+}
+
+/* Gjennomsiktige knapper, én per rad (fjernes etter avsløringen, så trykk navigerer igjen).
+   margin/z-index nullstilles, så ingen global knappestil kan flytte dem bort fra tegningen. */
+.cl-btn {
+  position: absolute;
+  z-index: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 24px;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.cl-btn:focus-visible {
+  outline: 3px solid #4a3fa0;
+  outline-offset: -1px;
+}
+
+.cl-label {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  font-size: clamp(13px, 4.6cqw, 1.125rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #17231f;
+  pointer-events: none;
+}
+.cl-label.cl-end {
+  justify-content: flex-end;
+  text-align: right;
+}
+.cl-label > span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+/* Tallerken, rett og skygge dempes for de to andre rettene; tallet beholder full kontrast */
+.cl-art {
+  transition: opacity var(--dur-medium, 300ms) var(--ease-standard);
+}
+.cl-art.cl-dim {
+  opacity: 0.55;
+}
+
+/* Retten kommer frem: den tegnede tallerkenen tones ut mens bildet av retten glir opp på plass.
+   Grunn-CSS er sluttbildet (tallerken skjult, bilde synlig) – også ved pause og redusert bevegelse. */
+.cl-wrap .cl-plate-out {
+  opacity: 0;
+}
+.cl-wrap .cl-photo {
+  transform-box: fill-box;
+  transform-origin: 50% 70%;
+}
+.wslide[data-mode='play'] .cl-wrap .cl-plate-out {
+  animation: clPlateOut 380ms var(--ease-standard) backwards;
+  animation-delay: calc(var(--k, 0) * 90ms + 120ms);
+}
+.wslide[data-mode='play'] .cl-wrap .cl-photo {
+  animation: clPhotoIn 620ms var(--ease-decel) backwards;
+  animation-delay: calc(var(--k, 0) * 90ms + 80ms);
+}
+@keyframes clPlateOut {
+  from {
+    opacity: 1;
+  }
+}
+@keyframes clPhotoIn {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+    scale: 0.94;
+    filter: brightness(1.15);
+  }
+  60% {
+    opacity: 1;
+  }
+}
+
+/* Damp: tre tynne slør som stiger og forsvinner, én gang */
+.cl-wrap .cl-steam path {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.wslide[data-mode='play'] .cl-wrap .cl-steam path {
+  animation: clSteam 1500ms var(--ease-standard) backwards;
+  animation-delay: calc(var(--k, 0) * 90ms + 260ms + var(--j, 0) * 140ms);
+}
+@keyframes clSteam {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+    scale: 1 0.7;
+  }
+  35% {
+    opacity: 0.75;
+  }
+  to {
+    opacity: 0;
+    translate: 0 -18px;
+    scale: 1 1.1;
+  }
+}
+
+/* Lokket vipper og løftes rundt midten av kanten */
+.cl-wrap .cl-dome {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.cl-wrap .cl-lift {
+  opacity: 0;
+  translate: 0 -56px;
+  rotate: -10deg;
+}
+.wslide[data-mode='play'] .cl-wrap .cl-lift {
+  animation: clLift 450ms var(--ease-decel) backwards;
+  animation-delay: calc(var(--k, 0) * 90ms);
+}
+@keyframes clLift {
+  from {
+    opacity: 1;
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  35% {
+    opacity: 1;
+  }
+}

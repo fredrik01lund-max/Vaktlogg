@@ -1,0 +1,135 @@
+/* Rekorder – trappen og brikkene under. Grunn-CSS er sluttbildet (også redusert bevegelse). */
+.rs {
+  width: 100%;
+  max-width: 342px;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, auto) auto;
+  align-content: center;
+  gap: 12px;
+  justify-items: center;
+}
+.rs > .w-art {
+  min-height: 0;
+}
+
+/* Emma: x på ytre gruppe, y på indre, så hoppet får en bue (ikke bare rette streker). */
+.rs-emma {
+  translate: var(--x3) 0;
+}
+.rs-emma-y {
+  translate: 0 var(--y3);
+}
+.wslide[data-mode='play'] .rs-emma.w-hop4 {
+  animation-name: rsHopX;
+  animation-duration: 1000ms;
+  animation-timing-function: ease-in-out;
+}
+.wslide[data-mode='play'] .rs-emma-y.w-hop4 {
+  animation-name: rsHopY;
+  animation-duration: 1000ms;
+  animation-timing-function: ease-in-out;
+}
+@keyframes rsHopX {
+  0% {
+    translate: var(--x0) 0;
+  }
+  33.333% {
+    translate: var(--x1) 0;
+  }
+  66.667% {
+    translate: var(--x2) 0;
+  }
+  100% {
+    translate: var(--x3) 0;
+  }
+}
+/* Opp: avtagende fart mot toppunktet (24 px over det høyeste trinnet). Ned: økende fart mot landing. */
+@keyframes rsHopY {
+  0% {
+    translate: 0 var(--y0);
+    animation-timing-function: cubic-bezier(0.33, 0.66, 0.66, 1);
+  }
+  16.667% {
+    translate: 0 var(--a1);
+    animation-timing-function: cubic-bezier(0.33, 0, 0.66, 0.33);
+  }
+  33.333% {
+    translate: 0 var(--y1);
+    animation-timing-function: cubic-bezier(0.33, 0.66, 0.66, 1);
+  }
+  50% {
+    translate: 0 var(--a2);
+    animation-timing-function: cubic-bezier(0.33, 0, 0.66, 0.33);
+  }
+  66.667% {
+    translate: 0 var(--y2);
+    animation-timing-function: cubic-bezier(0.33, 0.66, 0.66, 1);
+  }
+  83.333% {
+    translate: 0 var(--a3);
+    animation-timing-function: cubic-bezier(0.33, 0, 0.66, 0.33);
+  }
+  100% {
+    translate: 0 var(--y3);
+  }
+}
+.wslide[data-mode='play'] .rs-val.w-pop {
+  animation-duration: 220ms;
+}
+
+/* Brikkene: de andre rekordene denne måneden */
+.rs-chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: calc(var(--n, 2) * 171px);
+  display: grid;
+  grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr));
+  gap: 8px;
+}
+.rs-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px;
+  border-radius: 18px;
+  background: rgba(255, 253, 249, 0.7);
+}
+.rs-chip > svg {
+  flex: none;
+}
+.rs-chip-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.rs-chip-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #4b5a54;
+}
+.rs-chip-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 6px;
+}
+.rs-chip-val {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  color: #17231f;
+  white-space: nowrap;
+}
+.rs-chip-date {
+  font-size: 0.75rem;
+  color: #4b5a54;
+  white-space: nowrap;
+}

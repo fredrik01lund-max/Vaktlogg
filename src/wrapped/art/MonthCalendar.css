@@ -1,0 +1,52 @@
+/* Åpningskortet: kalenderen som lyser opp (cal-). Grunn-CSS er sluttbildet. */
+/* Ukedagene og fridagene skal kunne leses (minst 4,5:1), men fridagene holder seg stille ved siden av kjeksene */
+.cal-head {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #fff;
+  opacity: 0.85;
+}
+.cal-off {
+  font-size: 12px;
+  font-weight: 600;
+  fill: #fff;
+  opacity: 0.82;
+}
+.cal-num {
+  font-size: 15px;
+  font-weight: 800;
+  fill: #23314f;
+}
+.cal-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #9fe3bf;
+}
+/* Kjeksene snurrer og spretter rundt sitt eget midtpunkt */
+.cal-cookie {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+/* Pillen vokser nedover fra toppen */
+.cal-pill.w-growy {
+  transform-origin: top;
+}
+.wslide[data-mode='play'] .cal-pill.w-growy {
+  animation-duration: 400ms;
+}
+/* Gullringen er usynlig til den tegnes – ellers henger den runde streken igjen som en prikk mens den venter */
+.wslide[data-mode='play'] .cal-ring.w-draw {
+  animation-name: calRing;
+  animation-duration: 500ms;
+}
+@keyframes calRing {
+  from {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+}
+.cal-mini {
+  display: block;
+  flex: none;
+  overflow: visible;
+}

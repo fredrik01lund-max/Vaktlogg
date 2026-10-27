@@ -1,0 +1,354 @@
+/* ══ Profilens nivå (Meg) ══════════════════════════════════════════════════════
+   Ett kort: nivåmerke + XP-linje øverst, fire tall under. Pastell som resten av appen. */
+
+.lv-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  padding: 16px;
+  border-radius: 26px;
+  text-align: left;
+  color: var(--text);
+  background: linear-gradient(150deg, #fff4e6 0%, #fdeaf2 55%, #f1eefe 100%);
+  box-shadow: var(--shadow);
+}
+.lv-card:active {
+  transform: scale(0.99);
+}
+.lv-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.lv-badge {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  flex: none;
+  width: 62px;
+  height: 62px;
+  border-radius: 20px;
+  background: var(--primary-grad);
+  color: var(--primary-ink);
+  box-shadow: inset 0 -3px 0 rgba(110, 42, 60, 0.12);
+}
+.lv-badge small {
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.lv-badge b {
+  font-size: 1.625rem;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.lv-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lv-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 1.125rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.lv-new {
+  font-style: normal;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--green-fill);
+  color: var(--green-ink);
+}
+.lv-bar {
+  display: block;
+  height: 10px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+}
+.lv-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--orange-strong), var(--pink-strong));
+}
+.lv-sub {
+  font-size: var(--fs-cap);
+  color: var(--muted);
+}
+.lv-sub b {
+  color: var(--text);
+}
+.lv-chev {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  color: var(--muted);
+}
+
+.lv-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.lv-stat {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px 8px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+}
+.lv-stat b {
+  max-width: 100%;
+  margin-top: 4px;
+  font-size: 0.9375rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lv-stat small {
+  font-size: 0.6875rem;
+  color: var(--muted);
+  line-height: 1.15;
+}
+.lv-stat-ic {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--tone-fill, var(--lilac-fill));
+  color: var(--tone-ink, var(--lilac-ink));
+}
+.lv-stat-ic svg {
+  width: 15px;
+  height: 15px;
+}
+[data-tone='orange'] {
+  --tone-fill: var(--orange-fill);
+  --tone-ink: var(--orange-ink);
+}
+[data-tone='yellow'] {
+  --tone-fill: var(--yellow-fill);
+  --tone-ink: var(--yellow-ink);
+}
+[data-tone='green'] {
+  --tone-fill: var(--green-fill);
+  --tone-ink: var(--green-ink);
+}
+[data-tone='lilac'] {
+  --tone-fill: var(--lilac-fill);
+  --tone-ink: var(--lilac-ink);
+}
+.lv-tonight {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  margin-top: -4px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.8);
+  font-size: var(--fs-cap);
+  font-weight: 800;
+  color: var(--pink-ink);
+}
+.lv-tonight svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Smale telefoner: tallene får plass på én linje */
+@media (max-width: 380px) {
+  .lv-stats {
+    gap: 5px;
+  }
+  .lv-stat {
+    padding: 9px 6px;
+  }
+  .lv-stat b {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Nivåmerket på profilbildet */
+.me-ava {
+  position: relative;
+  display: inline-grid;
+  flex: none;
+}
+.lv-dot {
+  position: absolute;
+  right: -4px;
+  bottom: -2px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 5px;
+  display: grid;
+  place-items: center;
+  border-radius: 99px;
+  background: var(--primary-grad);
+  color: var(--primary-ink);
+  font-size: 0.75rem;
+  font-weight: 800;
+  box-shadow: 0 0 0 2.5px var(--bg);
+}
+
+/* ── Arket: hvor XP-en kommer fra, og medaljene ── */
+.xp-rows {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.xp-rows li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--line);
+}
+.xp-rows li b,
+.xp-rows li small {
+  display: block;
+}
+.xp-rows li small {
+  font-size: var(--fs-cap);
+  color: var(--muted);
+}
+.xp-rows .lv-stat-ic {
+  width: 34px;
+  height: 34px;
+}
+.xp-rows .lv-stat-ic svg {
+  width: 18px;
+  height: 18px;
+}
+.xp-val {
+  font-weight: 800;
+  white-space: nowrap;
+}
+.xp-rows .xp-total {
+  border-bottom: none;
+  padding-top: 12px;
+  font-size: 1.0625rem;
+}
+.xp-h {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 18px 0 10px;
+  font-size: 1rem;
+}
+.xp-h span {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+.xp-medals {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.xp-medals li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-align: center;
+}
+.xp-medal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-deep, #eef1ef);
+  color: #9aa49f;
+  border: 2px dashed #cfd6d2;
+}
+.xp-medals li.on .xp-medal {
+  border: none;
+  background: linear-gradient(150deg, var(--yellow-fill), var(--orange-fill));
+  color: var(--orange-ink);
+  box-shadow: inset 0 -3px 0 rgba(135, 80, 15, 0.12);
+}
+.xp-medal svg {
+  width: 22px;
+  height: 22px;
+}
+.xp-medal em {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  font-style: normal;
+  font-size: 0.625rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 99px;
+  background: var(--green-fill);
+  color: var(--green-ink);
+}
+.xp-medals small {
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  color: var(--text);
+}
+.xp-medals li:not(.on) small {
+  color: var(--muted);
+}
+.xp-prog {
+  font-size: 0.625rem;
+  color: var(--muted);
+}
+
+/* Bevegelse: XP-linjen fylles fra der den var, nytt nivå spretter inn */
+@media (prefers-reduced-motion: no-preference) {
+  .lv-bar i.grow {
+    animation: lvFill 1100ms 250ms var(--ease-decel) backwards;
+  }
+  .lv-badge.up {
+    animation: lvUp 600ms 900ms var(--ease-pop) backwards;
+  }
+  .lv-new.pop {
+    animation: lvUp 500ms 1200ms var(--ease-pop) backwards;
+  }
+}
+@keyframes lvFill {
+  from {
+    width: var(--from);
+  }
+}
+@keyframes lvUp {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+
+/* «Ny LVL!» over XP-linjen */
+.lv-main > .lv-new {
+  align-self: flex-start;
+}

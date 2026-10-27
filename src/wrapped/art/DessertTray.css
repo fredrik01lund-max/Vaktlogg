@@ -1,0 +1,73 @@
+/* ── Desserter: brett med én petit-four per dessert, forklaring under (samme kjennetegn i fargeprøvene) ── */
+.dt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 342px;
+  min-height: 0;
+  max-height: 100%;
+}
+/* Brettet krymper i høyden når scenen er lav; forklaringen beholder sin plass */
+.dt-art {
+  flex: 0 1 auto;
+  min-height: 0;
+}
+.dt-legend {
+  flex: none;
+  width: 100%;
+  margin: 0;
+  padding: 0 6px;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  justify-content: space-between;
+  gap: 6px 8px; /* smal kolonneluft, så «Sjokoladefondant» får plass ved siden av den større fargeprøven */
+}
+.dt-legend li {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.875rem;
+  line-height: 1.3;
+  color: #17231f;
+}
+.dt-sw {
+  display: block;
+  width: 18px;
+  height: 18px;
+  overflow: visible;
+}
+.dt-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dt-qty {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* fill-box på <use x y> skalerer mot hjørnet i Chromium; derfor eget midtpunkt per kake i viewBox-enheter (inline transform-origin) */
+.dt-art .dt-cell {
+  transform-box: view-box;
+}
+
+/* Brettet toner inn raskt; kakene spretter fra 0,2 i 240 ms, 11 ms fra hverandre */
+.wslide[data-mode='play'] .dt-tray.w-fade {
+  animation-duration: 200ms;
+}
+.wslide[data-mode='play'] .dt-cell.w-pop {
+  animation-name: dtPop;
+  animation-duration: 240ms;
+}
+@keyframes dtPop {
+  from {
+    opacity: 0;
+    scale: 0.2;
+  }
+}

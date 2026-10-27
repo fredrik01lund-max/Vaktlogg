@@ -1,0 +1,492 @@
+/* ══ Sluttrapporten ═══════════════════════════════════════════════════════
+   Plakaten er onepageren som deles: lys pastellflate (fersken → rosa → lilla) med myke fargeflekker,
+   mørk tekst og nøkkeltall i små flater med temafargene fra vaktsiden. */
+
+.er {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  --er-ink: #2a1f33;
+  --er-muted: #5b4560;
+}
+.er-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+}
+.er-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 99px;
+  background: var(--primary-grad);
+  color: var(--primary-ink);
+  font-weight: 800;
+}
+.er-share-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Plakaten ── */
+.er-poster {
+  --er-ink: #2a1f33;
+  --er-muted: #5b4560;
+  position: relative;
+  overflow: hidden;
+  padding: 18px 18px 16px;
+  border-radius: 28px;
+  color: var(--er-ink);
+  background:
+    radial-gradient(260px 180px at 100% 0%, rgba(205, 194, 250, 0.85), transparent 70%),
+    radial-gradient(240px 200px at 0% 100%, rgba(182, 230, 204, 0.8), transparent 70%),
+    radial-gradient(200px 160px at 85% 70%, rgba(249, 196, 216, 0.75), transparent 70%),
+    linear-gradient(160deg, #fff0e1 0%, #fde1ea 55%, #ece6ff 100%);
+  box-shadow: 0 22px 44px -22px rgba(150, 90, 130, 0.45);
+}
+.er-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.er-brand {
+  font-family: 'Fraunces Variable', Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.0625rem;
+}
+.er-who {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: right;
+}
+.er-who b,
+.er-who small {
+  display: block;
+  line-height: 1.15;
+}
+.er-who b {
+  font-size: 0.875rem;
+}
+.er-who small {
+  font-size: 0.6875rem;
+  color: var(--er-muted);
+}
+.er-who .face {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+}
+.er-eyebrow {
+  margin: 14px 0 0;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pink-ink);
+}
+.er-date {
+  margin: 2px 0 0;
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--er-ink);
+}
+.er-time {
+  margin: 2px 0 0;
+  font-size: 0.8125rem;
+  color: var(--er-muted);
+}
+.er-hero {
+  margin-top: 12px;
+}
+.er-sales {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+.er-sales small {
+  font-size: 1.125rem;
+  letter-spacing: 0;
+  color: var(--er-muted);
+}
+.er-sales.small {
+  font-size: 2rem;
+}
+.er-hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.er-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.er-chip.gold {
+  background: linear-gradient(90deg, var(--yellow-fill), var(--orange-fill));
+  color: var(--yellow-ink);
+}
+.er-chip svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+/* Salget per halvtime: små pastellsøyler, travleste halvtime fremhevet */
+.er-slots {
+  margin-top: 12px;
+}
+.er-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 42px;
+}
+.er-bars i {
+  flex: 1;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 0 0 1px rgba(171, 156, 240, 0.35);
+}
+.er-bars i[data-peak] {
+  background: var(--orange-strong);
+  box-shadow: none;
+}
+.er-peak {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.6875rem;
+  color: var(--orange-ink);
+  font-weight: 700;
+}
+
+/* Nøkkeltallene: tre og tre, med temafarger (pastellflate og mørkt ikon) */
+.er-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+.er-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+}
+.er-tile-ic {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  background: var(--tile-fill, var(--lilac-fill));
+  color: var(--tile-ink, var(--lilac-ink));
+}
+.er-tile-ic svg {
+  width: 14px;
+  height: 14px;
+}
+.er-tile[data-tone='gold'] {
+  --tile-fill: var(--orange-fill);
+  --tile-ink: var(--orange-ink);
+}
+.er-tile[data-tone='green'] {
+  --tile-fill: var(--green-fill);
+  --tile-ink: var(--green-ink);
+}
+.er-tile[data-tone='pink'] {
+  --tile-fill: var(--pink-fill);
+  --tile-ink: var(--pink-ink);
+}
+.er-tile[data-tone='lilac'] {
+  --tile-fill: var(--lilac-fill);
+  --tile-ink: var(--lilac-ink);
+}
+.er-tile[data-tone='rose'] {
+  --tile-fill: var(--red-fill);
+  --tile-ink: var(--red-ink);
+}
+.er-tile[data-tone='blue'] {
+  --tile-fill: var(--blue-fill);
+  --tile-ink: var(--blue-ink);
+}
+.er-tile b {
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.er-tile small {
+  font-size: 0.6875rem;
+  color: var(--er-muted);
+  line-height: 1.2;
+}
+
+/* Høydepunktene */
+.er-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.er-highlights li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 6px 8px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.er-highlights li svg {
+  flex: none;
+  width: 15px;
+  height: 15px;
+}
+.er-highlights li[data-tone='gold'] svg {
+  color: var(--orange-ink);
+}
+.er-highlights li[data-tone='green'] svg {
+  color: var(--green-ink);
+}
+.er-highlights li[data-tone='pink'] svg,
+.er-highlights li[data-tone='rose'] svg {
+  color: var(--pink-ink);
+}
+.er-highlights li[data-tone='lilac'] svg,
+.er-highlights li[data-tone='blue'] svg {
+  color: var(--lilac-ink);
+}
+
+/* ── Under plakaten ── */
+.er-more {
+  display: grid;
+  gap: 12px;
+}
+.er-card {
+  padding: 14px;
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--text);
+}
+.er-quiet {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--sage-deep);
+}
+.er-quiet > svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+.er-thanks {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+}
+.er-thanks b,
+.er-thanks small {
+  display: block;
+}
+.er-thanks small {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+.er-env {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--blue-bg);
+  color: var(--blue-ink);
+}
+.er-env svg {
+  width: 22px;
+  height: 22px;
+}
+.er-env i {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--pink-strong);
+  box-shadow: 0 0 0 2px #fff;
+}
+.er-prizes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+}
+.er-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.er-card-head > svg {
+  width: 16px;
+  height: 16px;
+}
+.er-card-head .er-chev {
+  margin-left: auto;
+  width: 18px;
+  height: 18px;
+}
+.er-prizes ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.er-prizes li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.er-prizes li b,
+.er-prizes li small {
+  display: block;
+}
+.er-prizes li b {
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+.er-prizes li small {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.er-prizes li em {
+  font-style: normal;
+  font-weight: 800;
+  font-size: 0.875rem;
+  padding: 4px 9px;
+  border-radius: 99px;
+  background: var(--green-fill);
+  color: var(--green-ink);
+  white-space: nowrap;
+}
+.er-pr-ic {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: var(--orange-fill);
+  color: var(--orange-ink);
+}
+.er-pr-ic svg {
+  width: 18px;
+  height: 18px;
+}
+.er-prizes li[data-tone='green'] .er-pr-ic {
+  background: var(--prize-lag-light);
+  color: var(--green-ink);
+}
+.er-prizes li[data-tone='pink'] .er-pr-ic {
+  background: var(--prize-meg-light);
+  color: var(--pink-ink);
+}
+
+/* ── Deling ── */
+.er-share {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.er-share-preview {
+  zoom: 0.88;
+}
+.er-share-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.er-chip-toggle {
+  color: var(--text);
+  background: var(--bg-deep);
+  border-color: var(--line);
+}
+.er-chip-toggle[aria-checked='true'] {
+  background: var(--lilac-fill);
+  color: var(--lilac-ink);
+  border-color: var(--lilac-strong);
+}
+
+/* ── Bevegelse første gang: plakaten glir inn, nøkkeltallene etter tur ── */
+@media (prefers-reduced-motion: no-preference) {
+  .er-poster {
+    animation: erIn 520ms var(--ease-decel) backwards;
+  }
+  .er-tile {
+    animation: erTile 420ms var(--ease-decel) backwards;
+  }
+  .er-tile:nth-child(2) {
+    animation-delay: 60ms;
+  }
+  .er-tile:nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .er-tile:nth-child(4) {
+    animation-delay: 180ms;
+  }
+  .er-tile:nth-child(5) {
+    animation-delay: 240ms;
+  }
+  .er-tile:nth-child(6) {
+    animation-delay: 300ms;
+  }
+}
+@keyframes erIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+}
+@keyframes erTile {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}

@@ -1,0 +1,226 @@
+// Engelsk for tekst som kommer fra demodataene og beregningene (src/data/demoData.ts, config.ts, calc.ts, live.ts).
+// Nøkkelen er den norske teksten nøyaktig slik den står i dataene; verdien er engelsk.
+// Brukes via td() i i18n.ts. Mangler en tekst her, vises den norske.
+// Tekst som bygges med tall eller navn (takkekort, varsler, typetrekk) lages med L() der den bygges (calc.ts, live.ts).
+// Sjekk at alt er med: node scripts/i18n-data-check.ts
+
+export const dataEn: Record<string, string> = {
+  // ── config.ts ─────────────────────────────────────────────────────────────
+  'Arbeidsdagen din, i tall du eier selv': 'Your workday, in numbers you own',
+  'Demo – fiktive data': 'Demo – fictional data',
+  'Daglig leder': 'General manager',
+  Servitør: 'Server',
+  'Seksjon 1': 'Section 1',
+  'Seksjon 2': 'Section 2',
+  'Seksjon 3': 'Section 3',
+  'Seksjon 4': 'Section 4',
+  'Seksjon 5': 'Section 5',
+
+  // Månedstypen (personaTitles)
+  Hjelperen: 'The Helper',
+  'Roen selv': 'The Calm One',
+  Rushredderen: 'The Rush Rescuer',
+  Helgehelten: 'The Weekend Hero',
+  Grunnfjellet: 'The Bedrock',
+
+  // ── Ros og takkekort (kategorier og meldinger) ────────────────────────────
+  'Beste hjelper': 'Best helper',
+  'Rolig under press': 'Calm under pressure',
+  'Reddet rushet': 'Saved the rush',
+  'Gjestens kveld': 'Made their night',
+  'Hjalp et annet lag': 'Helped another team',
+
+  'Du holdt hodet kaldt da kjøkkenet lå etter.': 'You kept a cool head when the kitchen fell behind.',
+  'Takk for at du bar ut maten min i rushet.': 'Thanks for running my food out during the rush.',
+  'Du tok to av bordene mine uten å blunke.': 'You took two of my tables without blinking.',
+  'Du dekket på nytt for meg tre ganger!': 'You reset tables for me three times!',
+  'Du tok bord 22 for meg da jeg hadde tre bord på en gang. Tusen takk!': 'You took table 22 for me when I had three tables at once. Thanks so much!',
+  'Takk for at du hjalp meg å bære ut til bord 31 midt i rushet.': 'Thanks for helping me carry plates out to table 31 in the middle of the rush.',
+  'Bursdagsbordet på 15 stoppet meg i døra for å si takk. Du gjorde kvelden deres.': 'The birthday table at 15 stopped me at the door to say thank you. You made their evening.',
+
+  // ── Menyen ────────────────────────────────────────────────────────────────
+  // Viner (wineNames)
+  'Husets hvitvin': 'House white',
+  'Grüner Veltliner': 'Grüner Veltliner',
+  'Côtes du Rhône': 'Côtes du Rhône',
+  'Pinot Noir, Bourgogne': 'Pinot Noir, Burgundy',
+  'Crémant de Loire': 'Crémant de Loire',
+  Prosecco: 'Prosecco',
+  'Rioja Reserva': 'Rioja Reserva',
+  Chablis: 'Chablis',
+  Amarone: 'Amarone',
+  Barolo: 'Barolo',
+  Meursault: 'Meursault',
+  'Champagne Brut': 'Champagne Brut',
+
+  // Forretter
+  'Løksuppe gratinée': 'Onion soup gratinée',
+  Steinbitceviche: 'Wolffish ceviche',
+  'Tartar av okse': 'Beef tartare',
+  'Blåskjell, liten': 'Mussels, small',
+  'Burrata med tomat': 'Burrata with tomato',
+  // Hovedretter
+  'Moules frites': 'Moules frites',
+  'Steak frites': 'Steak frites',
+  'Torsk med beurre blanc': 'Cod with beurre blanc',
+  Andebryst: 'Duck breast',
+  'Coq au vin': 'Coq au vin',
+  Soppisotto: 'Mushroom risotto',
+  'Entrecôte 300 g': 'Entrecôte 300 g',
+  // Desserter
+  'Crème brûlée': 'Crème brûlée',
+  Sjokoladefondant: 'Chocolate fondant',
+  'Tarte tatin': 'Tarte tatin',
+  Sitronsorbet: 'Lemon sorbet',
+  // Vin på glass
+  'Husets hvitvin, glass': 'House white, glass',
+  'Grüner Veltliner, glass': 'Grüner Veltliner, glass',
+  'Côtes du Rhône, glass': 'Côtes du Rhône, glass',
+  'Pinot Noir, glass': 'Pinot Noir, glass',
+  'Crémant, glass': 'Crémant, glass',
+  // Vin på flaske
+  'Prosecco, flaske': 'Prosecco, bottle',
+  'Grüner Veltliner, flaske': 'Grüner Veltliner, bottle',
+  'Côtes du Rhône, flaske': 'Côtes du Rhône, bottle',
+  'Rioja Reserva, flaske': 'Rioja Reserva, bottle',
+  'Chablis, flaske': 'Chablis, bottle',
+  'Pinot Noir, flaske': 'Pinot Noir, bottle',
+  'Amarone, flaske': 'Amarone, bottle',
+  'Barolo, flaske': 'Barolo, bottle',
+  'Meursault, flaske': 'Meursault, bottle',
+  'Champagne Brut, flaske': 'Champagne Brut, bottle',
+  // Øl og cocktailer
+  'Pils fra fat': 'Draught lager',
+  IPA: 'IPA',
+  Negroni: 'Negroni',
+  'Espresso martini': 'Espresso martini',
+  'French 75': 'French 75',
+
+  // ── Høydepunkter fra tidligere vakter (når pulsen var høyest) ─────────────
+  'Seks gjester kom samtidig uten reservasjon': 'Six guests walked in at once without a booking',
+  'Rushtid med fullt hus': 'Rush hour with a full house',
+  'Et stort selskap i seksjon 1 trengte en hånd': 'A big party in section 1 needed a hand',
+  'To bord ville betale mens kjøkkenet ropte «service»': 'Two tables wanted to pay just as the kitchen called “service”',
+  'Lørdagsrush: hele seksjonen satt på en halvtime': 'Saturday rush: the whole section seated in half an hour',
+  'Et firmaselskap ved langbordet': 'A company party at the long table',
+  'Tre bord satt på ti minutter': 'Three tables seated in ten minutes',
+  'Bursdagsselskap med kake og sang': 'Birthday party with cake and singing',
+  'Kortterminalen streiket i ti minutter': 'The card terminal was down for ten minutes',
+  'Fullt hus og kø ved baren': 'Full house and a queue at the bar',
+  'Rushtid etter en konsert i nærheten': 'Rush hour after a concert nearby',
+  'Fire bord satt på ett kvarter': 'Four tables seated in fifteen minutes',
+  'Et bord med åtte gjester kom en time for tidlig': 'A table of eight arrived an hour early',
+  'Rushtid og to allergibestillinger samtidig': 'Rush hour and two allergy orders at once',
+
+  // ── Kveldens vakt: hendelsene ─────────────────────────────────────────────
+  'Bord 11: to gjester før teatret': 'Table 11: two guests before the theatre',
+  'Bord 12 bestiller fire hovedretter': 'Table 12 orders four mains',
+  'Bord 14: to glass Pinot Noir': 'Table 14: two glasses of Pinot Noir',
+  'Bursdag på 15: champagne og Barolo': 'Birthday at 15: champagne and Barolo',
+  'Bord 13 satt – én gjest med allergi': 'Table 13 seated – one guest with an allergy',
+  'Rushtid: tre bord på fem minutter': 'Rush hour: three tables in five minutes',
+  'Ingrid sendte deg kudos': 'Ingrid sent you kudos',
+  'Status i dessertduellen': 'Dessert duel update',
+  'Bord 12 er satt igjen – fem gjester': 'Table 12 seated again – five guests',
+  'Bord 14 satt – fire gjester': 'Table 14 seated – four guests',
+  'Stille periode – bord 15 og 11 betalt': 'Quiet spell – tables 15 and 11 paid',
+  'Bord 13 satt igjen – to gjester': 'Table 13 seated again – two guests',
+  'Bord 17 bestiller Meursault og Barolo': 'Table 17 orders Meursault and Barolo',
+  'Bord 16 satt igjen – fire gjester': 'Table 16 seated again – four guests',
+  'Andre sitting: fire bord på en gang': 'Second seating: four tables at once',
+  'Lagmålet nærmer seg': 'The team goal is getting close',
+  'Bord 11 deler to desserter': 'Table 11 shares two desserts',
+  'Bord 17, 16 og 14 har betalt': 'Tables 17, 16 and 14 have paid',
+  'De siste bordene har betalt': 'The last tables have paid',
+  'Tidlig middag – rekker kino kl. 18': 'Early dinner – catching a 6 pm film',
+  'Overraskelse – sjefen fyller 50': 'Surprise – the boss turns 50',
+  'Vakten er over – klar for oppgjør': 'Shift over – ready to cash up',
+
+  // Ønsker fra bookingen
+  'Skal i teatret kl. 19 – rask servering': 'Off to the theatre at 7 pm – quick service',
+  'Barnestol til én': 'High chair for one',
+  'Ønsket vindusbord': 'Asked for a window table',
+  'Bursdag – lys i desserten': 'Birthday – candle in the dessert',
+  'Feirer bryllupsdag': 'Celebrating their wedding anniversary',
+  'Én vegetar': 'One vegetarian',
+  'Firmamiddag – én samlet regning': 'Company dinner – one bill',
+  'Stamgjester – liker bord 11': 'Regulars – they like table 11',
+
+  // Allergier
+  Nøtter: 'Nuts',
+  Gluten: 'Gluten',
+  Laktose: 'Lactose',
+
+  // Hva bordet venter på («Venter på …» / «Waiting for …»)
+  hovedretten: 'their main course',
+  regningen: 'the bill',
+
+  // ── Duell, kampanje og bingo ──────────────────────────────────────────────
+  'Flest desserter': 'Most desserts',
+  'Ukens rett': 'Dish of the week',
+  '12.–18. oktober': '12–18 October',
+  '5.–11. oktober': '5–11 October',
+  porsjoner: 'portions',
+  'uke 42': 'week 42',
+  'Slå salgsrekorden din': 'Beat your sales record',
+
+  // ── Premier ───────────────────────────────────────────────────────────────
+  'Firmatur til Frankrike': 'Company trip to France',
+  'Staff dinner på restauranten': 'Staff dinner at the restaurant',
+  'Pizza etter stengetid': 'Pizza after closing',
+  'Family meal søndag': 'Sunday family meal',
+  'Kinokveld for laget': 'Movie night for the team',
+  'Frokost før lørdagsvakta': 'Breakfast before the Saturday shift',
+  'Kinobilletter for to': 'Cinema tickets for two',
+  'Brunsj for to': 'Brunch for two',
+  "Chef's table for to": "Chef's table for two",
+
+  // ── Premier over en periode (periodGoals) ─────────────────────────────────
+  oktober: 'October',
+  'Lagmålet nådd på 6 av 10 helgevakter': 'Team goal hit on 6 of 10 weekend shifts',
+  'Over ditt eget dessertsnitt på 5 vakter': 'Beat your own dessert average on 5 shifts',
+  Ledelsen: 'Management',
+  'Serveringslaget selger for 8,5 mill. kr i 2026': 'The floor team sells 8.5 million kr in 2026',
+  Bourgogne: 'Burgundy',
+  'mars 2027': 'March 2027',
+  'Reise og hotell': 'Travel and hotel',
+  'Hele serveringslaget reiser sammen. Restauranten betaler.': 'The whole floor team travels together. The restaurant pays.',
+  'Tre dager med kurs': 'Three days of learning',
+  'Hos en familieprodusent i Bourgogne: druer, kjeller og mat sammen med viner.': 'With a family winemaker in Burgundy: grapes, cellars, and food paired with wine.',
+  'Tre dager ferie': 'Three days off',
+  'Fri med laget – ingen program.': 'Free time with the team – no schedule.',
+  'Dere lærer mer om det dere serverer – det merker gjestene.': 'You learn more about what you serve – and the guests notice.',
+  'Restauranten får et bedre år. Laget får reisen.': 'The restaurant gets a better year. The team gets the trip.',
+
+  // Arbeidsgiveren
+  tillitsvalgt: 'the union rep',
+
+  // ── calc.ts ───────────────────────────────────────────────────────────────
+  // Rekorder (recordDefs: title og short)
+  'Flest flasker over 1 500 kr': 'Most bottles over 1,500 kr',
+  'Flasker over 1 500 kr': 'Bottles over 1,500 kr',
+  'Høyeste salg på én vakt': 'Highest sales in one shift',
+  'Høyeste salg': 'Highest sales',
+  'Høyeste snittbong per gjest': 'Highest average check per guest',
+  'Høyeste snittbong': 'Highest average check',
+  // Reservenavn i duellen (opponentName) – vises bare hvis motstanderen mangler i config.ts
+  Kollega: 'Colleague',
+  // Profilen: nivånavn og medaljer
+  'Ny på gulvet': 'New on the floor',
+  Erfaren: 'Experienced',
+  Salgsproff: 'Sales pro',
+  Legende: 'Legend',
+  '10 vakter': '10 shifts',
+  '100 vakter': '100 shifts',
+  '200 vakter': '200 shifts',
+  '1 million solgt': '1 million sold',
+  '2,5 millioner solgt': '2.5 million sold',
+  '5 millioner solgt': '5 million sold',
+  '100 000 kr i tips': '100,000 kr in tips',
+  '400 000 kr i tips': '400,000 kr in tips',
+  '1 000 desserter': '1,000 desserts',
+  'Et maraton gått': 'A marathon walked',
+  '1 000 km gått': '1,000 km walked',
+  'Kudos 25 ganger': 'Kudos 25 times',
+  '5 000 gjester': '5,000 guests',
+}

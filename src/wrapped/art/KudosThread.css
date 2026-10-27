@@ -1,0 +1,188 @@
+/* ── ros: KudosThread – chattråd med ros fra kolleger ── */
+/* Størrelsene ligger i variabler, så trinnene for høye og lave kort bare bytter tallene */
+.kt {
+  --kt-gap: 12px;
+  --kt-pad: 10px 14px 12px;
+  --kt-meta: 0.8125rem;
+  --kt-msg: 0.9375rem;
+  --kt-face: 36px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 342px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--kt-gap);
+}
+.kt-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.kt-row.rev {
+  flex-direction: row-reverse;
+}
+.kt-face {
+  display: inline-flex;
+  flex: none;
+}
+/* Ansiktet har størrelsen i style-attributtet, derfor !important */
+.kt-face .face {
+  width: var(--kt-face) !important;
+  height: var(--kt-face) !important;
+  font-size: calc(var(--kt-face) * 0.46) !important;
+}
+.wslide[data-mode='play'] .kt-face.w-pop {
+  animation-duration: 220ms;
+}
+.kt-b {
+  max-width: 78%;
+  min-width: 0;
+  padding: var(--kt-pad);
+  background: #ffffff;
+  border-radius: 20px 20px 20px 6px;
+  box-shadow: var(--shadow);
+}
+.kt-row .kt-b {
+  transform-origin: bottom left;
+}
+.kt-row.rev .kt-b {
+  border-radius: 20px 20px 6px 20px;
+  transform-origin: bottom right;
+}
+.kt-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 3px;
+  font-size: var(--kt-meta);
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.kt-meta svg {
+  flex: none;
+}
+.kt-cat {
+  font-weight: 700;
+  color: #1f6e48;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kt-date {
+  font-weight: 600;
+  color: #5c6a64;
+  flex: none;
+}
+.kt-msg {
+  margin: 0;
+  font-size: var(--kt-msg);
+  line-height: 1.35;
+  font-weight: 500;
+  color: #17231f;
+}
+.kt-more {
+  align-self: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #e3f3ea;
+  color: #1f6e48;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Én eller to meldinger: større tekst og bobler */
+.kt-big {
+  --kt-gap: 16px;
+  --kt-pad: 12px 16px 14px;
+  --kt-meta: 0.875rem;
+  --kt-msg: 1.125rem;
+  --kt-face: 44px;
+}
+/* Én melding: én stor boble midt på */
+.kt-one {
+  --kt-pad: 16px 20px 18px;
+  --kt-meta: 1rem;
+  --kt-msg: 1.375rem;
+  --kt-face: 56px;
+}
+.kt-one .kt-row {
+  justify-content: center;
+}
+.kt-one .kt-b {
+  max-width: 82%;
+}
+
+/* Høye kort: fire bobler vokser i to trinn, så tråden fyller scenen og leses lett.
+   Telefonrammen på store skjermer har 44 px innfelt topp/bunn: samme trinn, 44 px høyere. */
+@media not all and (min-width: 640px) and (min-height: 640px) {
+  @container (min-height: 700px) {
+    .kt:not(.kt-big) {
+      --kt-gap: 16px;
+      --kt-pad: 12px 16px 14px;
+      --kt-meta: 0.875rem;
+      --kt-msg: 1.0625rem;
+      --kt-face: 42px;
+    }
+  }
+  @container (min-height: 840px) {
+    .kt:not(.kt-big) {
+      --kt-gap: 20px;
+      --kt-pad: 14px 18px 16px;
+      --kt-meta: 0.9375rem;
+      --kt-msg: 1.125rem;
+      --kt-face: 46px;
+    }
+  }
+}
+@media (min-width: 640px) and (min-height: 640px) {
+  @container (min-height: 744px) {
+    .kt:not(.kt-big) {
+      --kt-gap: 16px;
+      --kt-pad: 12px 16px 14px;
+      --kt-meta: 0.875rem;
+      --kt-msg: 1.0625rem;
+      --kt-face: 42px;
+    }
+  }
+  @container (min-height: 884px) {
+    .kt:not(.kt-big) {
+      --kt-gap: 20px;
+      --kt-pad: 14px 18px 16px;
+      --kt-meta: 0.9375rem;
+      --kt-msg: 1.125rem;
+      --kt-face: 46px;
+    }
+  }
+}
+
+/* Bare på svært lave skjermer: skjul kategori/dato og hold hver melding på to linjer.
+   Fire hele bobler trenger ca. 370 px; en telefon på 375 × 667 har plass til dem. */
+@container (max-height: 580px) {
+  .kt-meta {
+    display: none;
+  }
+  .kt-msg {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+}
+/* Telefonrammen på store skjermer har 44 px innfelt topp/bunn: samme grense, 44 px høyere */
+@media (min-width: 640px) and (min-height: 640px) {
+  @container (max-height: 624px) {
+    .kt-meta {
+      display: none;
+    }
+    .kt-msg {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      overflow: hidden;
+    }
+  }
+}

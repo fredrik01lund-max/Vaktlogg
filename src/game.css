@@ -1,0 +1,2685 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Spill, lag og premier – i Flyt-temaet.
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --cookie-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M100.0,50.0L99.8,51.7L99.2,53.4L98.3,55.1L97.1,56.6L95.8,58.1L94.4,59.4L93.1,60.8L92.0,62.0L91.1,63.3L90.4,64.7L90.0,66.2L89.9,67.8L89.9,69.5L90.1,71.3L90.3,73.3L90.4,75.2L90.3,77.2L89.9,79.0L89.3,80.7L88.3,82.1L87.0,83.3L85.5,84.3L83.7,84.9L81.8,85.4L79.9,85.6L78.0,85.8L76.1,86.0L74.4,86.2L72.9,86.6L71.5,87.2L70.3,88.1L69.1,89.2L68.1,90.6L67.0,92.1L65.9,93.7L64.7,95.3L63.4,96.7L61.9,97.9L60.4,98.7L58.7,99.2L56.9,99.3L55.2,99.1L53.4,98.4L51.7,97.6L50.0,96.5L48.4,95.4L46.9,94.3L45.4,93.4L44.0,92.8L42.5,92.3L41.0,92.2L39.4,92.4L37.7,92.7L36.0,93.2L34.1,93.7L32.2,94.1L30.2,94.4L28.4,94.3L26.6,94.0L25.0,93.3L23.6,92.3L22.4,90.9L21.5,89.3L20.7,87.5L20.1,85.6L19.6,83.8L19.1,82.0L18.6,80.3L17.9,78.9L17.1,77.6L16.0,76.6L14.7,75.7L13.2,74.9L11.5,74.1L9.7,73.3L8.0,72.3L6.4,71.3L4.9,70.1L3.8,68.7L3.0,67.1L2.6,65.4L2.6,63.6L2.9,61.7L3.5,59.9L4.2,58.1L5.0,56.3L5.8,54.6L6.4,53.0L6.9,51.5L7.0,50.0L6.9,48.5L6.4,47.0L5.8,45.4L5.0,43.7L4.2,41.9L3.5,40.1L2.9,38.3L2.6,36.4L2.6,34.6L3.0,32.9L3.8,31.3L4.9,29.9L6.4,28.7L8.0,27.7L9.7,26.7L11.5,25.9L13.2,25.1L14.7,24.3L16.0,23.4L17.1,22.4L17.9,21.1L18.6,19.7L19.1,18.0L19.6,16.2L20.1,14.4L20.7,12.5L21.5,10.7L22.4,9.1L23.6,7.7L25.0,6.7L26.6,6.0L28.4,5.7L30.2,5.6L32.2,5.9L34.1,6.3L36.0,6.8L37.7,7.3L39.4,7.6L41.0,7.8L42.5,7.7L44.0,7.2L45.4,6.6L46.9,5.7L48.4,4.6L50.0,3.5L51.7,2.4L53.4,1.6L55.2,0.9L56.9,0.7L58.7,0.8L60.4,1.3L61.9,2.1L63.4,3.3L64.7,4.7L65.9,6.3L67.0,7.9L68.1,9.4L69.1,10.8L70.3,11.9L71.5,12.8L72.9,13.4L74.4,13.8L76.1,14.0L78.0,14.2L79.9,14.4L81.8,14.6L83.7,15.1L85.5,15.7L87.0,16.7L88.3,17.9L89.3,19.3L89.9,21.0L90.3,22.8L90.4,24.8L90.3,26.7L90.1,28.7L89.9,30.5L89.9,32.2L90.0,33.8L90.4,35.3L91.1,36.7L92.0,38.0L93.1,39.2L94.4,40.6L95.8,41.9L97.1,43.4L98.3,44.9L99.2,46.6L99.8,48.3L100.0,50.0Z'/></svg>");
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Ansikter */
+.face {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  font-weight: 800;
+  line-height: 1;
+  flex: none;
+  box-shadow: 0 0 0 2px #fff;
+  letter-spacing: 0;
+}
+/* «Laget»-ansiktet får en grønn gradient inline (game-ui.tsx): pastell i stedet */
+.face[style*='linear-gradient'] {
+  background: linear-gradient(140deg, var(--prize-lag-light), var(--prize-lag)) !important;
+}
+.face-stack {
+  display: inline-flex;
+  align-items: center;
+}
+.face-stack > span {
+  position: relative;
+  display: inline-flex;
+}
+.face-hop {
+  animation: faceHop 700ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+@keyframes faceHop {
+  0% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(-9px);
+  }
+  70% {
+    transform: translateY(1px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Topplinja på vaktsiden: live-prikk + vaktlaget */
+.dD-live {
+  gap: 10px;
+  padding: 5px 10px 5px 12px;
+}
+
+/* Nøkkeltallsraden: 4 eller 5 fliser */
+.dD-info {
+  grid-template-columns: none;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+}
+.dD-info.five {
+  grid-auto-flow: row;
+  grid-template-columns: 0.95fr 0.95fr 1.3fr 0.95fr 0.95fr;
+}
+.dD-info.five .dD-i span {
+  white-space: nowrap;
+}
+.dD-bingo {
+  cursor: pointer;
+}
+.dD-bingo b small {
+  font-size: var(--fs-cap);
+  color: var(--muted);
+  font-weight: 700;
+}
+.dD-i.win-team {
+  background: linear-gradient(140deg, #d9f3e6, #e6f0ff);
+}
+.bingo-mini {
+  display: block;
+}
+
+/* Spøkelse og gave på ringene */
+/* Spøkelset: følger ringen; svulmer (uten å snu seg) når laget er nær; trer tilbake når laget er forbi */
+.ghost-near {
+  animation: ghostPulse 1.2s ease-in-out 2;
+}
+@keyframes ghostPulse {
+  50% {
+    scale: 1.18;
+  }
+}
+.ghost-face {
+  transition:
+    opacity 400ms var(--ease-standard) 500ms,
+    scale 400ms var(--ease-standard) 500ms;
+}
+.ghost-face.behind {
+  opacity: 0.6;
+  scale: 0.82;
+}
+.ghost-face.gone {
+  opacity: 0;
+  scale: 0.6;
+  transition:
+    opacity 400ms var(--ease-accel),
+    scale 400ms var(--ease-accel);
+}
+/* Gaven spretter bare i øyeblikket den åpnes, ikke ved hvert besøk */
+.gift-open.anim {
+  animation: giftPop 900ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+@keyframes giftPop {
+  0% {
+    transform: scale(0.6) rotate(-14deg);
+  }
+  45% {
+    transform: scale(1.35) rotate(8deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+.bead-near {
+  animation: beadPulse 1.4s ease-in-out 3;
+}
+@keyframes beadPulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* Vaktbingo */
+.bingo {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.bingo.compact {
+  gap: 4px;
+}
+.bingo-tile {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 22px;
+  background: var(--bg-deep);
+  color: #8a958f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  transition: background 400ms ease, color 400ms ease;
+}
+.bingo.compact .bingo-tile {
+  border-radius: 9px;
+}
+.bingo-tile > svg {
+  width: 30px;
+  height: 30px;
+}
+.bingo.compact .bingo-tile > svg {
+  width: 16px;
+  height: 16px;
+}
+.bingo-tile.on {
+  background: linear-gradient(140deg, #3a9d6c, #1f6e48);
+  color: #fff;
+}
+.bingo-tile.on.new {
+  animation: tileIn 500ms var(--ease-pop);
+}
+@keyframes tileIn {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.bt-word {
+  font-size: var(--fs-cap);
+  font-weight: 800;
+  line-height: 1.1;
+}
+.bt-face {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+}
+.bingo-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.bingo-lines line {
+  stroke: #23314f;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.85;
+}
+.bingo.full .bingo-lines {
+  display: none;
+}
+.bingo.full .bingo-tile.on {
+  background: linear-gradient(140deg, #3a9d6c 0%, #2b7f9b 55%, #6f5bc9 100%);
+}
+.bingo.full::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 28px;
+  border: 3px dashed #2e8c5e;
+  pointer-events: none;
+  animation: fadeIn 600ms ease;
+}
+
+/* Kveldens spill */
+.game-pick {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.game-cards {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.game-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 84px;
+  padding: 10px 6px;
+  border-radius: 20px;
+  background: var(--bg);
+  border: 2px solid transparent;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+.game-card.on {
+  border: 3px solid #23314f;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+.game-card[disabled] {
+  opacity: 0.55;
+}
+.gc-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  -webkit-mask: var(--cookie-mask) center / 100% 100% no-repeat;
+  mask: var(--cookie-mask) center / 100% 100% no-repeat;
+}
+.gc-icon svg {
+  width: 20px;
+  height: 20px;
+}
+.gc-word {
+  font-weight: 800;
+  font-size: var(--fs-sm);
+}
+.gc-other {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+}
+.gc-yes {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #1f6e48;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 0 2px #fff;
+}
+.gc-yes svg {
+  width: 9px;
+  height: 9px;
+}
+.gc-me {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  animation: dropIn 450ms cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+@keyframes dropIn {
+  0% {
+    transform: translateY(-14px);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+.gift-hint,
+.gift-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.gift-line {
+  margin-top: 8px;
+  padding: 6px 10px;
+  box-shadow: none;
+  background: var(--sage-soft);
+}
+.gh-gift {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: var(--green-ink);
+  box-shadow: inset 0 0 0 2px var(--green-strong);
+  flex: none;
+}
+.gh-gift.open {
+  background: var(--green-fill);
+  color: var(--green-ink);
+}
+.gh-gift svg {
+  width: 18px;
+  height: 18px;
+}
+.ghost-chip {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px dashed var(--green-strong);
+  color: var(--green-ink);
+}
+.ghost-chip svg {
+  width: 14px;
+  height: 14px;
+}
+.race-key {
+  display: inline-block;
+  width: 18px;
+  border-top: 3px solid #5fb68a;
+  margin-left: 6px;
+}
+.race-key.dashed {
+  border-top: 3px dashed #a6dcc0;
+  margin-left: 12px;
+}
+/* Løpet (laget mot forrige fredag): pastellgrønne linjer – CSS overstyrer SVG-attributtene */
+.race path:not(.draw) {
+  stroke: #a6dcc0;
+}
+.race path.draw,
+.race .race-cross {
+  stroke: #5fb68a;
+}
+
+/* Lagmål i Mål-fanen */
+.team-goal {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.tg-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tg-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tg-ic {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--text);
+  flex: none;
+}
+.tg-ic svg {
+  width: 15px;
+  height: 15px;
+}
+.tg-ic.ghost {
+  background: #fff;
+  color: var(--green-ink);
+  border: 2px dashed var(--green-strong);
+}
+.tg-ic.gift {
+  background: #fff;
+  color: var(--green-ink);
+  box-shadow: inset 0 0 0 2px var(--green-strong);
+}
+.tg-ic.gift.open {
+  background: var(--green-fill);
+  color: var(--green-ink);
+}
+.prize-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 99px;
+  font-weight: 800;
+  background: linear-gradient(90deg, #ffe7c7, #ffd9e5);
+}
+.prize-chip svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Ukens rett: stempelkort og lodd */
+.stamps {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.stamp {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 2px dashed #c4ccc7;
+  color: #c4ccc7;
+}
+.stamp svg {
+  width: 70%;
+  height: 70%;
+}
+.stamp.old {
+  border: 0;
+  background: #cfe6d9;
+  color: #5c8a72;
+}
+.stamp.new {
+  border: 0;
+  background: var(--green-strong);
+  color: var(--green-ink);
+  animation: stampIn 500ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.stamp.close:not(.old):not(.new) {
+  transform: scale(1.08);
+  border-color: var(--green-strong);
+}
+@keyframes stampIn {
+  0% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.tickets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.ticket {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px 3px 6px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  color: var(--muted);
+  min-height: 32px;
+}
+.ticket svg {
+  width: 18px;
+  height: 18px;
+}
+.ticket.me {
+  border-color: var(--pink-strong);
+}
+.ticket.join {
+  border: 2px dashed var(--lilac-strong);
+  color: var(--lilac-ink);
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+}
+.ticket .plus {
+  font-weight: 900;
+  font-size: var(--fs-title);
+  line-height: 1;
+}
+.ticket.won {
+  background: linear-gradient(140deg, #ffe7c7, #ffd9e5);
+  border-color: transparent;
+  color: var(--text);
+}
+
+/* Lagpremien */
+.gift-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  border-radius: var(--radius);
+  background: linear-gradient(140deg, #dcf4e8 0%, #e6f1ff 100%);
+  box-shadow: var(--shadow);
+}
+.gift-box {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex: none;
+  border-radius: 22px;
+  background: linear-gradient(140deg, var(--green-fill), var(--green-strong));
+  color: var(--green-ink);
+  display: grid;
+  place-items: center;
+}
+.gb-lid svg {
+  width: 40px;
+  height: 40px;
+}
+.gift-card.open .gb-lid {
+  position: absolute;
+  top: -14px;
+  right: -10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #fff;
+  color: #1f6e48;
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow);
+  animation: lidOff 700ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.gift-card.open .gb-lid svg {
+  width: 20px;
+  height: 20px;
+}
+.gb-prize svg {
+  width: 40px;
+  height: 40px;
+  animation: prizeUp 800ms 200ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+@keyframes lidOff {
+  0% {
+    transform: translate(-20px, 24px) rotate(0);
+  }
+  100% {
+    transform: translate(0, 0) rotate(-20deg);
+  }
+}
+@keyframes prizeUp {
+  0% {
+    transform: translateY(16px) scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+.gift-title {
+  font-weight: 800;
+  font-size: var(--fs-title);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.gift-faces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+.gift-slip {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(20, 40, 30, 0.12);
+  animation: slipIn 450ms cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+@keyframes slipIn {
+  0% {
+    transform: translateY(-10px) scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Konvolutt og takkekort fra Kari */
+.envelope {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0 6px;
+}
+.env-body {
+  position: relative;
+  width: 210px;
+  height: 128px;
+  border-radius: 14px;
+  background: linear-gradient(160deg, #fffaf0, #f3ead8);
+  box-shadow: 0 14px 30px -16px rgba(60, 40, 20, 0.5), inset 0 0 0 1px #e8dcc4;
+  transform: rotate(-4deg);
+  animation: envIn 700ms cubic-bezier(0.2, 1.2, 0.4, 1) both;
+}
+.env-flap {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 70px;
+  background: linear-gradient(170deg, #f7efdd, #ece0c6);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  border-radius: 14px 14px 0 0;
+  transform-origin: top;
+  transition: transform 380ms ease;
+}
+.env-body.opening .env-flap {
+  transform: rotateX(180deg);
+}
+.env-seal {
+  position: absolute;
+  left: 50%;
+  top: 52px;
+  width: 38px;
+  height: 38px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fde0ea, var(--pink-strong) 75%);
+  color: var(--pink-ink);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 6px rgba(150, 60, 90, 0.25);
+}
+.env-seal svg {
+  width: 18px;
+  height: 18px;
+}
+@keyframes envIn {
+  0% {
+    transform: translateX(60px) rotate(6deg);
+    opacity: 0;
+  }
+  100% {
+    transform: rotate(-4deg);
+    opacity: 1;
+  }
+}
+.env-from {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+}
+.thanks-card {
+  border-radius: var(--radius);
+  background: #fffdf7;
+  box-shadow: 0 16px 34px -20px rgba(60, 40, 20, 0.5), inset 0 0 0 1px #efe4cd;
+  padding: 18px;
+  animation: cardFlip 600ms cubic-bezier(0.2, 1, 0.3, 1) both;
+}
+@keyframes cardFlip {
+  0% {
+    transform: perspective(600px) rotateY(80deg);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+.tc-art {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.tc-cake {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: var(--primary-ink);
+  background: linear-gradient(140deg, var(--orange-fill), var(--pink-fill));
+}
+.tc-cake svg {
+  width: 32px;
+  height: 32px;
+}
+.tc-table {
+  font-weight: 900;
+  font-size: var(--fs-title);
+  padding: 2px 10px;
+  border-radius: 8px;
+  background: var(--blue-fill);
+  color: var(--blue-ink);
+}
+.tc-msg {
+  margin-top: 12px;
+  font-size: var(--fs-lead);
+  line-height: 1.4;
+  font-weight: 600;
+}
+.tc-sign {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.signature {
+  width: 120px;
+  height: 40px;
+}
+.tc-gift {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, #ffe7c7, #ffd9e5);
+}
+.tcg-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #fff;
+  display: grid;
+  place-items: center;
+}
+.tcg-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Medaljer etter duellen */
+.medals {
+  display: inline-flex;
+  gap: 4px;
+  flex: none;
+}
+.medal {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+}
+.medal-disc {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, #e6e9ee, #b9c0cc);
+}
+.medal.gold .medal-disc {
+  background: linear-gradient(140deg, var(--yellow-fill), var(--yellow-strong));
+}
+.laurel {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 3px dotted var(--green-strong);
+  border-top-color: transparent;
+}
+.pair-badge {
+  display: inline-flex;
+  padding: 4px 6px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #f3d6e1, #e3defc);
+  flex: none;
+}
+.pair-badge.done {
+  background: linear-gradient(90deg, var(--pink-strong), var(--lilac-strong));
+}
+
+/* Varsler med ansikter */
+.toast-faces {
+  align-self: center;
+  flex: none;
+}
+
+/* Bytt mellom Emma og Kari i demo-kontrollen */
+.role-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.demo-ctl .role-switch button {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+  opacity: 0.5;
+}
+.demo-ctl .role-switch button.on {
+  opacity: 1;
+}
+.demo-ctl .role-switch .face {
+  box-shadow: none;
+}
+
+/* ── Karis telefon ─────────────────────────────────────────────────────── */
+
+.boss-screen {
+  background: #f2f4f7;
+}
+.boss {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.boss-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -4px -6px 0;
+  padding: 10px 12px;
+  border-radius: 22px;
+  /* Karis topplinje: pastell blå → lilla med mørk tekst */
+  background: linear-gradient(90deg, var(--blue-fill), var(--lilac-fill));
+  color: var(--text);
+}
+.boss-name {
+  font-weight: 800;
+}
+.boss-role {
+  font-size: var(--fs-cap);
+  color: #3a4560;
+}
+.boss-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 8px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--blue-ink);
+}
+.boss-back svg {
+  width: 18px;
+  height: 18px;
+}
+.boss-ring {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 16px 12px;
+  box-shadow: var(--shadow);
+}
+.ring-wait {
+  position: relative;
+}
+.rw-clock {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #9aa49f;
+}
+.rw-clock svg {
+  width: 44px;
+  height: 44px;
+}
+.boss-people {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+}
+.person-lock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 4px;
+  border-radius: 16px;
+  background: var(--bg);
+  color: #7d8783;
+}
+.person-lock > svg {
+  width: 16px;
+  height: 16px;
+}
+.frost {
+  display: block;
+  width: 80%;
+  height: 7px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #dfe4e1, #eef1ef);
+}
+.frost.short {
+  width: 55%;
+}
+.boss-tools {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.tool {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 12px 10px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+.tool b {
+  font-size: var(--fs-sm);
+  line-height: 1.2;
+}
+.tool-sub {
+  font-size: var(--fs-cap);
+  color: var(--muted);
+  line-height: 1.25;
+}
+.tool-art {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  -webkit-mask: var(--cookie-mask) center / 100% 100% no-repeat;
+  mask: var(--cookie-mask) center / 100% 100% no-repeat;
+}
+.tool-art svg {
+  width: 24px;
+  height: 24px;
+}
+/* Karis verktøy: pastellblomst med mørkt ikon i samme farge */
+.tool-art.gift {
+  background: var(--green-fill);
+  color: var(--green-ink);
+}
+.tool-art.card {
+  background: var(--blue-fill);
+  color: var(--blue-ink);
+}
+.tool-art.dish {
+  background: linear-gradient(140deg, var(--orange-fill), var(--pink-fill));
+  color: var(--orange-ink);
+}
+.tool-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.quota {
+  display: inline-flex;
+  gap: 4px;
+  color: #c4ccc7;
+}
+.quota svg {
+  width: 18px;
+  height: 18px;
+}
+.quota .used {
+  color: var(--blue-ink);
+}
+.spread {
+  display: inline-flex;
+  gap: 4px;
+}
+.spread i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid #8b938f;
+}
+.spread i.got {
+  background: var(--blue-strong);
+  border-color: var(--blue-strong);
+}
+.mini-stamps {
+  display: grid;
+  grid-template-columns: repeat(7, 8px);
+  gap: 3px;
+}
+.mini-stamps i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid #c4ccc7;
+}
+.mini-stamps i.on {
+  background: var(--prize-lag);
+  border-color: var(--prize-lag);
+}
+.tool-done {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--green-ink);
+  background: var(--green-fill);
+}
+.tool-done svg {
+  width: 14px;
+  height: 14px;
+}
+.seal-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0 4px;
+}
+.seal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 8px 8px;
+  border-radius: 99px;
+  border: 2px solid var(--blue-strong);
+  transform: rotate(-2deg);
+  color: var(--blue-ink);
+}
+.seal-ring {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--blue-fill);
+  color: var(--blue-ink);
+  display: grid;
+  place-items: center;
+}
+.seal-ring svg {
+  width: 16px;
+  height: 16px;
+}
+.seal-text {
+  font-size: var(--fs-cap);
+  font-weight: 800;
+  line-height: 1.3;
+}
+.promise {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  text-align: center;
+  font-style: italic;
+}
+.catalog {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.cat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  text-align: center;
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  min-height: 96px;
+}
+.cat-item.on {
+  border: 3px solid var(--lilac-strong);
+}
+.cat-ic {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  color: var(--green-ink);
+  background: var(--green-fill);
+  -webkit-mask: var(--cookie-mask) center / 100% 100% no-repeat;
+  mask: var(--cookie-mask) center / 100% 100% no-repeat;
+}
+.cat-ic svg {
+  width: 22px;
+  height: 22px;
+}
+.no-list {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+.no-list span {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #9aa49f;
+  background: var(--bg-deep);
+}
+.no-list span::after {
+  content: '';
+  position: absolute;
+  width: 46px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--red-strong);
+  transform: rotate(-45deg);
+}
+.no-list svg {
+  width: 20px;
+  height: 20px;
+}
+.pick-faces {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+.pf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 2px;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  font-size: var(--fs-cap);
+  font-weight: 700;
+}
+.pf.on {
+  border-color: var(--lilac-strong);
+  background: var(--wine-soft);
+}
+.pick-moments,
+.pick-gift {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pm,
+.pg {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 12px;
+  border-radius: 99px;
+  border: 2px solid var(--line);
+  background: var(--surface);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+}
+.pm svg,
+.pg svg {
+  width: 18px;
+  height: 18px;
+}
+.pm.on,
+.pg.on {
+  border-color: var(--lilac-strong);
+  background: var(--wine-soft);
+}
+.dish-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.dish {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 99px;
+  background: var(--bg-deep);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+}
+.dish svg {
+  width: 18px;
+  height: 18px;
+}
+.dish.on {
+  background: linear-gradient(90deg, var(--orange-fill), var(--pink-fill));
+  color: var(--orange-ink);
+}
+.dish.off {
+  color: #9aa49f;
+}
+
+/* Miniatyr av Karis telefon på Meg-siden */
+.boss-mini {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+}
+.bm-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.bm-body {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.bm-ring {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 9px solid var(--green-strong);
+  flex: none;
+}
+.bm-people {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  flex: 1;
+}
+.bm-person {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 2px;
+  border-radius: 12px;
+  background: var(--bg);
+  color: #7d8783;
+}
+.bm-person.me {
+  box-shadow: inset 0 0 0 2px var(--lilac-strong);
+}
+.bm-person > svg {
+  width: 13px;
+  height: 13px;
+}
+.bm-person .frost {
+  height: 5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .face-hop,
+  .ghost-near,
+  .gift-open,
+  .bead-near,
+  .bingo-tile.on,
+  .stamp.new,
+  .gift-slip,
+  .env-body,
+  .thanks-card,
+  .gb-prize svg,
+  .gift-card.open .gb-lid,
+  .gc-me {
+    animation: none !important;
+  }
+  .ghost-rot {
+    transition: none !important;
+  }
+}
+
+/* ── Rettelser etter gjennomgang ─────────────────────────────────────────── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Ufylte bingoruter: lesbar tekst, «ikke ennå» vises med stiplet kant */
+.bingo-tile:not(.on) {
+  color: var(--muted);
+  border: 1.5px dashed #b9c2bd;
+}
+
+/* Varsler ligger over ark og bakteppe */
+.toasts {
+  z-index: 90;
+}
+
+/* Spøkelsesmerket ved lagets prosent */
+.dD-valrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.dD-ghost {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border-radius: 50%;
+  border: 1.5px dashed var(--green-strong);
+  color: var(--green-ink);
+  background: #fff;
+}
+.dD-ghost svg {
+  width: 13px;
+  height: 13px;
+}
+.ghost-chip.ahead {
+  border-style: solid;
+}
+
+/* Duellstolper i ringens farger: vinrød er deg, blå er motstanderen */
+.duelbar.deg > span {
+  background: var(--ring-duell);
+}
+.duelbar.mot > span {
+  background: var(--ring-motstander);
+}
+
+/* Karis verktøy: korte tall ved symbolene */
+.q-cap {
+  margin-left: 4px;
+  font-size: var(--fs-cap);
+  font-weight: 800;
+  color: var(--ink2);
+  align-self: center;
+}
+.spread .face {
+  font-size: 8px !important;
+}
+.spread > span {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+.spread > span.got {
+  opacity: 1;
+  filter: none;
+}
+.tool.locked {
+  opacity: 1;
+  cursor: default;
+}
+.no-cap {
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* Tydelig fokus på mørke flater */
+.demo-ctl :focus-visible,
+.boss-bar :focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px #23314f;
+}
+/* Karis topplinje er lys nå: mørk fokusring */
+.boss-bar :focus-visible {
+  outline-color: var(--blue-ink);
+  box-shadow: none;
+}
+.thanks-card:focus {
+  outline: none;
+}
+.thanks-card:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* Tomme plasser skal synes (3:1) */
+.stamp:not(.old):not(.new) {
+  border-color: #8b938f;
+}
+.quota {
+  color: #9aa49f;
+}
+.mini-stamps i {
+  border-color: #8b938f;
+}
+.rw-clock {
+  color: #6b7570;
+}
+
+/* ── Opprydding: roligere skjermer ───────────────────────────────────────── */
+
+/* Demo-panelet ligger utenfor appskjermen */
+.device-col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+.device-col .device {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
+.demo-bar {
+  position: relative;
+  flex: none;
+  display: flex;
+  justify-content: center;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+  background: #231d1a;
+}
+.demo-bar .demo-ctl {
+  position: static;
+  box-shadow: none;
+  background: transparent;
+}
+.demo-bar .demo-menu {
+  position: absolute;
+  right: 8px;
+  bottom: calc(100% + 8px);
+}
+@media (min-width: 640px) and (min-height: 640px) {
+  .device-col {
+    width: 390px;
+    height: auto;
+    flex: none;
+    align-items: center;
+    gap: 14px;
+  }
+  .device-col .device {
+    flex: none;
+    height: min(844px, calc(100dvh - 48px - 70px));
+  }
+  .demo-bar {
+    background: transparent;
+    padding: 0;
+  }
+  .demo-bar .demo-ctl {
+    background: rgba(38, 31, 28, 0.92);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  }
+}
+.screen {
+  padding-bottom: 28px;
+}
+
+/* Vaktsiden: tre nøkkeltall, bare tall og etikett */
+.dD-info.three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 14px 8px 12px;
+}
+.dD-info.three .dD-i b {
+  font-size: 1.625rem;
+  margin-top: 0;
+}
+.dD-info.three .dD-i span {
+  font-size: var(--fs-sm);
+}
+.dD .dA-head {
+  justify-content: space-between;
+}
+.dD {
+  gap: 12px;
+}
+
+/* «Mer om vakten»: månedens lagpremie som lenke til Mål */
+button.gift-line {
+  width: 100%;
+  text-align: left;
+  color: inherit;
+}
+
+/* Premier over en periode */
+.period-card {
+  background: var(--surface);
+  border-radius: 26px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+.pc-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.pc-count {
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.pc-count small {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+.period-card.compact .pc-count {
+  font-size: 1.0625rem;
+}
+.pc-eyebrow {
+  font-size: var(--fs-cap);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pc-prize {
+  font-size: var(--fs-title);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+.period-card.compact .pc-prize {
+  font-size: 1rem;
+}
+.pc-rule {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+.pc-plus {
+  flex: none;
+  align-self: flex-start;
+  font-size: var(--fs-cap);
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 99px;
+  color: var(--pc-ink);
+  background: var(--pc-fill);
+}
+.pc-dots {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.pc-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  max-width: 34px;
+}
+.pc-dot i {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 2px dashed #b9c2bd;
+  color: var(--pc-ink);
+}
+.pc-dot i svg {
+  width: 13px;
+  height: 13px;
+}
+.pc-dot small {
+  font-size: 0.6875rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.pc-dot.ja i {
+  border: none;
+  background: var(--pc-strong);
+}
+.pc-dot.nei i {
+  border: 2px solid #c9d0cc;
+  background: #eef1ef;
+}
+.pc-dot.kveld i {
+  border: 2.5px solid var(--pc-strong);
+  background: #fff;
+}
+.pc-dot.kveld small {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+/* Karis lagpremie: én prikk per helgevakt */
+.mini-stamps.period {
+  grid-template-columns: repeat(10, 7px);
+  gap: 2px;
+}
+.mini-stamps.period i {
+  width: 7px;
+  height: 7px;
+}
+.mini-stamps i.no {
+  background: #dfe4e1;
+  border-color: #c4ccc7;
+}
+.personal-prize {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 18px;
+  background: var(--bg);
+}
+
+/* Meg: ros */
+.kudos-counts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.kudos-counts .stat {
+  padding: 12px;
+  background: var(--green-bg);
+}
+.kudos-counts .value {
+  margin-top: 0;
+  color: var(--green-ink);
+}
+.kudos-counts .label {
+  font-size: var(--fs-cap);
+}
+
+/* Vaktstart: klokke-bryteren i samme rad som vakttiden */
+.watch-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 2px 0 6px;
+  color: var(--muted);
+  flex: none;
+}
+.watch-toggle > svg {
+  width: 20px;
+  height: 20px;
+}
+.pc-left { color: var(--ink); white-space: nowrap; }
+
+/* Den største premien: tydeligere flate (pastell grønn → blå, mørk tekst) */
+.period-card.big {
+  background: linear-gradient(140deg, var(--green-fill), var(--blue-fill));
+  color: var(--text);
+}
+.period-card.big .pc-eyebrow,
+.period-card.big .pc-rule,
+.period-card.big .pc-count small {
+  color: var(--muted);
+}
+.period-card.big .pc-left {
+  color: var(--text);
+}
+
+/* ── Premiekortene i pastell: én farge per premie ──
+   Laget = grønn, Deg = rosa, Ukens rett = oransje – nøyaktig samme toner som premieringene (rings.tsx)
+   og linjene i «Flere premier» på Goals. Selve ringen tegnes i rings.tsx; her styres merket og prikkene. */
+.period-card,
+.period-card[data-tone='lag'] {
+  --pc-strong: var(--prize-lag);
+  --pc-fill: var(--prize-lag-light);
+  --pc-ink: var(--green-ink);
+  --pc-check: var(--prize-lag-check);
+}
+.period-card.meg,
+.period-card[data-tone='meg'] {
+  --pc-strong: var(--prize-meg);
+  --pc-fill: var(--prize-meg-light);
+  --pc-ink: var(--pink-ink);
+  --pc-check: var(--prize-meg-check);
+}
+.period-card[data-tone='uke'] {
+  --pc-strong: var(--prize-uke);
+  --pc-fill: var(--prize-uke-light);
+  --pc-ink: var(--orange-ink);
+  --pc-check: var(--prize-uke-check);
+}
+.period-card[data-tone='lag'] {
+  --pc-strong: var(--prize-lag);
+  --pc-fill: var(--prize-lag-light);
+  --pc-ink: var(--green-ink);
+  --pc-check: var(--prize-lag-check);
+}
+/* Haken i en oppnådd prikk står på den sterke pastellen: litt dypere blekk (minst 3:1) */
+.pc-dot.ja i {
+  color: var(--pc-check);
+}
+
+/* Karis premiestige */
+.ladder {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ladder-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 18px;
+  background: var(--bg);
+}
+.ladder-row.top {
+  background: linear-gradient(140deg, var(--yellow-fill), var(--orange-fill));
+  color: var(--text);
+}
+.ladder-row.top .muted,
+.ladder-row.top .lr-who {
+  color: #5c4a20;
+}
+.lr-who {
+  display: block;
+  font-size: var(--fs-cap);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.lr-progress {
+  flex: none;
+}
+
+/* ══ Bevegelse: liv uten uro ══════════════════════════════════════════════
+   Ett demosteg setter alt i gang samtidig og lander innen ca. ett sekund.
+   Bare hjertet (eller den levende prikken) går i løkke. Rolig modus: ingen løkker. */
+
+/* Ringene vokser frem: masken flyttes, buen tegnes bare én gang */
+.ring-mask {
+  transition: stroke-dashoffset var(--dur-data) var(--ease-data);
+}
+.ring-rot {
+  transition: transform var(--dur-data) var(--ease-data);
+}
+.bead {
+  transition: stroke var(--dur-medium) var(--ease-standard);
+}
+.ring-enter {
+  animation: ringEnter 250ms var(--ease-decel) backwards;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+@keyframes ringEnter {
+  from {
+    opacity: 0;
+    scale: 0.9;
+  }
+}
+.arc-in {
+  animation: fadeIn var(--dur-medium) var(--ease-standard) backwards;
+}
+
+/* Målet nås: én myk glød rundt ringen og et lite sprett i ikonet */
+.ring-close {
+  opacity: 0;
+  pointer-events: none;
+  animation: ringClose 700ms var(--ease-standard) forwards;
+}
+@keyframes ringClose {
+  from {
+    opacity: 0.35;
+    scale: 1;
+  }
+  to {
+    opacity: 0;
+    scale: 1.05;
+  }
+}
+.icon-pop {
+  animation: popIn 400ms var(--ease-pop) backwards;
+}
+.knot-bump {
+  animation: popBump 380ms var(--ease-pop) 900ms;
+}
+@keyframes popIn {
+  0% {
+    scale: 0.7;
+  }
+  60% {
+    scale: 1.12;
+  }
+}
+@keyframes popBump {
+  50% {
+    scale: 1.25;
+  }
+}
+
+/* Avsløring (oppgjør, premiekort, Kari): fra tom ring (eller forrige verdi) til endelig verdi */
+.rings.reveal .ring-mask {
+  animation: ringIn var(--dur-reveal) var(--ease-data) backwards;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+.rings.reveal .ring-mask.lap {
+  animation-duration: 400ms;
+  animation-delay: calc(var(--i, 0) * 80ms + var(--dur-reveal) - 150ms);
+}
+.rings.reveal .ring-rot {
+  animation: rotIn var(--dur-reveal) var(--ease-data) backwards;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+.rings.reveal .ghost-rot {
+  animation: none;
+}
+/* Den runde fronten på fulle ringer toner inn når avsløringen er ferdig (følger ikke masken eksakt) */
+.rings.reveal .first-rot circle {
+  animation: fadeIn var(--dur-short) var(--ease-standard) var(--dur-reveal) backwards;
+}
+/* Duellens forbokstav toner inn på plass i stedet for å reise gjennom ringen */
+.rings.reveal .duel-init,
+.rings.reveal .duel-init .ring-rot {
+  animation: none;
+}
+.rings.reveal .duel-init text {
+  animation: fadeIn var(--dur-medium) var(--ease-standard) var(--dur-reveal) backwards;
+}
+.rings.reveal .lap-rot {
+  animation-duration: 400ms;
+  animation-delay: calc(var(--i, 0) * 80ms + var(--dur-reveal) - 150ms);
+}
+.rings.reveal.hold .ring-mask,
+.rings.reveal.hold .ring-rot {
+  animation-play-state: paused;
+}
+@keyframes ringIn {
+  from {
+    stroke-dashoffset: var(--from, 1);
+  }
+}
+@keyframes rotIn {
+  from {
+    transform: rotate(0deg);
+  }
+}
+
+/* Den levende prikken: én myk ring som brer seg ut – bare når klokka er av */
+.dD[data-loop='live'] .dA-live i::after {
+  animation: livePing 2.4s var(--ease-standard) infinite;
+}
+.dD[data-paused='true'] .dA-live i::after {
+  animation-play-state: paused;
+}
+@keyframes livePing {
+  0% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  70%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* Klokka i toppen: sifrene som endrer seg, ruller på plass */
+.odo {
+  display: inline-flex;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+.odo > span {
+  display: inline-block;
+}
+.odo-d {
+  animation: digitIn 260ms var(--ease-decel);
+}
+@keyframes digitIn {
+  from {
+    transform: translateY(0.45em);
+    opacity: 0;
+  }
+}
+
+/* Forklaringen: ord bytter mykt, haken spretter én gang når målet nås */
+.dD-shape {
+  display: inline-flex;
+}
+.fx-swap {
+  display: inline-block;
+  animation: swapIn var(--dur-short) var(--ease-decel);
+}
+@keyframes swapIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.fx-pop {
+  animation: popIn 320ms var(--ease-pop);
+}
+.dD-shape .fx-pop,
+.fx-pop.dD-shape {
+  display: inline-flex;
+}
+.dD-li.li-reveal {
+  animation: slideIn var(--dur-medium) var(--ease-decel) backwards;
+  animation-delay: calc(900ms + var(--i, 0) * 60ms);
+}
+
+/* Bordprikkene: prikken endrer seg først, tallet følger */
+.dD-dots i {
+  transition:
+    background-color var(--dur-medium) var(--ease-standard),
+    border-color var(--dur-medium) var(--ease-standard),
+    opacity 400ms var(--ease-standard);
+}
+.dD-dots.ready i.seated {
+  animation: dotIn var(--dur-medium) var(--ease-decel) var(--d, 0ms) backwards;
+}
+.dD-dots.ready i.fresh {
+  animation: dotFresh 240ms var(--ease-decel) var(--d, 0ms) backwards;
+}
+@keyframes dotIn {
+  from {
+    scale: 0.6;
+  }
+}
+@keyframes dotFresh {
+  from {
+    scale: 0;
+  }
+}
+
+/* Rolig-knappen: månen snur seg litt */
+.moon-wrap {
+  display: inline-flex;
+}
+.moon-turn {
+  animation: moonTurn 240ms var(--ease-decel);
+}
+@keyframes moonTurn {
+  from {
+    rotate: -25deg;
+  }
+}
+
+/* ── Puls og skritt på vaktsiden ───────────────────────────────────────── */
+.screen.live {
+  padding-bottom: 12px;
+}
+.dD-info.three.has-vitals {
+  grid-auto-flow: row;
+  padding: 10px 8px 8px;
+}
+.dD-vitals {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: center;
+  margin: 0 4px;
+  padding: 8px 6px 0;
+  height: 32px;
+  box-sizing: content-box;
+  border-top: 1px solid rgba(23, 35, 31, 0.08);
+  color: var(--ink, #17231f);
+  text-align: left;
+}
+.vt-cell {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.vt-heart,
+.vt-feet {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  transform-origin: 50% 58%;
+}
+.vt-heart {
+  color: var(--pink-ink);
+  will-change: transform;
+}
+.vt-heart svg,
+.vt-feet svg {
+  width: 22px;
+  height: 22px;
+}
+.vt-heart svg {
+  fill: var(--pink-strong);
+  fill-opacity: 0.2;
+  transition: fill-opacity 600ms var(--ease-standard);
+}
+.dD-vitals[data-zone='aktiv'] .vt-heart svg {
+  fill-opacity: 0.55;
+}
+.dD-vitals[data-zone='rush'] .vt-heart svg {
+  fill-opacity: 1;
+}
+.vt-feet {
+  color: var(--ink2, #4b5a54);
+}
+.vt-num {
+  margin-left: 6px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  min-width: 3ch;
+}
+.vt-steps {
+  min-width: 6ch;
+}
+.vt-div {
+  width: 1px;
+  height: 22px;
+  background: rgba(23, 35, 31, 0.1);
+}
+.vt-trace {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 72px;
+  height: 22px;
+  margin-left: 6px;
+  color: #e57fa3;
+}
+.vt-line {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0.85;
+  overflow: visible;
+  transition: clip-path 600ms var(--ease-data);
+}
+.vt-dot {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  background: #e57fa3;
+  transition:
+    left 600ms var(--ease-data),
+    top 600ms var(--ease-data);
+}
+/* Føttene tar ett skritt når tallet øker (venstre, så høyre fot) */
+.vt-feet.walk svg > path:nth-child(1) {
+  animation: footStep 180ms var(--ease-standard);
+}
+.vt-feet.walk svg > path:nth-child(2) {
+  animation: footStep 180ms var(--ease-standard) 180ms;
+}
+@keyframes footStep {
+  50% {
+    transform: translateY(-2px);
+    opacity: 0.6;
+  }
+}
+
+/* Vaktstart: klokka «våkner» med to hjerteslag */
+.watch-toggle {
+  position: relative;
+}
+.watch-beat {
+  display: none;
+}
+.watch-beat.go {
+  display: inline-grid;
+  position: absolute;
+  left: 14px;
+  top: 8px;
+  width: 12px;
+  height: 12px;
+  color: var(--pink-strong);
+  pointer-events: none;
+  animation: watchBeat 700ms var(--ease-standard) 2 forwards;
+}
+.watch-beat.go svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+@keyframes watchBeat {
+  0% {
+    opacity: 0;
+    scale: 0.6;
+  }
+  15% {
+    opacity: 1;
+    scale: 1.2;
+  }
+  30% {
+    scale: 0.95;
+  }
+  45% {
+    scale: 1.1;
+  }
+  100% {
+    opacity: 0;
+    scale: 1;
+  }
+}
+
+/* Premiekort: bare endringen siden sist beveger seg */
+.period-card.changed .pc-plus {
+  opacity: 0;
+}
+.period-card.changed.go .pc-plus {
+  opacity: 1;
+  animation: chipIn var(--dur-medium) var(--ease-decel) 900ms backwards;
+}
+@keyframes chipIn {
+  from {
+    opacity: 0;
+    scale: 0.85;
+  }
+}
+.period-card.changed.go .pc-dot.new i {
+  animation: stampIn 500ms var(--ease-pop) 700ms backwards;
+}
+
+/* «Mer om vakten»: kurver og stolper vokser frem når arket åpnes */
+.sheet .race .draw,
+details[open] .race .draw {
+  stroke-dasharray: 1;
+  animation: drawIn 800ms var(--ease-data) 200ms backwards;
+}
+.sheet .race .race-cross,
+details[open] .race .race-cross {
+  animation: popIn 300ms var(--ease-pop) 1000ms backwards;
+}
+@keyframes drawIn {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.sheet .bar > span {
+  transform-origin: left;
+  animation: growX 600ms var(--ease-data) 200ms backwards;
+}
+@keyframes growX {
+  from {
+    transform: scaleX(0);
+  }
+}
+.slot {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: growY 600ms var(--ease-data) backwards;
+}
+.bar-new {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: growY var(--dur-data) var(--ease-data) 200ms backwards;
+}
+@keyframes growY {
+  from {
+    transform: scaleY(0);
+  }
+}
+/* Pulsen gjennom vakten tegnes når detaljen åpnes */
+details[open] .hl-line {
+  stroke-dasharray: 1;
+  animation: drawIn var(--dur-reveal) var(--ease-data) backwards;
+}
+details[open] .hl-area {
+  animation: fadeIn 300ms var(--ease-standard) 900ms backwards;
+}
+details[open] .hl-peak {
+  animation: popIn 300ms var(--ease-pop) 1100ms backwards;
+}
+
+/* Karis signatur skrives når kortet åpnes */
+.sig-draw {
+  stroke-dasharray: 1;
+  animation: drawIn 900ms ease-in-out 550ms backwards;
+}
+
+/* Fanelinjen: den aktive pillen vokser ut fra ikonet */
+:root[data-design='d'] .tab[aria-current='page']::before {
+  animation: indIn var(--dur-medium) var(--ease-decel);
+}
+.tab {
+  transition: color var(--dur-micro) var(--ease-standard);
+}
+@keyframes indIn {
+  from {
+    scale: 0.4 1;
+    opacity: 0;
+  }
+}
+
+/* Rolig modus: rammene glir til ny plass i stedet for å hoppe (View Transitions) */
+.dD .dD-card {
+  view-transition-name: dd-ringcard;
+}
+.dD .dD-info {
+  view-transition-name: dd-info;
+}
+.dD .dA-actions {
+  view-transition-name: dd-actions;
+}
+.toasts {
+  view-transition-name: vt-toasts;
+}
+.dD .dD-num {
+  view-transition-name: dd-sales;
+}
+::view-transition-group(dd-ringcard),
+::view-transition-group(dd-info),
+::view-transition-group(dd-actions),
+::view-transition-group(dd-sales) {
+  animation-duration: var(--dur-medium);
+  animation-timing-function: var(--ease-standard);
+}
+/* Kortet bytter innhold raskt (ikke dobbelt bilde): det gamle forsvinner før det nye kommer */
+::view-transition-old(dd-ringcard) {
+  animation-duration: 90ms;
+}
+::view-transition-new(dd-ringcard) {
+  animation-delay: 60ms;
+  animation-duration: 200ms;
+}
+::view-transition-old(dd-ringcard),
+::view-transition-new(dd-ringcard) {
+  height: 100%;
+  object-fit: none;
+  object-position: top;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dA-live i::after,
+  .live-pill i::after,
+  .ring-close,
+  .icon-pop,
+  .knot-bump,
+  .fx-swap,
+  .fx-pop,
+  .li-reveal,
+  .dD-dots i,
+  .odo-d,
+  .moon-turn,
+  .vt-feet svg > path,
+  .watch-beat,
+  .pc-plus,
+  .pc-dot.new i,
+  .slot,
+  .bar-new,
+  .draw,
+  .race-cross,
+  .hl-line,
+  .hl-area,
+  .hl-peak,
+  .sig-draw,
+  .bingo-tile.on.new,
+  .ring-enter,
+  .ghost-face,
+  .vt-line,
+  .vt-dot {
+    animation: none !important;
+    transition: none !important;
+  }
+  .rings.reveal .ring-mask,
+  .rings.reveal .ring-rot {
+    animation: none !important;
+  }
+  .ring-mask,
+  .ring-rot,
+  .bead {
+    transition: none !important;
+  }
+  .draw,
+  .hl-line,
+  .sig-draw {
+    stroke-dasharray: none !important;
+  }
+  .watch-beat.go {
+    display: none;
+  }
+}
+
+/* Tall som teller inne i nøkkeltall og forklaring arver stilen til tallet rundt */
+.dD-info .dD-i b span.num,
+.dD-legend .dD-val span.num,
+.dD-legend .dD-sub span.num {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+/* Historikk: liten kalender på «Din september er klar» */
+.month-teaser {
+  flex: none;
+  width: 84px;
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.55);
+}
+.month-teaser svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* Minikalenderen står på et lyst pastellkort: fridager som svake lilla prikker, vaktdager som grønne kjekser */
+.month-teaser svg > circle {
+  fill: rgba(74, 62, 158, 0.18);
+}
+.month-teaser .cal-cookie {
+  fill: var(--green-strong);
+}
+
+/* ── Mobil: startsiden ── */
+.start-cta {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin: 10px -18px -28px;
+  padding: 12px 18px 14px;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 0%, transparent), var(--bg) 18px);
+}
+@media (max-height: 760px) {
+  .hello {
+    font-size: 2.25rem;
+  }
+  .game-card {
+    min-height: 54px;
+    flex-direction: row;
+    gap: 10px;
+    padding: 8px 10px;
+  }
+  .game-card .gc-icon {
+    width: 30px;
+    height: 30px;
+  }
+  .section {
+    margin-top: 14px;
+  }
+  .game-pick {
+    padding: 12px;
+  }
+}
+/* Svært lave skjermer (f.eks. iPhone SE med Safari-linjene): boksene på vaktsiden viser bare tallene */
+@media (max-height: 600px) {
+  .st-home .st-art {
+    display: none;
+  }
+}
+
+/* ── Mobil: demolinjen under appen er slankere ── */
+@media not ((min-width: 640px) and (min-height: 640px)) {
+  .demo-bar {
+    padding: 3px 8px calc(3px + env(safe-area-inset-bottom, 0px));
+  }
+  .demo-bar .demo-ctl {
+    padding: 2px;
+  }
+  .demo-bar .demo-ctl button {
+    min-height: 40px;
+  }
+}
+/* Minste skjermer: de fire spillene på én rad */
+@media (max-height: 620px) {
+  .hello {
+    font-size: 2rem;
+  }
+  .game-pick .game-cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .game-card {
+    flex-direction: column;
+    min-height: 66px;
+    gap: 4px;
+    padding: 6px 2px;
+  }
+  .game-card .gc-word {
+    font-size: 0.75rem;
+  }
+}
+@media (max-height: 620px) {
+  .hello {
+    font-size: 1.75rem;
+  }
+  .screen > .fade-in > .card.mt16:first-of-type,
+  .hello + .card {
+    margin-top: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .section {
+    margin-top: 10px;
+  }
+  .game-card {
+    min-height: 54px;
+  }
+  .game-pick {
+    padding: 8px;
+  }
+}
+
+/* Profilbilde i avataren */
+.face {
+  overflow: hidden;
+}
+.face-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* ── Goals: gullmedaljen og de andre premiene side om side, rekordene under ── */
+.gl-top {
+  margin-top: 8px;
+}
+.gl-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+.gl-others {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: left;
+  color: var(--text);
+}
+.gl-others-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.gl-others-head svg {
+  width: 18px;
+  height: 18px;
+}
+.gl-lines {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gl-line {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+.gl-ic {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: var(--prize-lag-light);
+  color: var(--green-ink);
+}
+.gl-line[data-tone='meg'] .gl-ic {
+  background: var(--prize-meg-light);
+  color: var(--pink-ink);
+}
+.gl-line[data-tone='uke'] .gl-ic {
+  background: var(--prize-uke-light);
+  color: var(--orange-ink);
+}
+.gl-ic svg {
+  width: 17px;
+  height: 17px;
+}
+.gl-text {
+  min-width: 0;
+}
+.gl-text b {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+}
+.gl-text small {
+  display: block;
+  margin-top: 1px;
+  font-size: 0.6875rem;
+  color: var(--muted);
+}
+.gl-bar {
+  display: block;
+  height: 6px;
+  margin-top: 5px;
+  border-radius: 99px;
+  background: var(--line);
+  overflow: hidden;
+}
+.gl-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--prize-lag-light), var(--prize-lag));
+}
+.gl-line[data-tone='meg'] .gl-bar i {
+  background: linear-gradient(90deg, var(--prize-meg-light), var(--prize-meg));
+}
+.gl-line[data-tone='uke'] .gl-bar i {
+  background: linear-gradient(90deg, var(--prize-uke-light), var(--prize-uke));
+}
+.gl-count {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1px;
+  font-weight: 800;
+  font-size: 0.9375rem;
+}
+.gl-count small {
+  font-size: 0.6875rem;
+  color: var(--muted);
+}
+.gl-count svg {
+  width: 13px;
+  height: 13px;
+  align-self: center;
+  margin-right: 2px;
+  color: var(--green-ink);
+}
+.gl-records {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  text-align: left;
+  color: var(--text);
+}
+.gl-records-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.gl-records-head b {
+  font-size: 1.0625rem;
+}
+.gl-records-head .gl-chev {
+  width: 20px;
+  height: 20px;
+  margin-left: auto;
+  color: var(--muted);
+}
+.gl-rec-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.gl-rec {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  min-width: 0;
+  padding: 10px;
+  border-radius: 16px;
+  background: #fff7ea;
+}
+.gl-rec .icon-badge {
+  flex: none;
+  width: 32px;
+  height: 32px;
+}
+.gl-rec b,
+.gl-rec small {
+  display: block;
+}
+.gl-rec b {
+  font-size: 1rem;
+}
+.gl-rec small {
+  font-size: 0.6875rem;
+  color: var(--muted);
+  line-height: 1.25;
+}
+.gl-rec .gl-rec-date em {
+  font-style: normal;
+  font-weight: 800;
+  color: var(--orange-ink);
+}
+/* Seksjonsikonene på Goals (fargen settes inline i Goals.tsx): pastellflate med mørkt ikon */
+.gl-top .section-head .rl-dot {
+  background: var(--pink-fill) !important;
+  color: var(--pink-ink);
+}
+.gl-records-head .rl-dot {
+  background: var(--orange-fill) !important;
+  color: var(--orange-ink);
+}
+
+.gl-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px;
+}
+.gl-meta > small {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gl-text b {
+  -webkit-line-clamp: 3;
+}
+.gl-count {
+  flex: none;
+  font-size: 0.875rem;
+}
+.gl-rec-section {
+  margin-top: 12px;
+}
+.gl-lines {
+  gap: 10px;
+}
+.screen:has(.gl-top) {
+  padding-bottom: 12px;
+}
+.gl-records {
+  padding: 12px;
+  gap: 8px;
+}
+.gl-rec {
+  padding: 8px 10px;
+}

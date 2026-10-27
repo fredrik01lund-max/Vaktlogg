@@ -1,0 +1,8 @@
+/* WalkPath (gikk): gangstien med maratonflagg. */
+.wp-dot {
+  transition: opacity 150ms var(--ease-standard);
+}
+/* Flagg 1 spretter opp i det streken passerer det (klassen legges på ved passering). */
+.wslide[data-mode='play'] .wp-pop.w-pop {
+  animation-duration: 300ms;
+}

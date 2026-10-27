@@ -1,0 +1,323 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   FLYT-TEMA – «Flyt med ringer» innført i hele appen.
+   Lyse, rolige flater; tydelig sans-typografi; myke former; gradienter bare
+   på ringer, ikoner og utvalgte fremhevinger. Ringfargene er faste:
+   gull = rekord, grønn = laget, bær = deg, skiferblå = motstanderen.
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --bg: #f3f6f2;
+  --bg-deep: #e8ede9;
+  --surface: #ffffff;
+  --line: #e2e8e4;
+  --line-strong: #c4ccc7;
+  --text: #17231f;
+  --muted: #4b5a54;
+  --faint: #5c6a64;
+
+  /* Hovedfarge for handlinger og «valgt»: marineblå, med lavendel som tonet flate */
+  --wine: #23314f;
+  --wine-deep: #18233b;
+  --wine-soft: #e9e5fc;
+  --wine-tint: #cfc7f4;
+  --on-primary: var(--primary-ink);
+  --accent-ink: #4a3fa0;
+
+  /* Laget / fellesskap / bekreftelse (pastell grønn; --sage brukes bare til linjer og stolper) */
+  --sage: var(--green-strong);
+  --sage-deep: var(--green-ink);
+  --sage-soft: var(--green-bg);
+  --sage-line: #c5e5d3;
+  --switch-on: var(--green-strong);
+
+  /* Rekord / feiring (pastell oransje/gull; --gold brukes bare til stolper) */
+  --gold: var(--orange-strong);
+  --gold-soft: var(--orange-bg);
+  --accent-line: #f5d4ac;
+  --on-accent: #17231f;
+
+  /* Ringfarger (prikker, overskrifter, duellstolper) – sterke pasteller */
+  --ring-rekord: var(--orange-strong);
+  --ring-rekord-lap: #ec9a4c;
+  --ring-lag: var(--green-strong);
+  --ring-lag-lap: #5fb68a;
+  --ring-duell: var(--pink-strong);
+  --ring-motstander: var(--blue-strong);
+
+  --radius: 28px;
+  --radius-sm: 20px;
+  --shadow: 0 1px 2px rgba(20, 40, 30, 0.04), 0 12px 30px -20px rgba(60, 50, 140, 0.35);
+  --serif: var(--sans);
+}
+
+/* Typografi: tydelig, tung sans. Logoen beholder sin kursive serif. */
+h1,
+h2,
+h3,
+.h2,
+.h3 {
+  font-family: var(--sans);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  font-variation-settings: normal;
+}
+.hello {
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+.hello em {
+  font-style: normal;
+  color: var(--accent-ink);
+}
+.wordmark {
+  font-family: 'Fraunces Variable', Georgia, serif;
+  color: var(--text);
+}
+.wordmark svg {
+  color: var(--accent-ink);
+}
+.section-head h2 {
+  font-size: var(--fs-title);
+}
+.eyebrow {
+  letter-spacing: 0.1em;
+}
+
+/* Flater: hvite kort uten kantlinje, myk skygge */
+.card,
+.list,
+.stat,
+.kpi,
+details.more,
+.tables-cd {
+  border-color: transparent;
+  box-shadow: var(--shadow);
+}
+.card.flat {
+  box-shadow: none;
+}
+.card {
+  border-radius: var(--radius);
+}
+.card.tint-gold {
+  background: linear-gradient(140deg, #ffe7c7 0%, #ffd9e5 100%);
+  border-color: transparent;
+}
+.card.tint-sage {
+  background: linear-gradient(140deg, #dcf4e8 0%, #e6f1ff 100%);
+  border-color: transparent;
+}
+.card.tint-wine {
+  background: linear-gradient(140deg, #ece8ff 0%, #e2f4ee 100%);
+  border-color: transparent;
+}
+/* «Mørkt» fremhevet kort (f.eks. «Din september er klar»): nå en lys pastell fersken → rosa → lilla med mørk tekst */
+.card.dark {
+  background:
+    radial-gradient(220px 140px at 100% 0%, rgba(255, 255, 255, 0.6), transparent 70%),
+    linear-gradient(140deg, #ffe2c6 0%, #fcd2e1 52%, #e2d9fd 100%);
+  color: #2a1f33;
+}
+.card.dark .muted,
+.card.dark .eyebrow,
+.card.dark .hero-num .unit {
+  color: #5b4560;
+}
+.card.dark .chev {
+  color: #5b4560;
+}
+.event-line {
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+/* Knapper: store piller. Sekundær = tonet lavendel. */
+.btn {
+  border-radius: 999px;
+  min-height: 54px;
+  font-weight: 800;
+  /* Hovedhandling: pastell oransje → rosa (som dokken), mørk bærfarget tekst */
+  background: var(--primary-grad);
+  color: var(--primary-ink);
+  box-shadow: 0 8px 20px -12px rgba(200, 110, 120, 0.55);
+}
+.btn.small {
+  border-radius: 999px;
+}
+.btn.sage {
+  background: var(--green-fill);
+  color: var(--green-ink);
+}
+.btn.secondary {
+  background: var(--wine-soft);
+  color: #2e2470;
+  border: 0;
+  box-shadow: none;
+}
+.btn.ghost {
+  box-shadow: none;
+}
+.btn.ghost {
+  color: var(--accent-ink);
+}
+.section-head .link,
+.back {
+  color: var(--accent-ink);
+}
+
+/* Brikker */
+.chip {
+  border-radius: 999px;
+}
+.chip.wine {
+  background: var(--wine-soft);
+  color: #2e2470;
+}
+.chip.gold {
+  background: linear-gradient(90deg, #ffe7c7, #ffd9e5);
+  color: var(--text);
+}
+.chip.sage {
+  background: var(--sage-soft);
+  color: var(--sage-deep);
+}
+.saved-pill {
+  background: var(--sage-soft);
+  color: var(--sage-deep);
+}
+
+/* Ikonflater: «cookie»-form fra Material 3 Expressive med gradient og hvitt ikon */
+.icon-badge,
+.rl-dot {
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M100.0,50.0L99.8,51.7L99.2,53.4L98.3,55.1L97.1,56.6L95.8,58.1L94.4,59.4L93.1,60.8L92.0,62.0L91.1,63.3L90.4,64.7L90.0,66.2L89.9,67.8L89.9,69.5L90.1,71.3L90.3,73.3L90.4,75.2L90.3,77.2L89.9,79.0L89.3,80.7L88.3,82.1L87.0,83.3L85.5,84.3L83.7,84.9L81.8,85.4L79.9,85.6L78.0,85.8L76.1,86.0L74.4,86.2L72.9,86.6L71.5,87.2L70.3,88.1L69.1,89.2L68.1,90.6L67.0,92.1L65.9,93.7L64.7,95.3L63.4,96.7L61.9,97.9L60.4,98.7L58.7,99.2L56.9,99.3L55.2,99.1L53.4,98.4L51.7,97.6L50.0,96.5L48.4,95.4L46.9,94.3L45.4,93.4L44.0,92.8L42.5,92.3L41.0,92.2L39.4,92.4L37.7,92.7L36.0,93.2L34.1,93.7L32.2,94.1L30.2,94.4L28.4,94.3L26.6,94.0L25.0,93.3L23.6,92.3L22.4,90.9L21.5,89.3L20.7,87.5L20.1,85.6L19.6,83.8L19.1,82.0L18.6,80.3L17.9,78.9L17.1,77.6L16.0,76.6L14.7,75.7L13.2,74.9L11.5,74.1L9.7,73.3L8.0,72.3L6.4,71.3L4.9,70.1L3.8,68.7L3.0,67.1L2.6,65.4L2.6,63.6L2.9,61.7L3.5,59.9L4.2,58.1L5.0,56.3L5.8,54.6L6.4,53.0L6.9,51.5L7.0,50.0L6.9,48.5L6.4,47.0L5.8,45.4L5.0,43.7L4.2,41.9L3.5,40.1L2.9,38.3L2.6,36.4L2.6,34.6L3.0,32.9L3.8,31.3L4.9,29.9L6.4,28.7L8.0,27.7L9.7,26.7L11.5,25.9L13.2,25.1L14.7,24.3L16.0,23.4L17.1,22.4L17.9,21.1L18.6,19.7L19.1,18.0L19.6,16.2L20.1,14.4L20.7,12.5L21.5,10.7L22.4,9.1L23.6,7.7L25.0,6.7L26.6,6.0L28.4,5.7L30.2,5.6L32.2,5.9L34.1,6.3L36.0,6.8L37.7,7.3L39.4,7.6L41.0,7.8L42.5,7.7L44.0,7.2L45.4,6.6L46.9,5.7L48.4,4.6L50.0,3.5L51.7,2.4L53.4,1.6L55.2,0.9L56.9,0.7L58.7,0.8L60.4,1.3L61.9,2.1L63.4,3.3L64.7,4.7L65.9,6.3L67.0,7.9L68.1,9.4L69.1,10.8L70.3,11.9L71.5,12.8L72.9,13.4L74.4,13.8L76.1,14.0L78.0,14.2L79.9,14.4L81.8,14.6L83.7,15.1L85.5,15.7L87.0,16.7L88.3,17.9L89.3,19.3L89.9,21.0L90.3,22.8L90.4,24.8L90.3,26.7L90.1,28.7L89.9,30.5L89.9,32.2L90.0,33.8L90.4,35.3L91.1,36.7L92.0,38.0L93.1,39.2L94.4,40.6L95.8,41.9L97.1,43.4L98.3,44.9L99.2,46.6L99.8,48.3L100.0,50.0Z'/></svg>") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M100.0,50.0L99.8,51.7L99.2,53.4L98.3,55.1L97.1,56.6L95.8,58.1L94.4,59.4L93.1,60.8L92.0,62.0L91.1,63.3L90.4,64.7L90.0,66.2L89.9,67.8L89.9,69.5L90.1,71.3L90.3,73.3L90.4,75.2L90.3,77.2L89.9,79.0L89.3,80.7L88.3,82.1L87.0,83.3L85.5,84.3L83.7,84.9L81.8,85.4L79.9,85.6L78.0,85.8L76.1,86.0L74.4,86.2L72.9,86.6L71.5,87.2L70.3,88.1L69.1,89.2L68.1,90.6L67.0,92.1L65.9,93.7L64.7,95.3L63.4,96.7L61.9,97.9L60.4,98.7L58.7,99.2L56.9,99.3L55.2,99.1L53.4,98.4L51.7,97.6L50.0,96.5L48.4,95.4L46.9,94.3L45.4,93.4L44.0,92.8L42.5,92.3L41.0,92.2L39.4,92.4L37.7,92.7L36.0,93.2L34.1,93.7L32.2,94.1L30.2,94.4L28.4,94.3L26.6,94.0L25.0,93.3L23.6,92.3L22.4,90.9L21.5,89.3L20.7,87.5L20.1,85.6L19.6,83.8L19.1,82.0L18.6,80.3L17.9,78.9L17.1,77.6L16.0,76.6L14.7,75.7L13.2,74.9L11.5,74.1L9.7,73.3L8.0,72.3L6.4,71.3L4.9,70.1L3.8,68.7L3.0,67.1L2.6,65.4L2.6,63.6L2.9,61.7L3.5,59.9L4.2,58.1L5.0,56.3L5.8,54.6L6.4,53.0L6.9,51.5L7.0,50.0L6.9,48.5L6.4,47.0L5.8,45.4L5.0,43.7L4.2,41.9L3.5,40.1L2.9,38.3L2.6,36.4L2.6,34.6L3.0,32.9L3.8,31.3L4.9,29.9L6.4,28.7L8.0,27.7L9.7,26.7L11.5,25.9L13.2,25.1L14.7,24.3L16.0,23.4L17.1,22.4L17.9,21.1L18.6,19.7L19.1,18.0L19.6,16.2L20.1,14.4L20.7,12.5L21.5,10.7L22.4,9.1L23.6,7.7L25.0,6.7L26.6,6.0L28.4,5.7L30.2,5.6L32.2,5.9L34.1,6.3L36.0,6.8L37.7,7.3L39.4,7.6L41.0,7.8L42.5,7.7L44.0,7.2L45.4,6.6L46.9,5.7L48.4,4.6L50.0,3.5L51.7,2.4L53.4,1.6L55.2,0.9L56.9,0.7L58.7,0.8L60.4,1.3L61.9,2.1L63.4,3.3L64.7,4.7L65.9,6.3L67.0,7.9L68.1,9.4L69.1,10.8L70.3,11.9L71.5,12.8L72.9,13.4L74.4,13.8L76.1,14.0L78.0,14.2L79.9,14.4L81.8,14.6L83.7,15.1L85.5,15.7L87.0,16.7L88.3,17.9L89.3,19.3L89.9,21.0L90.3,22.8L90.4,24.8L90.3,26.7L90.1,28.7L89.9,30.5L89.9,32.2L90.0,33.8L90.4,35.3L91.1,36.7L92.0,38.0L93.1,39.2L94.4,40.6L95.8,41.9L97.1,43.4L98.3,44.9L99.2,46.6L99.8,48.3L100.0,50.0Z'/></svg>") center / 100% 100% no-repeat;
+  border-radius: 0;
+}
+/* Pastellflate med mørkt ikon i samme farge */
+.icon-badge {
+  background: var(--lilac-fill);
+  color: var(--lilac-ink);
+}
+.icon-badge.sage {
+  background: var(--green-fill);
+  color: var(--green-ink);
+}
+.icon-badge.gold {
+  background: var(--orange-fill);
+  color: var(--orange-ink);
+}
+.icon-badge.neutral {
+  background: var(--blue-fill);
+  color: var(--blue-ink);
+}
+/* Seksjonsikonene (rl-dot) får fargen inline; ikonet er mørkt, så det leses på pastellflaten */
+.rl-dot {
+  color: var(--text);
+}
+.avatar {
+  background: linear-gradient(140deg, #dcf4e8, #e6e0ff);
+  color: var(--text);
+  font-family: var(--sans);
+  font-weight: 800;
+}
+.avatar.lg {
+  background: linear-gradient(140deg, var(--green-fill) 0%, var(--lilac-fill) 100%);
+  color: var(--text);
+}
+
+/* Valg og brytere */
+.option {
+  border-color: var(--line);
+  border-radius: 20px;
+}
+.option[aria-pressed='true'],
+.option[aria-checked='true'] {
+  border-color: var(--lilac-strong);
+  background: var(--lilac-bg);
+}
+.option[aria-pressed='true'] .check,
+.option[aria-checked='true'] .check {
+  background: var(--lilac-strong);
+  border-color: var(--lilac-strong);
+  color: var(--lilac-ink);
+}
+.segmented button[aria-pressed='true'] {
+  background: var(--lilac-fill);
+  color: var(--lilac-ink);
+  box-shadow: inset 0 0 0 2px var(--lilac-strong);
+}
+
+/* Fremdriftsstolper: sterke pasteller som synes på hvitt */
+.bar > span {
+  background: linear-gradient(90deg, #b9cbef, var(--blue-strong));
+}
+.bar.sage > span {
+  background: linear-gradient(90deg, #a6dcc0, var(--green-strong));
+}
+.bar.gold > span {
+  background: linear-gradient(90deg, #f9cc98, var(--orange-strong));
+}
+
+/* Varsler */
+.toast {
+  border: 0;
+  border-radius: 24px;
+}
+.toast.record {
+  background: linear-gradient(135deg, #fff4e3, #ffe3ec);
+}
+.toast.team {
+  background: linear-gradient(135deg, #e6f7ee, #eaf2ff);
+}
+.toast.duel {
+  background: linear-gradient(135deg, #fdeaf1, #ece9ff);
+}
+.toast.kudos {
+  background: linear-gradient(135deg, #e6f7ee, #f1edff);
+}
+
+/* Introkort på vaktstart */
+.intro {
+  background: linear-gradient(140deg, #d6f3e6 0%, #e9e3ff 100%);
+  border: 0;
+}
+.intro li svg {
+  color: var(--accent-ink);
+}
+
+/* Delingskort: lys pastellgradient med mørk tekst */
+.share-card {
+  background:
+    radial-gradient(240px 160px at 100% 0%, rgba(255, 255, 255, 0.6), transparent 70%),
+    linear-gradient(150deg, #ffe2c6 0%, #fcd2e1 55%, #e2d9fd 100%);
+  color: #2a1f33;
+  box-shadow: 0 18px 40px -18px rgba(150, 90, 120, 0.45);
+}
+.share-card .sc-row {
+  border-top-color: rgba(42, 31, 51, 0.12);
+}
+.share-card .sc-title {
+  font-family: var(--sans);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+.share-card .sc-brand {
+  font-family: 'Fraunces Variable', Georgia, serif;
+}
+.share-card .sc-row span:first-child,
+.share-card .sc-foot {
+  color: #5b4560;
+}
+/* Bunnmeny: aktiv fane som pille (som på vaktsiden) */
+.tab[aria-current='page'] {
+  color: var(--primary-ink);
+}
+/* Logoen: rosé vinglass */
+.wordmark svg {
+  color: #e07a9e;
+}
+
+/* Diagrammer */
+.chart text {
+  fill: var(--muted);
+}

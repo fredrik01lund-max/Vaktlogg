@@ -1,0 +1,17 @@
+/* gjester – Storefronts: hvert hus fylles nedenfra, rad for rad. Grunn-CSS er sluttbildet. */
+/* Skiltet på markisen: samme kursiv som merkenavnet øverst i historien, hvitt på mørk grønn (ca. 6:1).
+   .w-art foran slår .w-art text (sans) i wrapped.css; --serif kan være overstyrt av temaet, derfor fast skrift. */
+.w-art .sf-sign {
+  font-family: 'Fraunces Variable', Georgia, serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.01em;
+  fill: #fff;
+}
+.wslide[data-mode='play'] .sf-row.w-fade {
+  animation-duration: 140ms;
+}
+.wslide[data-mode='play'] .sf-badge.w-pop {
+  animation-duration: 300ms;
+}
