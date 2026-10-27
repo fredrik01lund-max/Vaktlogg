@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { ReactNode } from 'react'
 import { config } from './config.ts'
@@ -216,11 +216,37 @@ export function useInView<T extends Element>(threshold = 0.6): [(el: T | null) =
 
 // ── Små byggeklosser ────────────────────────────────────────────────────────
 
+// Logoen: vakt-ring nesten full + V, på pastell oransje→rosa (samme som app-ikonet i public/)
+export function Logo() {
+  const id = useId()
+  return (
+    <svg className="logo" viewBox="0 0 512 512" aria-hidden="true">
+      <defs>
+        <linearGradient id={`${id}bg`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#FFC896" />
+          <stop offset="0.55" stopColor="#FDB8B4" />
+          <stop offset="1" stopColor="#F6A2C8" />
+        </linearGradient>
+        <linearGradient id={`${id}v`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#A63F69" />
+          <stop offset="1" stopColor="#6E2A3C" />
+        </linearGradient>
+      </defs>
+      <rect width="512" height="512" rx="128" fill={`url(#${id}bg)`} />
+      <circle cx="256" cy="256" r="168" fill="none" stroke="#fff" strokeOpacity="0.38" strokeWidth="40" />
+      <path d="M393.6 352.4A168 168 0 1 1 374.8 137.2" fill="none" stroke="#fff" strokeWidth="40" strokeLinecap="round" />
+      <circle cx="374.8" cy="137.2" r="30" fill="#fff" />
+      <circle cx="374.8" cy="137.2" r="14" fill="#F59A6E" />
+      <path d="M186 200L256 326L326 200" fill="none" stroke={`url(#${id}v)`} strokeWidth="56" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 export function TopBar({ right }: { right?: ReactNode }) {
   return (
     <div className="topbar">
       <div className="wordmark">
-        <Icon name="glass" />
+        <Logo />
         {config.appName}
       </div>
       {right}

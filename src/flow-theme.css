@@ -312,9 +312,14 @@ details.more,
 .tab[aria-current='page'] {
   color: var(--primary-ink);
 }
-/* Logoen: rosé vinglass */
-.wordmark svg {
-  color: #e07a9e;
+/* Logoen: liten app-ikon-flis foran navnet */
+.topbar .wordmark {
+  color: var(--primary-ink);
+}
+.wordmark .logo {
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 2px 4px rgb(214 120 150 / 0.3));
 }
 
 /* Diagrammer */

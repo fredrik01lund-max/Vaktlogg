@@ -1,6 +1,6 @@
 // Vaktlogg som app (installert fra Chrome): mellomlagrer filene, så appen starter raskt og virker uten nett.
 // Selve siden hentes fra nettet først (så en ny versjon kommer med en gang); bilder, skript og fonter fra lageret.
-const CACHE = 'vaktlogg-v1'
+const CACHE = 'vaktlogg-v2'
 
 // Ved installering: legg startsiden og filene den peker på i lageret, så appen virker uten nett fra første stund
 self.addEventListener('install', (event) => {
