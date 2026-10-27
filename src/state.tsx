@@ -7,6 +7,7 @@ import type { Invites, SentCard } from './lib/calc.ts'
 import { setClock } from './lib/clock.ts'
 import { notificationsFor, startNotifications } from './lib/live.ts'
 import type { ToastMsg } from './lib/live.ts'
+import type { Order } from './lib/wallet.ts'
 import { navigate } from './router.ts'
 import { clearSeen } from './lib/motion.ts'
 import { setLang } from './i18n.ts'
@@ -46,6 +47,8 @@ export interface Demo {
   quietShift: boolean
   /** Kollegaene Emma inviterte til Duell og Makker før vakten. */
   invites: Invites
+  /** Bestillinger fra Personalmenyen i demoen. */
+  orders: Order[]
 }
 
 const defaultSettings: Settings = {
@@ -74,6 +77,7 @@ const defaultDemo: Demo = {
   cardOpened: false,
   quietShift: false,
   invites: { ...gameNight.defaultInvites },
+  orders: [],
 }
 
 const STORAGE_KEY = 'vaktlogg:v4'
@@ -89,6 +93,8 @@ function load(): { settings: Settings; demo: Demo } {
     demo.sentCards = demo.sentCards.filter((c) => c && typeof c === 'object' && typeof c.to === 'string')
     if (demo.step > lastStepIndex) demo.step = lastStepIndex
     demo.invites = { ...defaultDemo.invites, ...parsed.demo?.invites }
+    if (!Array.isArray(demo.orders)) demo.orders = []
+    demo.orders = demo.orders.filter((o) => o && typeof o === 'object' && typeof o.item === 'string')
     return {
       settings: { ...defaultSettings, ...parsed.settings, privacy: { ...defaultSettings.privacy, ...parsed.settings?.privacy } },
       demo,
@@ -138,6 +144,10 @@ interface Store {
   giveKudos: (to: string, category?: KudosCategory) => void
   pushToasts: (msgs: ToastMsg[]) => void
   dismissToast: (id: number) => void
+  /** Bestill fra Personalmenyen. Gir bestillingen tilbake (med id). */
+  placeOrder: (order: Omit<Order, 'id'>) => Order
+  /** Kari godkjenner et vaktønske. */
+  approveOrder: (id: number) => void
 }
 
 const Ctx = createContext<Store | null>(null)
@@ -343,6 +353,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     giveKudos: (to, category) => setDemo((d) => ({ ...d, givenKudos: [...d.givenKudos, { to, category }] })),
     pushToasts,
     dismissToast,
+    placeOrder: (order) => {
+      const o: Order = { ...order, id: Date.now() }
+      setDemo((d) => ({ ...d, orders: [...d.orders, o] }))
+      return o
+    },
+    approveOrder: (id) => setDemo((d) => ({ ...d, orders: d.orders.map((o) => (o.id === id ? { ...o, approved: true } : o)) })),
   }
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>

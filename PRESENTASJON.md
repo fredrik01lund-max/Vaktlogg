@@ -48,6 +48,12 @@ Plakaten er en onepager Emma kan dele (**Del**, tips er av som standard). Under:
 
 Pek på verktøyene **Premier** (hele premiestigen), **Takkekort** og **Ukens rett**. Trykk **E** for å gå tilbake.
 
+### Ekstra: Personalmenyen (30 sekunder) · *Meg → Personalmenyen*
+
+> «XP-en er nivået ditt. Poletter er det du bestiller med – og de tjenes bare på det du styrer selv.»
+
+Vis lommeboka (stempelkort og sparebøsse mot 5 000 kr), bla gjennom Tid, Smak, Gaver og den hemmelige menyen. Bestill **Ønskefri fredag eller lørdag**: velg en dag, se bongen skrives ut og status «Venter på Kari». Trykk **K** og godkjenn i Karis «Personalmenyen» – hun ser budsjettet og hva som er populært, aldri saldoene.
+
 ### Ekstra: Din september (30 sekunder) · *Historikk → «Din september er klar»*
 
 > «Ved slutten av måneden får Emma historien om måneden sin – ikke et regneark.»

@@ -15,6 +15,7 @@ import { CountUp, Icon, Sheet, paths } from '../ui.tsx'
 import { DUR, useFirstVisit } from '../lib/motion.ts'
 import { Face, StampCard, momentMeta, nameOf } from '../game-ui.tsx'
 import { ringsFor } from './Shift.tsx'
+import { KariMenuTool } from '../staffmenu.tsx'
 import { L, td } from '../i18n.ts'
 
 const people = [config.persona.id, ...config.colleagues.map((c) => c.id)].sort((a, b) => nameOf(a).localeCompare(nameOf(b), 'nb'))
@@ -172,6 +173,8 @@ export function Employer() {
           </span>
         </button>
       </section>
+      {/* Personalmenyen: budsjett, populære retter og vaktønsker – aldri saldoer */}
+      <KariMenuTool />
 
       {sheet === 'gift' && (
         <Sheet title={L('Premier', 'Prizes')} onClose={() => setSheet(null)}>

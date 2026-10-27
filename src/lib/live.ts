@@ -66,7 +66,8 @@ export function notificationsFor(prevIndex: number, nextIndex: number, opts: Not
     candidates.push({
       kind: 'team',
       icon: 'team',
-      title: L('Lagmålet er nådd!', 'Team goal reached!'),
+      // Lagmålet gir alle på laget en polett til Personalmenyen
+      title: L('Lagmålet er nådd! +1 polett', 'Team goal reached! +1 token'),
       body: L('{count} av {target} i {month} – {prize}', '{count} of {target} in {month} – {prize}', vars),
       celebrate: true,
       faces: allFaces,

@@ -16,6 +16,7 @@ import {
   personalChallenge,
   products,
   rewardCatalog,
+  staffMenu,
   tonight,
   wineNames,
 } from '../src/data/demoData.ts'
@@ -94,6 +95,8 @@ add('periodGoals.year.trip.why[]', ...y.trip.why)
 add('employer.agreement.with', employer.agreement.with)
 for (const c of leaderCards) add('leaderCards[]', c.category, c.message)
 add('personalChallenge.title', personalChallenge.title)
+for (const it of staffMenu.items) add('staffMenu.items[]', it.title, it.desc)
+for (const r of staffMenu.rules) add('staffMenu.rules[]', r.title)
 
 // calc.ts
 for (const d of recordDefs) add('recordDefs[]', d.title, d.short)

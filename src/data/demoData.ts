@@ -796,3 +796,67 @@ export const medals: { id: string; title: string; icon: string; metric: MedalMet
   { id: 'ros25', title: 'Kudos 25 ganger', icon: 'heart', metric: 'kudos', goal: 25 },
   { id: 'gjester5000', title: '5 000 gjester', icon: 'guests', metric: 'guests', goal: 5_000 },
 ]
+
+// ── Personalmenyen: poletter og belønninger ────────────────────────────────
+
+/**
+ * XP er nivået (status) og brukes aldri opp. Poletter er det du bestiller med, og de tjenes bare på det
+ * du styrer selv – aldri på salg, tips eller kudos. Restauranten setter sammen menyen.
+ */
+export type MenuCat = 'tid' | 'smak' | 'gaver' | 'hemmelig'
+export type MenuDelivery = 'vaktplan' | 'kjokken' | 'bord' | 'sms' | 'lagkassa'
+export type PolettRule = 'stempel' | 'lagmal' | 'fremgang' | 'dekke'
+
+export interface MenuItem {
+  id: string
+  cat: MenuCat
+  title: string
+  /** Én linje om hva du får. */
+  desc: string
+  icon: string
+  /** Pris i poletter. */
+  price: number
+  /** Hva det koster restauranten (kr) – Karis budsjett. */
+  costKr: number
+  /** Verdi som teller mot den skattefrie gavegrensen (kr). */
+  giftKr: number
+  deliver: MenuDelivery
+  /** Velg en fredag eller lørdag. */
+  date?: boolean
+  /** Hemmelig meny: låses opp av nivået. */
+  minLevel?: number
+  /** Sparemålet: hele gavegrensen i ett gavekort. */
+  goal?: boolean
+}
+
+export const staffMenu = {
+  /** Skattefrie gaver fra jobben per år (gavekort som ikke kan veksles inn regnes som gave). */
+  giftLimitKr: 5000,
+  /** Andre gaver fra jobben i år (sommergave og bursdagsgave) – de teller mot den samme grensen. */
+  otherGiftsKr: 2200,
+  /** Hver 4. fullførte vakt gir en polett. */
+  stampCard: 4,
+  rules: [
+    { id: 'stempel' as PolettRule, title: 'Hver 4. vakt', icon: 'check' },
+    { id: 'lagmal' as PolettRule, title: 'Laget når lagmålet', icon: 'team' },
+    { id: 'fremgang' as PolettRule, title: '5 vakter på rad over eget snitt', icon: 'repeat' },
+    { id: 'dekke' as PolettRule, title: 'Tar en vakt for en kollega', icon: 'helping' },
+  ],
+  /** Poletter tjent før kvelden utenom stempelkortet (det regnes ut fra vaktene i historikken). */
+  earnedBefore: { lagmal: 3, fremgang: 1, dekke: 1 },
+  /** Fredager og lørdager der to allerede har fri. */
+  fullDates: ['2026-10-24'],
+  items: [
+    { id: 'onskefri', cat: 'tid', title: 'Ønskefri fredag eller lørdag', desc: 'Maks én per måned', icon: 'house', price: 8, costKr: 0, giftKr: 0, deliver: 'vaktplan', date: true },
+    { id: 'seksjon', cat: 'tid', title: 'Velg seksjon på neste vakt', desc: 'Settes rett i vaktplanen', icon: 'grid', price: 2, costKr: 0, giftKr: 0, deliver: 'vaktplan' },
+    { id: 'favoritt', cat: 'smak', title: 'Kokken lager favoritten din', desc: 'Til personalmaten etter vakta', icon: 'chefhat', price: 2, costKr: 60, giftKr: 150, deliver: 'kjokken' },
+    { id: 'middag', cat: 'smak', title: 'Middag for to', desc: 'Tre retter, alkoholfritt', icon: 'plate', price: 8, costKr: 400, giftKr: 1200, deliver: 'bord' },
+    { id: 'sko', cat: 'gaver', title: 'Gavekort på arbeidssko', desc: '1 000 kr til nye sko', icon: 'steps', price: 12, costKr: 1000, giftKr: 1000, deliver: 'sms' },
+    { id: 'gavekort', cat: 'gaver', title: 'Gavekort på 5 000 kr', desc: 'Sparemålet ditt', icon: 'gift', price: 60, costKr: 5000, giftKr: 5000, deliver: 'sms', goal: true },
+    { id: 'lagkassa', cat: 'gaver', title: 'Gi til lagkassa', desc: '80 kr til personalfesten', icon: 'team', price: 1, costKr: 80, giftKr: 0, deliver: 'lagkassa' },
+    { id: 'kokkensbord', cat: 'hemmelig', title: 'Kokkens bord', desc: 'Middag for to ved kjøkkenbenken', icon: 'sparkle', price: 10, costKr: 500, giftKr: 1500, deliver: 'bord', minLevel: 40 },
+    { id: 'ukensrett', cat: 'hemmelig', title: 'Lag ukens rett med kokken', desc: 'Din rett på menyen i en uke', icon: 'pot', price: 15, costKr: 300, giftKr: 0, deliver: 'kjokken', minLevel: 50 },
+  ] as MenuItem[],
+  /** Karis budsjett for høsten, og hva resten av laget har bestilt (antall – aldri hvem). */
+  team: { budgetKr: 15000, orders: { lagkassa: 9, favoritt: 7, onskefri: 5, seksjon: 4, middag: 2 } as Record<string, number> },
+}

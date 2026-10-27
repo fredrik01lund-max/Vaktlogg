@@ -22,6 +22,8 @@ import {
 import { bingoAt, ghostAt, lastCampaignResult, monthStory, movementAt, stressAt, tablesAt, floorAt, personalPeriod, teamPeriod, yearGoalAt, pairAt, pairGoal, prizeById, salesTarget, duelToEven, leaderCardsFor, myDessertTimes, setInvites, profileAt, levelFor } from '../src/lib/calc.ts'
 import { profileXp, bingo, campaign, employer, lastCampaign, periodGoals, products, rewardCatalog, team, tonight as tonightData, gameNight } from '../src/data/demoData.ts'
 import { kr, num, dec1 } from '../src/lib/format.ts'
+import { teamMenuAt, walletAt } from '../src/lib/wallet.ts'
+import { history, staffMenu } from '../src/data/demoData.ts'
 import { readFileSync } from 'node:fs'
 
 let failures = 0
@@ -317,6 +319,28 @@ console.log(`  duell kl. 19:15: ${num(d1915.me.ofAvg)} % mot ${num(d1915.opponen
   check(after.trophies === before.trophies + (recordsSetByShift([...historySummaries, tonightSummary]).get(tonightSummary.id)?.length ?? 0), 'trofeer = personlige rekorder satt')
   // Nivåtrappen: hvert nivå krever mer enn forrige, og levelFor er sammenhengende
   check(levelFor(299).level === 1 && levelFor(300).level === 2 && levelFor(after.xp - after.into).into === 0, 'nivåtrappen henger sammen')
+}
+{
+  console.log('\nPERSONALMENYEN – POLETTER')
+  const pre = walletAt('pre', -1, [])
+  const done = walletAt('done', lastStepIndex, [])
+  console.log(`  før kvelden: ${pre.balance} poletter (stempelkort ${pre.stamps}/${pre.card}); etter: ${done.balance} (+${done.tonight}${done.tonightTeamGoal ? ', lagmålet' : ''})`)
+  check(pre.earnedTotal === Math.floor(history.length / staffMenu.stampCard) + Object.values(staffMenu.earnedBefore).reduce((a, b) => a + b, 0), 'før kvelden: én polett per 4. vakt i historikken + de andre reglene')
+  check(done.tonight === 1 && done.tonightTeamGoal && teamAt(liveAt(lastStepIndex)).reachedSales, 'lagmålet nås i kveld og gir 1 polett')
+  check(done.balance === pre.balance + done.tonight, `saldo etter kvelden = før + kvelden (${pre.balance} → ${done.balance})`)
+  const wish = staffMenu.items.find((i) => i.id === 'onskefri')!
+  check(done.balance >= wish.price && pre.balance >= wish.price, `Emma har råd til ønskefri (${wish.price}) – demoen kan vise godkjenningen hos Kari`)
+  check(staffMenu.items.every((i) => i.costKr / i.price <= 85), 'ingen rett koster restauranten mer enn 85 kr per polett (≈ 4 000 kr for 50 poletter)')
+  const goal = staffMenu.items.filter((i) => i.goal)
+  check(goal.length === 1 && goal[0].costKr === staffMenu.giftLimitKr && goal[0].giftKr === staffMenu.giftLimitKr, 'sparemålet er hele den skattefrie gavegrensen')
+  check(pre.giftRoomKr > 0 && pre.giftRoomKr < goal[0].giftKr, `gavegrensen: ${kr(pre.giftRoomKr)} igjen i år, så gavekortet viser skatteadvarselen`)
+  const t = teamMenuAt([])
+  check(t.usedKr <= t.budgetKr, `laget har brukt ${kr(t.usedKr)} av ${kr(t.budgetKr)}`)
+  const lvl = profileAt([...historySummaries, tonightSummary]).level
+  const secret = staffMenu.items.filter((i) => i.minLevel)
+  check(secret.some((i) => i.minLevel! <= lvl) && secret.some((i) => i.minLevel! > lvl), `hemmelig meny: én rett åpen og én låst på LVL ${lvl}`)
+  check(staffMenu.items.every((i) => !/vin|øl|cocktail|alkohol(?!fri)/i.test(i.title + ' ' + i.desc)), 'ingen alkohol på menyen')
+  check(!staffMenu.rules.some((r) => /salg|tips|kudos/i.test(r.title)), 'ingen poletter for salg, tips eller kudos')
 }
 console.log(failures ? `\n${failures} sjekk(er) feilet` : '\nAlle sjekker OK')
 process.exit(failures ? 1 : 0)

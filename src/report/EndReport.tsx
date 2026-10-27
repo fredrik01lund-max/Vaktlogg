@@ -17,6 +17,7 @@ import { navigate } from '../router.ts'
 import { useShifts } from '../shifts.ts'
 import { useStore } from '../state.tsx'
 import { Confetti, CountUp, Icon, Sheet } from '../ui.tsx'
+import { PolettCard } from '../staffmenu.tsx'
 import { Envelope, Face, nameOf } from '../game-ui.tsx'
 import { L, td } from '../i18n.ts'
 import type { RecordDetail } from '../screens/Report.tsx'
@@ -328,6 +329,7 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
             </button>
           )}
           <PrizeProgress quiet={quiet} />
+          <PolettCard />
         </div>
       )}
 

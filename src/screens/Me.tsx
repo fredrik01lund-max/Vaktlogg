@@ -7,6 +7,7 @@ import { Face } from '../game-ui.tsx'
 import { Icon, Segmented, Switch, TopBar } from '../ui.tsx'
 import { L, td } from '../i18n.ts'
 import { LevelCard, LevelDot } from '../profile.tsx'
+import { WalletRow } from '../staffmenu.tsx'
 
 export function Me() {
   const { settings, updateSettings } = useStore()
@@ -32,6 +33,8 @@ export function Me() {
       {/* Nivået: salg, tips, medaljer og trofeer blir XP */}
       <section className="section">
         <LevelCard />
+        {/* Personalmenyen: poletter tjent på det du styrer selv */}
+        <WalletRow />
       </section>
 
       <section className="section">

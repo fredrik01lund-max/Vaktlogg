@@ -11,6 +11,7 @@ import './toast.css'
 import { Goals } from './screens/Goals.tsx'
 import { History, HistoryDetail } from './screens/History.tsx'
 import { Me } from './screens/Me.tsx'
+import { StaffMenu } from './staffmenu.tsx'
 import { recordDetails } from './screens/Report.tsx'
 import { EndReport } from './report/EndReport.tsx'
 import { ShiftLive, ShiftStart } from './screens/Shift.tsx'
@@ -318,7 +319,7 @@ function Shell() {
   else if (tab === 'historikk' && second && !overlayMonth) screen = <HistoryDetail id={second} />
   else if (tab === 'historikk') screen = <History />
   else if (tab === 'mal') screen = <Goals />
-  else if (tab === 'meg') screen = <Me />
+  else if (tab === 'meg') screen = second === 'meny' ? <StaffMenu /> : <Me />
   else screen = <ShiftTab topic={tab === 'vakt' ? second : undefined} />
 
   return (
