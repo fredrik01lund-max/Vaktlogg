@@ -74,7 +74,7 @@
 }
 /* Fullt brett: alle knappene trykket ned i en myk regnbue */
 .bingo.full .bingo-tile.on {
-  background: linear-gradient(160deg, #cdeedd 0%, #d6e4f8 55%, #e4dcfc 100%);
+  background: linear-gradient(160deg, #cdeedd 0%, #fbeec0 55%, #fde3cc 100%);
 }
 .bingo.full::after {
   border-color: #8fd4b1;

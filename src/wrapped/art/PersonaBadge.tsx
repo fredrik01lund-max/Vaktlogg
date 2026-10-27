@@ -44,18 +44,18 @@ export function PersonaBadge({ icon, traits, label }: PersonaBadgeProps) {
     <svg className="w-art pb" viewBox={`0 0 ${W} ${h}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label={label}>
       <defs>
         <radialGradient id={id('halo')}>
-          <stop offset="0" stopColor="#9fe3bf" stopOpacity={0.35} />
-          <stop offset="1" stopColor="#9fe3bf" stopOpacity={0} />
+          <stop offset="0" stopColor="#ffffff" stopOpacity={0.7} />
+          <stop offset="1" stopColor="#ffffff" stopOpacity={0} />
         </radialGradient>
-        <LinGrad id={id('badge')} from="#3a9d6c" to="#8f82e6" />
+        <LinGrad id={id('badge')} from="#ffb784" to="#f292b8" />
       </defs>
       <g aria-hidden="true">
         <circle cx={CX} cy={CY} r={168} fill={`url(#${id('halo')})`} />
-        <circle className="w-fade" style={{ '--d': '600ms' } as CSSProperties} cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,.22)" strokeWidth={1.5} strokeDasharray="2 7" strokeLinecap="round" />
+        <circle className="w-fade" style={{ '--d': '600ms' } as CSSProperties} cx={CX} cy={CY} r={R} fill="none" stroke="rgba(110,42,60,.3)" strokeWidth={1.5} strokeDasharray="2 7" strokeLinecap="round" />
         <g className="pb-badge w-spin" style={{ '--d': '150ms' } as CSSProperties}>
           <Flower x={CX} y={CY} size={236} fill={`url(#${id('badge')})`} />
           <Flower x={CX} y={CY} size={204} fill="none" stroke="rgba(255,255,255,.85)" sw={3} />
-          <SvgIcon name={icon} x={CX} y={CY} size={98} color="#ffffff" sw={2.2} />
+          <SvgIcon name={icon} x={CX} y={CY} size={98} color="#6e2a3c" sw={2.2} />
         </g>
         {sats.map((s, i) => (
           <g key={`${i}-${s.label}`}>
@@ -74,7 +74,7 @@ export function PersonaBadge({ icon, traits, label }: PersonaBadgeProps) {
               textAnchor="middle"
               fontSize={15}
               fontWeight={700}
-              fill="#ffffff"
+              fill="#2e1a22"
             >
               {s.label}
             </text>

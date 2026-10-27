@@ -22,7 +22,7 @@ import { L, td } from '../i18n.ts'
 import type { RecordDetail } from '../screens/Report.tsx'
 import './report.css'
 
-type Tone = 'gold' | 'green' | 'pink' | 'lilac' | 'rose' | 'blue'
+type Tone = 'gold' | 'green' | 'pink' | 'yellow' | 'rose' | 'blue'
 
 interface Highlight {
   id: string
@@ -71,7 +71,7 @@ function useReportData(summary: ShiftSummary, records: RecordDetail[], isTonight
   }
   if (isTonight && demo.game === 'makker') {
     const p = pairAt(end)
-    highlights.push({ id: 'makker', icon: 'pair', tone: 'lilac', competition: true, text: p.reached ? L('Makkermålet nådd med {name}', 'Buddy goal reached with {name}', { name: nameOf(p.partnerId) }) : L('{n} av {goal} desserter med {name}', '{n} of {goal} desserts with {name}', { n: num(p.count), goal: num(p.goal), name: nameOf(p.partnerId) }) })
+    highlights.push({ id: 'makker', icon: 'pair', tone: 'yellow', competition: true, text: p.reached ? L('Makkermålet nådd med {name}', 'Buddy goal reached with {name}', { name: nameOf(p.partnerId) }) : L('{n} av {goal} desserter med {name}', '{n} of {goal} desserts with {name}', { n: num(p.count), goal: num(p.goal), name: nameOf(p.partnerId) }) })
   }
   if (isTonight && demo.game !== 'rolig' && teamAt(end).reachedSales) highlights.push({ id: 'lag', icon: 'team', tone: 'green', competition: true, text: L('Lagmålet nådd', 'Team goal reached') })
   if (isTonight && demo.game !== 'rolig') {
@@ -82,7 +82,7 @@ function useReportData(summary: ShiftSummary, records: RecordDetail[], isTonight
     const from = [...new Set(summary.kudos.map((k) => colleagueName(k.from)))]
     highlights.push({ id: 'ros', icon: 'heart', tone: 'rose', text: L('Kudos fra {names}', 'Kudos from {names}', { names: from.join(L(' og ', ' and ')) }) })
   }
-  if (food) highlights.push({ id: 'rett', icon: 'plate', tone: 'lilac', text: L('Mest solgt: {dish} ×{n}', 'Best seller: {dish} ×{n}', { dish: td(food.name), n: num(food.qty) }) })
+  if (food) highlights.push({ id: 'rett', icon: 'plate', tone: 'yellow', text: L('Mest solgt: {dish} ×{n}', 'Best seller: {dish} ×{n}', { dish: td(food.name), n: num(food.qty) }) })
 
   return { end, vsAvg, salesRecord, slots, peak, watch, highlights, tables: isTonight ? end.tablesServed : null }
 }
@@ -100,7 +100,7 @@ export function ReportPoster({ summary, data, show, animate }: { summary: ShiftS
     { id: 'gjester', icon: 'guests', tone: 'green', value: num(summary.guests), label: L('gjester', 'guests') },
     data.tables !== null ? { id: 'bord', icon: 'grid', tone: 'green', value: num(data.tables), label: L('bord', 'tables') } : { id: 'timer', icon: 'clock', tone: 'blue', value: dec1(summary.hours).replace(/[,.]0$/, ''), label: L('timer', 'hours') },
     { id: 'dessert', icon: 'dessert', tone: 'pink', value: num(summary.desserts), label: L('desserter', 'desserts') },
-    { id: 'snitt', icon: 'receipt', tone: 'lilac', value: kr(summary.avgCheck), label: L('per gjest', 'per guest') },
+    { id: 'snitt', icon: 'receipt', tone: 'yellow', value: kr(summary.avgCheck), label: L('per gjest', 'per guest') },
     data.watch && show.steps ? { id: 'skritt', icon: 'steps', tone: 'rose', value: num(summary.activity.steps), label: L('skritt · {km} km', 'steps · {km} km', { km: dec1(summary.activity.km) }) } : { id: 'timer2', icon: 'clock', tone: 'blue', value: dec1(summary.hours).replace(/[,.]0$/, ''), label: L('timer på jobb', 'hours at work') },
   ]
   const shown = tiles.filter((t) => !t.hidden)
@@ -304,7 +304,7 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
 
       {quiet && (
         <div className="er-card er-quiet">
-          <Icon name="moon" />
+          <Icon name="calm" />
           <span className="grow">{L('Rolig vakt: spillene er skjult.', 'Calm shift: the games are hidden.')}</span>
           <button className="btn secondary small" onClick={() => setRevealed(true)}>
             {L('Vis resultatene', 'Show results')}

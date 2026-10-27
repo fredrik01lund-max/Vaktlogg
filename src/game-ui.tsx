@@ -7,6 +7,7 @@ import { bingo, campaign, lastCampaign, tonight } from './data/demoData.ts'
 import type { GameId, MomentId } from './data/demoData.ts'
 import type { BingoState, CampaignState, Invites, PeriodState, ThanksCard } from './lib/calc.ts'
 import { FlowRings } from './rings.tsx'
+import { GameIcon } from './game-icons.tsx'
 import { prizeById } from './lib/calc.ts'
 import { CountUp, Icon, paths, useInView } from './ui.tsx'
 import { rememberValue, seenValue } from './lib/motion.ts'
@@ -141,10 +142,10 @@ export function BingoBoard({ state, compact }: { state: BingoState; compact?: bo
 
 // Pastell: to-delte flater for spill mellom to, mørk ikonfarge av samme tone.
 export const gameMeta: Record<GameId, { word: string; icon: string; grad: string; ink: string }> = {
-  duell: { get word() { return L('Duell', 'Duel') }, icon: 'duel', grad: 'linear-gradient(90deg, #f9cadb 50%, #cfdcf6 50%)', ink: '#4f2a4a' },
-  makker: { get word() { return L('Makker', 'Buddy') }, icon: 'pair', grad: 'linear-gradient(90deg, #f9cadb 50%, #dcd4fc 50%)', ink: '#4a2b5c' },
+  duell: { get word() { return L('Duell', 'Duel') }, icon: 'duel', grad: 'linear-gradient(90deg, #f9cadb 50%, #cfdcf6 50%)', ink: '#5a2a3e' },
+  makker: { get word() { return L('Makker', 'Buddy') }, icon: 'pair', grad: 'linear-gradient(90deg, #f9cadb 50%, #fbe6a2 50%)', ink: '#6e2a3c' },
   laget: { get word() { return L('Laget', 'The team') }, icon: 'team', grad: 'linear-gradient(140deg, #cdeedd, #8fd4b1)', ink: '#1f6a48' },
-  rolig: { get word() { return L('Rolig', 'Calm') }, icon: 'moon', grad: 'linear-gradient(140deg, #e2e6f4, #bcc5e2)', ink: '#2f3d66' },
+  rolig: { get word() { return L('Rolig', 'Calm') }, icon: 'calm', grad: 'linear-gradient(140deg, #e2e6f4, #bcc5e2)', ink: '#2f3d66' },
 }
 
 /** Fire like store kort. Rolig er like stort og like synlig som Duell. Den inviterte kollegaen står på kortet. */
@@ -157,8 +158,8 @@ export function GameCards({ value, onChange, invites, disabled }: { value: GameI
         const other = g === 'duell' ? invites.duell : g === 'makker' ? invites.makker : null
         return (
           <button key={g} className={`game-card ${on ? 'on' : ''}`} role="radio" aria-checked={on} disabled={disabled} onClick={() => onChange(g)}>
-            <span className="gc-icon" style={{ background: m.grad, color: m.ink }}>
-              <Icon name={m.icon} />
+            <span className="gc-icon gi">
+              <GameIcon game={g} />
             </span>
             <span className="gc-word">{m.word}</span>
             {other && on && (

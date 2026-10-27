@@ -479,7 +479,7 @@ export const slideDefs: SlideDef[] = [
     id: 'apning',
     title: () => L('Måneden din', 'Your month'),
     tone: 'night',
-    ink: 'dark',
+    ink: 'light',
     dur: 4500,
     aria: (s) => L('{n} vakter, {hours}', s.count === 1 ? '{n} shift, {hours}' : '{n} shifts, {hours}', { n: num(s.count), hours: hoursText(s.hours) }),
     Body: Apning,
@@ -529,6 +529,6 @@ export const slideDefs: SlideDef[] = [
     aria: (s) => L('Kudos {times}', 'Kudos from colleagues, {times}', { times: timesText(s.kudosTotal) }),
     Body: Ros,
   },
-  { id: 'type', title: () => L('Din type', 'Your type'), tone: 'blend', ink: 'dark', dur: 4500, aria: (s) => L('Din type: {title}', 'Your type: {title}', { title: td(s.persona.title) }), Body: Type },
-  { id: 'del', title: () => L('Del', 'Share'), tone: 'night', ink: 'dark', aria: () => L('Velg hva som deles', 'Choose what to share'), Body: Del },
+  { id: 'type', title: () => L('Din type', 'Your type'), tone: 'blend', ink: 'light', dur: 4500, aria: (s) => L('Din type: {title}', 'Your type: {title}', { title: td(s.persona.title) }), Body: Type },
+  { id: 'del', title: () => L('Del', 'Share'), tone: 'night', ink: 'light', aria: () => L('Velg hva som deles', 'Choose what to share'), Body: Del },
 ]

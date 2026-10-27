@@ -30,8 +30,8 @@ function Tile({ f, wide, added }: { f: Fact; wide: boolean; added: boolean }) {
   return (
     <div className={['sp-tile', wide && 'sp-wide', pop && 'sp-new'].filter(Boolean).join(' ')}>
       <svg className="sp-chip" viewBox="0 0 22 22" aria-hidden="true">
-        <path d={CHIP} fill="rgba(255,255,255,.18)" />
-        <SvgIcon name={f.icon} x={11} y={11} size={13} />
+        <path d={CHIP} fill="rgba(255,255,255,.7)" />
+        <SvgIcon name={f.icon} x={11} y={11} size={13} color="#6e2a3c" />
       </svg>
       <span className="sp-val">{f.value}</span>
       <span className="sp-lbl">{f.label}</span>
@@ -53,7 +53,7 @@ export function SharePoster({ name, persona, calendar, facts, footer }: SharePos
         <span className="sp-brand">{config.appName}</span>
         {persona && (
           <div className="sp-badge w-pop" style={{ '--d': '300ms' } as CSSProperties}>
-            <Shape kind="flower" size={64} grad={['#3a9d6c', '#8f82e6']} icon={persona.icon} />
+            <Shape kind="flower" size={64} grad={['#f08fb0', '#c85a82']} icon={persona.icon} />
           </div>
         )}
       </div>

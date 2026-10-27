@@ -3,24 +3,22 @@
 .cal-head {
   font-size: 11px;
   font-weight: 700;
-  fill: #fff;
-  opacity: 0.85;
+  fill: #6e2a3c;
 }
 .cal-off {
   font-size: 12px;
   font-weight: 600;
-  fill: #fff;
-  opacity: 0.82;
+  fill: #7a4654;
 }
 .cal-num {
   font-size: 15px;
   font-weight: 800;
-  fill: #23314f;
+  fill: #3a1a24;
 }
 .cal-lbl {
   font-size: 11px;
   font-weight: 700;
-  fill: #9fe3bf;
+  fill: #94284c;
 }
 /* Kjeksene snurrer og spretter rundt sitt eget midtpunkt */
 .cal-cookie {

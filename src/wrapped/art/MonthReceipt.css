@@ -5,18 +5,18 @@
   font-style: italic;
   font-weight: 600;
   font-size: 18px;
-  fill: #17231f;
+  fill: #2e1a22;
 }
 .rc-art .rc-sub {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  fill: #5c6a64;
+  fill: #5e3a46;
 }
 .rc-art .rc-day {
   font-size: 13px;
   font-weight: 600;
-  fill: #4b5a54;
+  fill: #5e3a46;
   /* Papirfarget kant under teksten: prikklinjen bak stopper med litt luft etter dagnavnet */
   paint-order: stroke;
   stroke: #fffdf9;
@@ -26,18 +26,18 @@
 .rc-art .rc-amt {
   font-size: 13px;
   font-weight: 700;
-  fill: #17231f;
+  fill: #2e1a22;
 }
 .rc-art .rc-totl {
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.12em;
-  fill: #17231f;
+  fill: #2e1a22;
 }
 .rc-art .rc-total {
   font-size: 22px;
   font-weight: 800;
-  fill: #17231f;
+  fill: #2e1a22;
 }
 
 /* Stempelet hviler skrått; .w-stamp lander fra rett (rotate 0) og stort. */

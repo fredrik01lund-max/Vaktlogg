@@ -8,12 +8,12 @@
   flex-direction: column;
   padding: 16px 20px;
   border-radius: 24px;
-  color: #fff;
+  color: #2e1a22;
   text-align: left;
   background:
-    radial-gradient(240px 160px at 100% 0%, rgba(255, 255, 255, 0.16), transparent 70%),
-    linear-gradient(165deg, #23314f 0%, #3b3a8a 55%, #5a47b8 100%);
-  box-shadow: 0 18px 40px -18px rgba(35, 49, 79, 0.6);
+    radial-gradient(240px 160px at 100% 0%, rgba(255, 255, 255, 0.4), transparent 70%),
+    linear-gradient(165deg, #ffc896 0%, #fdb8b4 50%, #f6a2c8 100%);
+  box-shadow: 0 18px 40px -18px rgba(110, 42, 60, 0.45);
 }
 .sp > * {
   flex: none;
@@ -53,13 +53,13 @@
   font-size: 15px;
   font-weight: 700;
   line-height: 1.25;
-  color: #9fe3bf;
+  color: #6e2a3c;
 }
 .sp-band {
   margin-top: 10px;
   padding: 7px 8px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.45);
   display: flex;
   justify-content: center;
 }
@@ -82,7 +82,7 @@
   column-gap: 6px;
   padding: 9px 12px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.45);
 }
 .sp-wide {
   grid-column: span 2;
@@ -107,24 +107,24 @@
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
-/* Hvit: den lyse lilla (#e2defc) ga bare ca. 4:1 på de nederste flisene. Hvitt gir ≥ 5:1 overalt. */
+/* Mørk plomme på de lyse flisene: ≥ 7:1 overalt */
 .sp-lbl {
   font-size: 12px;
   line-height: 1.25;
-  color: #fff;
+  color: #4a2230;
 }
 .sp-empty {
   display: block;
   text-align: center;
   font-size: 15px;
   font-weight: 700;
-  color: #e2defc;
+  color: #4a2230;
 }
 .sp-foot {
   margin-top: 8px;
   font-size: 13px;
   line-height: 1.25;
-  color: #e2defc;
+  color: #4a2230;
 }
 
 /* Tre eller flere rader: tettere fliser, brede fliser på én linje og lavere kalenderbånd */

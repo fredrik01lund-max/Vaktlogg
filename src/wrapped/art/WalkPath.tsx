@@ -85,7 +85,7 @@ function WalkArt({ km, target, cumKm, flags, leftText, label, live }: WalkPathPr
           const cy = s.top + PS / 2
           return (
             <g key={f.n} className={f.reached ? 'w-pop wp-pop' : 'w-fade'} style={f.reached ? undefined : LATE}>
-              <line x1={s.x} y1={s.base} x2={s.x} y2={s.top} stroke="#17231f" strokeWidth={1.5} strokeLinecap="round" />
+              <line x1={s.x} y1={s.base} x2={s.x} y2={s.top} stroke="#2e1a22" strokeWidth={1.5} strokeLinecap="round" />
               <g transform={`translate(${px} ${s.top})`}>
                 {f.reached ? (
                   <path d={PENNANT} fill={`url(#${id('gold')})`} stroke="#fff" strokeWidth={1.5} />
@@ -100,11 +100,11 @@ function WalkArt({ km, target, cumKm, flags, leftText, label, live }: WalkPathPr
               </text>
               {f.label &&
                 (end ? (
-                  <text x={s.x} y={s.base + 15} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600} fill="#4b5a54">
+                  <text x={s.x} y={s.base + 15} textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600} fill="#5e3a46">
                     {f.label}
                   </text>
                 ) : (
-                  <text x={s.side > 0 ? px + PS + 5 : px - 5} y={cy} textAnchor={s.side > 0 ? 'start' : 'end'} dominantBaseline="central" fontSize={11} fontWeight={600} fill="#4b5a54">
+                  <text x={s.side > 0 ? px + PS + 5 : px - 5} y={cy} textAnchor={s.side > 0 ? 'start' : 'end'} dominantBaseline="central" fontSize={11} fontWeight={600} fill="#5e3a46">
                     {f.label}
                   </text>
                 ))}

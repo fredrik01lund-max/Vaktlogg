@@ -70,16 +70,16 @@ export function MonthReceipt({ title, subtitle, rows, total, tips, mode, label }
 
       {/* (a) Kortterminalen, fast nederst */}
       <g aria-hidden="true">
-        <rect x={14} y={T} width={292} height={40} rx={14} fill="#23314f" />
-        <rect x={34} y={T + 4} width={252} height={5} rx={2.5} fill="#0f1830" />
-        <circle cx={153} cy={T + 26} r={2} fill="#fff" fillOpacity={0.25} />
-        <circle cx={167} cy={T + 26} r={2} fill="#fff" fillOpacity={0.25} />
+        <rect x={14} y={T} width={292} height={40} rx={14} fill="#f4a9c2" />
+        <rect x={34} y={T + 4} width={252} height={5} rx={2.5} fill="#94284c" />
+        <circle cx={153} cy={T + 26} r={2} fill="#fff" fillOpacity={0.8} />
+        <circle cx={167} cy={T + 26} r={2} fill="#fff" fillOpacity={0.8} />
       </g>
 
       {/* (b, c) Papiret, klippet ved spalten */}
       <g clipPath={`url(#${id('slot')})`} aria-hidden="true">
         <g className="rc-paper w-print" style={vars({ '--d': '150ms' })}>
-          <path d={paper} transform="translate(3 4)" fill="#23314f" opacity={0.08} />
+          <path d={paper} transform="translate(3 4)" fill="#6e2a3c" opacity={0.08} />
           <path d={paper} fill="#fffdf9" />
           <text className="rc-brand" x={160} y={46} textAnchor="middle">
             {title}
@@ -107,14 +107,14 @@ export function MonthReceipt({ title, subtitle, rows, total, tips, mode, label }
             )
           })}
 
-          <path d={`M60 ${rowsEnd - 6}H262M60 ${rowsEnd - 2}H262`} stroke="#17231f" strokeWidth={1} />
+          <path d={`M60 ${rowsEnd - 6}H262M60 ${rowsEnd - 2}H262`} stroke="#2e1a22" strokeWidth={1} />
           <text className="rc-totl" x={60} y={rowsEnd + 26}>
             {L('TOTALT', 'TOTAL')}
           </text>
           <text className="rc-total" x={262} y={rowsEnd + 28} textAnchor="end">
             {play ? <TotalCount total={total} /> : kr(total)}
           </text>
-          <g fill="#17231f">
+          <g fill="#2e1a22">
             {bars.map((b) => (
               <rect key={b.id} x={b.x} y={foot - 8} width={b.w} height={16} />
             ))}

@@ -19,7 +19,7 @@
   background: rgba(255, 255, 255, 0.82);
   -webkit-backdrop-filter: blur(14px) saturate(1.2);
   backdrop-filter: blur(14px) saturate(1.2);
-  box-shadow: 0 8px 22px -12px rgba(60, 40, 70, 0.4);
+  box-shadow: 0 8px 22px -12px rgba(80, 40, 50, 0.4);
   animation: pillIn 380ms var(--ease-pop) backwards;
   transition:
     border-radius 240ms var(--ease-standard),
@@ -33,10 +33,10 @@
 }
 .toasts > .toast.mini.team,
 .toasts > .toast.mini.kudos {
-  background: linear-gradient(135deg, rgba(230, 247, 238, 0.88), rgba(238, 236, 255, 0.88));
+  background: linear-gradient(135deg, rgba(230, 247, 238, 0.88), rgba(255, 242, 228, 0.88));
 }
 .toasts > .toast.mini.duel {
-  background: linear-gradient(135deg, rgba(253, 234, 241, 0.88), rgba(236, 233, 255, 0.88));
+  background: linear-gradient(135deg, rgba(253, 234, 241, 0.88), rgba(232, 239, 252, 0.88));
 }
 .toasts > .toast.mini .icon-badge {
   flex: none;

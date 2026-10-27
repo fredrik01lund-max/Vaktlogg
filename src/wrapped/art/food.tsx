@@ -53,8 +53,8 @@ export function Dish({ id, x, y }: { id: string; x: number; y: number }) {
         <path d={`M${x + 13},${y + 4}A7,7 0 0 1 ${x + 27},${y + 4}Z`} fill="#f7de7a" transform={`rotate(-12 ${x + 20} ${y + 4})`} />
         {SHELLS.map((s) => (
           <g key={s.dx} transform={`translate(${x + s.dx} ${y + s.dy}) rotate(${s.r})`}>
-            <ellipse rx={3.5} ry={5.5} fill="#2b2f45" />
-            <ellipse cx={-1} cy={-1} rx={1.2} ry={3.2} fill="#4d5a7a" />
+            <ellipse rx={3.5} ry={5.5} fill="#33303a" />
+            <ellipse cx={-1} cy={-1} rx={1.2} ry={3.2} fill="#5b5560" />
           </g>
         ))}
       </g>
@@ -63,7 +63,7 @@ export function Dish({ id, x, y }: { id: string; x: number; y: number }) {
 
   return (
     <g aria-hidden="true">
-      <Cookie x={x} y={y} size={22} fill="#8f82e6" />
+      <Cookie x={x} y={y} size={22} fill="#f08fb0" />
     </g>
   )
 }

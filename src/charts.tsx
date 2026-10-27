@@ -4,8 +4,8 @@ import { isWeekend, kr } from './lib/format.ts'
 /** Salg per halvtime gjennom vakten. */
 export function SalesSlots({ values, current, startHour = 16, tone }: { values: number[]; current: number; startHour?: number; tone?: 'gold' }) {
   // Pastell: halvtimen nå i sterk pastell, resten i lys pastell
-  const strong = tone === 'gold' ? 'var(--orange-strong)' : 'var(--lilac-strong)'
-  const soft = tone === 'gold' ? '#fbd3aa' : 'var(--lilac-fill)'
+  const strong = tone === 'gold' ? 'var(--orange-strong)' : 'var(--pink-strong)'
+  const soft = tone === 'gold' ? '#fbd3aa' : 'var(--pink-fill)'
   const W = 340
   const H = 104
   const top = 8

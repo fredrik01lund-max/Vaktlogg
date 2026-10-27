@@ -1,13 +1,13 @@
 /* ══ Sluttrapporten ═══════════════════════════════════════════════════════
-   Plakaten er onepageren som deles: lys pastellflate (fersken → rosa → lilla) med myke fargeflekker,
+   Plakaten er onepageren som deles: lys pastellflate (fersken → rosa → gul) med myke fargeflekker,
    mørk tekst og nøkkeltall i små flater med temafargene fra vaktsiden. */
 
 .er {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  --er-ink: #2a1f33;
-  --er-muted: #5b4560;
+  --er-ink: #33202a;
+  --er-muted: #66404d;
 }
 .er-bar {
   display: flex;
@@ -33,18 +33,18 @@
 
 /* ── Plakaten ── */
 .er-poster {
-  --er-ink: #2a1f33;
-  --er-muted: #5b4560;
+  --er-ink: #33202a;
+  --er-muted: #66404d;
   position: relative;
   overflow: hidden;
   padding: 18px 18px 16px;
   border-radius: 28px;
   color: var(--er-ink);
   background:
-    radial-gradient(260px 180px at 100% 0%, rgba(205, 194, 250, 0.85), transparent 70%),
+    radial-gradient(260px 180px at 100% 0%, rgba(251, 230, 162, 0.85), transparent 70%),
     radial-gradient(240px 200px at 0% 100%, rgba(182, 230, 204, 0.8), transparent 70%),
     radial-gradient(200px 160px at 85% 70%, rgba(249, 196, 216, 0.75), transparent 70%),
-    linear-gradient(160deg, #fff0e1 0%, #fde1ea 55%, #ece6ff 100%);
+    linear-gradient(160deg, #fff0e1 0%, #fde1ea 55%, #fff1d6 100%);
   box-shadow: 0 22px 44px -22px rgba(150, 90, 130, 0.45);
 }
 .er-top {
@@ -159,7 +159,7 @@
   flex: 1;
   border-radius: 3px;
   background: rgba(255, 255, 255, 0.85);
-  box-shadow: inset 0 0 0 1px rgba(171, 156, 240, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(240, 143, 176, 0.35);
 }
 .er-bars i[data-peak] {
   background: var(--orange-strong);
@@ -197,8 +197,8 @@
   height: 24px;
   margin-bottom: 4px;
   border-radius: 8px;
-  background: var(--tile-fill, var(--lilac-fill));
-  color: var(--tile-ink, var(--lilac-ink));
+  background: var(--tile-fill, var(--yellow-fill));
+  color: var(--tile-ink, var(--yellow-ink));
 }
 .er-tile-ic svg {
   width: 14px;
@@ -216,9 +216,9 @@
   --tile-fill: var(--pink-fill);
   --tile-ink: var(--pink-ink);
 }
-.er-tile[data-tone='lilac'] {
-  --tile-fill: var(--lilac-fill);
-  --tile-ink: var(--lilac-ink);
+.er-tile[data-tone='yellow'] {
+  --tile-fill: var(--yellow-fill);
+  --tile-ink: var(--yellow-ink);
 }
 .er-tile[data-tone='rose'] {
   --tile-fill: var(--red-fill);
@@ -277,9 +277,11 @@
 .er-highlights li[data-tone='rose'] svg {
   color: var(--pink-ink);
 }
-.er-highlights li[data-tone='lilac'] svg,
+.er-highlights li[data-tone='yellow'] svg {
+  color: var(--yellow-ink);
+}
 .er-highlights li[data-tone='blue'] svg {
-  color: var(--lilac-ink);
+  color: var(--blue-ink);
 }
 
 /* ── Under plakaten ── */
@@ -449,9 +451,9 @@
   border-color: var(--line);
 }
 .er-chip-toggle[aria-checked='true'] {
-  background: var(--lilac-fill);
-  color: var(--lilac-ink);
-  border-color: var(--lilac-strong);
+  background: var(--pink-fill);
+  color: var(--primary-ink);
+  border-color: var(--pink-strong);
 }
 
 /* ── Bevegelse første gang: plakaten glir inn, nøkkeltallene etter tur ── */

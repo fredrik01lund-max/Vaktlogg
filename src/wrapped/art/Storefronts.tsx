@@ -70,7 +70,7 @@ export function Storefronts({ houses, seats, label }: StorefrontsProps) {
             <g key={k} transform={`translate(${x} ${y})`}>
               <g className="w-up" style={vars({ '--i': k, '--st': '80ms' })}>
                 {/* Fasaden med skygge */}
-                <rect x={2} y={24} width={HOUSE_W} height={FACADE_B - 20} rx={8} fill="#17231f" opacity={0.06} />
+                <rect x={2} y={24} width={HOUSE_W} height={FACADE_B - 20} rx={8} fill="#2e1a22" opacity={0.06} />
                 <rect y={20} width={HOUSE_W} height={FACADE_B - 20} rx={8} fill="#ffffff" />
                 {/* Glassfronten: setene sees gjennom vinduet */}
                 <rect x={WIN.x} y={WIN.y} width={WIN.w} height={WIN.h} rx={5} fill="#f3faf6" stroke="#2e8c5e" strokeWidth={2} />

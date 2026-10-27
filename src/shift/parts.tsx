@@ -3,7 +3,8 @@
 import { useRef } from 'react'
 import type { ReactNode } from 'react'
 import { L } from '../i18n.ts'
-import { activityAt, hrZone } from '../lib/calc.ts'
+import { tonight } from '../data/demoData.ts'
+import { activityAt, hrZone, toMin } from '../lib/calc.ts'
 import { useClock, useClockTime } from '../lib/clock.ts'
 import { num } from '../lib/format.ts'
 import { DUR, linear } from '../lib/motion.ts'
@@ -20,11 +21,27 @@ export function LiveHead({ time, children }: { time: string; children?: ReactNod
     <header className="dA-head st-head">
       {children ?? (
         <span className="dA-live">
-          <i /> {L('Vakt pågår', 'Shift in progress')}
+          <ShiftRing time={time} /> {L('Vakt pågår', 'Shift in progress')}
         </span>
       )}
       <Odo text={clock ?? time} />
     </header>
+  )
+}
+
+/** Vakt-ringen fra logoen: fylles fra vaktstart til vaktslutt, med den levende prikken i enden. */
+function ShiftRing({ time }: { time: string }) {
+  const clock = useClock()
+  const start = toMin(tonight.start)
+  const frac = Math.min(1, Math.max(0, ((clock ?? toMin(time)) - start) / (toMin(tonight.end) - start)))
+  const r = 8
+  const a = (frac * 360 - 90) * (Math.PI / 180)
+  return (
+    <svg className="shift-ring" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r={r} pathLength={100} className="sr-track" />
+      <circle cx="12" cy="12" r={r} pathLength={100} className="sr-arc" strokeDasharray={`${frac * 100} 100`} transform="rotate(-90 12 12)" />
+      <circle cx={12 + r * Math.cos(a)} cy={12 + r * Math.sin(a)} r={3.4} className="sr-dot" />
+    </svg>
   )
 }
 

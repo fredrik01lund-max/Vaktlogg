@@ -263,7 +263,7 @@ export function Report({ summary, records, isTonight }: { summary: ShiftSummary;
       {quietReport && (
         <div className="card tint-sage flat mt20">
           <div className="note" style={{ color: 'var(--sage-deep)' }}>
-            <Icon name="moon" />
+            <Icon name="calm" />
             <span>{L('Rolig vakt: spill og lagmål er skjult. Resultatene er lagret.', 'Calm shift: games and team goals are hidden. Your results are saved.')}</span>
           </div>
           <button className="btn secondary small mt12" onClick={() => setRevealed(true)}>

@@ -213,7 +213,7 @@ export const flowRing: Record<string, { from: string; to: string; lap: string; t
   uke: { from: '#ffd9b3', to: '#f0a456', lap: '#cf8233', track: 'rgba(240, 164, 86, 0.16)' },
   deg: { from: '#d0456e', to: '#8a1f44', lap: '#5f1530', track: 'rgba(0,0,0,0)' },
   motstander: { from: '#6c86bc', to: '#4d66a0', lap: '#4d66a0', track: 'rgba(0,0,0,0)' },
-  makker: { from: '#8f82e6', to: '#6f5bc9', lap: '#4a3fa0', track: 'rgba(111, 91, 201, 0.14)' },
+  makker: { from: '#f7dc85', to: '#e0b030', lap: '#a37a10', track: 'rgba(224, 176, 48, 0.16)' },
   personlig: { from: '#f9cadb', to: '#e8829f', lap: '#c9607f', track: 'rgba(232, 130, 159, 0.16)' },
   stor: { from: '#9fe3bf', to: '#ffffff', lap: '#ffd27a', track: 'rgba(255, 255, 255, 0.18)' },
 }
@@ -500,7 +500,7 @@ export function FlowRings({
                     const p0 = polar(c, radius, a0)
                     const p1 = polar(c, radius, a1)
                     const who = r.beads[b]
-                    const fill = who === 'me' ? me.to : who === 'partner' ? partner.to : 'rgba(111, 91, 201, 0.3)'
+                    const fill = who === 'me' ? me.to : who === 'partner' ? partner.to : 'rgba(224, 176, 48, 0.3)'
                     // Nye perler fylles én og én, i den rekkefølgen dessertene ble solgt.
                     const delay = who && b >= before ? (b - before) * 60 : 0
                     return (

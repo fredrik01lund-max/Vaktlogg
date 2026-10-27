@@ -221,7 +221,7 @@
   display: none;
 }
 .bingo.full .bingo-tile.on {
-  background: linear-gradient(140deg, #3a9d6c 0%, #2b7f9b 55%, #6f5bc9 100%);
+  background: linear-gradient(140deg, #3a9d6c 0%, #c98a2b 55%, #c9607f 100%);
 }
 .bingo.full::after {
   content: '';
@@ -517,8 +517,8 @@
   border-color: var(--pink-strong);
 }
 .ticket.join {
-  border: 2px dashed var(--lilac-strong);
-  color: var(--lilac-ink);
+  border: 2px dashed var(--orange-strong);
+  color: var(--orange-ink);
   min-width: 44px;
   min-height: 44px;
   justify-content: center;
@@ -813,11 +813,11 @@
   display: inline-flex;
   padding: 4px 6px;
   border-radius: 99px;
-  background: linear-gradient(90deg, #f3d6e1, #e3defc);
+  background: linear-gradient(90deg, #f3d6e1, #fbeec0);
   flex: none;
 }
 .pair-badge.done {
-  background: linear-gradient(90deg, var(--pink-strong), var(--lilac-strong));
+  background: linear-gradient(90deg, var(--pink-strong), var(--yellow-strong));
 }
 
 /* Varsler med ansikter */
@@ -864,8 +864,8 @@
   margin: -4px -6px 0;
   padding: 10px 12px;
   border-radius: 22px;
-  /* Karis topplinje: pastell blå → lilla med mørk tekst */
-  background: linear-gradient(90deg, var(--blue-fill), var(--lilac-fill));
+  /* Karis topplinje: pastell oransje → rosa med mørk tekst */
+  background: linear-gradient(90deg, var(--orange-fill), var(--pink-fill));
   color: var(--text);
 }
 .boss-name {
@@ -1121,7 +1121,7 @@
   min-height: 96px;
 }
 .cat-item.on {
-  border: 3px solid var(--lilac-strong);
+  border: 3px solid var(--pink-strong);
 }
 .cat-ic {
   width: 40px;
@@ -1183,7 +1183,7 @@
   font-weight: 700;
 }
 .pf.on {
-  border-color: var(--lilac-strong);
+  border-color: var(--pink-strong);
   background: var(--wine-soft);
 }
 .pick-moments,
@@ -1212,7 +1212,7 @@
 }
 .pm.on,
 .pg.on {
-  border-color: var(--lilac-strong);
+  border-color: var(--pink-strong);
   background: var(--wine-soft);
 }
 .dish-pick {
@@ -1284,7 +1284,7 @@
   color: #7d8783;
 }
 .bm-person.me {
-  box-shadow: inset 0 0 0 2px var(--lilac-strong);
+  box-shadow: inset 0 0 0 2px var(--pink-strong);
 }
 .bm-person > svg {
   width: 13px;
@@ -2344,9 +2344,9 @@ details[open] .hl-peak {
   width: 100%;
   height: auto;
 }
-/* Minikalenderen står på et lyst pastellkort: fridager som svake lilla prikker, vaktdager som grønne kjekser */
+/* Minikalenderen står på et lyst pastellkort: fridager som svake plommeprikker, vaktdager som grønne kjekser */
 .month-teaser svg > circle {
-  fill: rgba(74, 62, 158, 0.18);
+  fill: rgba(110, 42, 60, 0.16);
 }
 .month-teaser .cal-cookie {
   fill: var(--green-strong);

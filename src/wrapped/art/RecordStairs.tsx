@@ -53,7 +53,7 @@ export function RecordStairs({ columns, extras, label }: RecordStairsProps) {
           <LinGrad id={aid('gold')} {...GOLD} />
         </defs>
         <g aria-hidden="true">
-          <line x1={16} y1={FLOOR} x2={324} y2={FLOOR} stroke="#17231f" strokeOpacity={0.12} strokeWidth={2} strokeLinecap="round" />
+          <line x1={16} y1={FLOOR} x2={324} y2={FLOOR} stroke="#2e1a22" strokeOpacity={0.12} strokeWidth={2} strokeLinecap="round" />
           {geo.map((c, i) => (
             <g key={i}>
               <g className="w-growy" style={vars({ '--d': '100ms', '--i': i, '--st': '110ms' })}>
@@ -66,7 +66,7 @@ export function RecordStairs({ columns, extras, label }: RecordStairsProps) {
                   {c.value}
                 </text>
               </g>
-              <text className="w-fade" style={vars({ '--d': '100ms', '--i': i, '--st': '110ms' })} x={c.cx} y={248} textAnchor="middle" fontSize={12} fontWeight={600} fill="#4b5a54">
+              <text className="w-fade" style={vars({ '--d': '100ms', '--i': i, '--st': '110ms' })} x={c.cx} y={248} textAnchor="middle" fontSize={12} fontWeight={600} fill="#5e3a46">
                 {c.date}
               </text>
             </g>

@@ -109,7 +109,7 @@ export function legendFor(rings: RingSpec[], live: LiveState, done: boolean): Le
       const p = pairAt(live)
       return {
         id: 'makker',
-        color: '#6f5bc9',
+        color: '#f0cc5c',
         icon: 'pair',
         label: L('Makker', 'Buddy'),
         value: p.reached ? L('Fullført!', 'Done!') : `${num(p.count)}/${num(p.goal)}`,
@@ -440,7 +440,7 @@ function MoreSheet({ live, focus, onClose }: { live: LiveState; focus: 'all' | '
             )}
             {play && demo.game === 'makker' && (
               <div className="hl-row" style={{ padding: '14px 16px' }}>
-                <span className="rl-dot" style={{ background: '#6f5bc9', flex: 'none' }}>
+                <span className="rl-dot" style={{ background: '#f0cc5c', flex: 'none' }}>
                   <Icon name="pair" />
                 </span>
                 <div className="grow">

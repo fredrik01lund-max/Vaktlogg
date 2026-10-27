@@ -57,7 +57,7 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(3)}%`
 function Count({ x, y, qty, size, win, from, delay }: { x: number; y: number; qty: number; size: number; win: boolean; from?: number; delay: number }) {
   const v = useCountUp(qty, { duration: 600, delay, ease: easeData }, from)
   return (
-    <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={size} fontWeight={800} fill={win ? '#17231f' : '#4b5a54'}>
+    <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={size} fontWeight={800} fill={win ? '#2e1a22' : '#5e3a46'}>
       {num(v)}
     </text>
   )
@@ -89,7 +89,7 @@ export function Cloches({ items, winnerId, revealed, guessId, onReveal, mode }: 
     <div className="cl-wrap">
       <svg ref={svgRef} className="w-art cl-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={label} tabIndex={-1}>
         <defs>
-          <LinGrad id={id('dome')} from="#8f82e6" to="#6f5bc9" />
+          <LinGrad id={id('dome')} from="#fbc0d6" to="#ee8fb2" />
           <LinGrad id={id('gold')} from="#bf7a12" to="#9c5c08" />
         </defs>
         {list.map((d, i) => {
@@ -106,9 +106,9 @@ export function Cloches({ items, winnerId, revealed, guessId, onReveal, mode }: 
               <g className={`cl-art${revealed && !win ? ' cl-dim' : ''}`}>
                 {/* Den tegnede tallerkenen står under lokket; med bilde tones den ut når retten kommer frem */}
                 <g className={revealed && photo ? 'cl-plate-out' : undefined} style={vars({ '--k': k })}>
-                  <ellipse cx={cx} cy={py + 13} rx={PR} ry={13} fill="#17231f" opacity={0.07} />
-                  <ellipse cx={cx} cy={py} rx={PR} ry={PRY} fill="#fff" stroke={revealed && win && !photo ? `url(#${id('gold')})` : '#cfc7f4'} strokeWidth={3} />
-                  <ellipse cx={cx} cy={py} rx={65} ry={16} fill="none" stroke="#ece8ff" strokeWidth={2} />
+                  <ellipse cx={cx} cy={py + 13} rx={PR} ry={13} fill="#2e1a22" opacity={0.07} />
+                  <ellipse cx={cx} cy={py} rx={PR} ry={PRY} fill="#fff" stroke={revealed && win && !photo ? `url(#${id('gold')})` : '#f6c3cf'} strokeWidth={3} />
+                  <ellipse cx={cx} cy={py} rx={65} ry={16} fill="none" stroke="#fde4ea" strokeWidth={2} />
                 </g>
                 {revealed && photo && (
                   <image
@@ -151,8 +151,8 @@ export function Cloches({ items, winnerId, revealed, guessId, onReveal, mode }: 
                 <g className={`cl-dome ${revealed ? 'cl-lift' : 'w-wobble'}`} style={vars(revealed ? { '--k': k } : { '--i': i, '--st': '200ms', '--d': '700ms' })}>
                   <path d={`M${cx - DR},${db}A${DR},${DH} 0 0 1 ${cx + DR},${db}Z`} fill={`url(#${id('dome')})`} />
                   <path d={`M${cx - 54},${db - 24}Q${cx - 55},${db - 68} ${cx - 21},${db - 82}`} fill="none" stroke="#fff" strokeOpacity={0.35} strokeWidth={8} strokeLinecap="round" />
-                  <rect x={cx - DR - 6} y={db - 5} width={2 * (DR + 6)} height={12} rx={6} fill="#5a4cc4" />
-                  <circle cx={cx} cy={db - DH - 8} r={12} fill="#6f5bc9" />
+                  <rect x={cx - DR - 6} y={db - 5} width={2 * (DR + 6)} height={12} rx={6} fill="#e27aa0" />
+                  <circle cx={cx} cy={db - DH - 8} r={12} fill="#e27aa0" />
                   <circle cx={cx - 4} cy={db - DH - 12} r={3.5} fill="#fff" opacity={0.6} />
                 </g>
               )}

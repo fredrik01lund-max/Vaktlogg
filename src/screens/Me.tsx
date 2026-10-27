@@ -54,7 +54,7 @@ export function Me() {
             onChange={(calm) => updateSettings({ calm })}
             label={
               <span className="row gap8">
-                <Icon name="moon" className="chev" /> {L('Rolig modus', 'Calm mode')}
+                <Icon name="calm" className="chev" /> {L('Rolig modus', 'Calm mode')}
               </span>
             }
             desc={L('Skjuler konkurranser under vakt.', 'Hides competitions during your shift.')}

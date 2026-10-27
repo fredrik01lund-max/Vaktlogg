@@ -33,7 +33,8 @@
   /* ── Pastellpaletten: alle farger i appen hentes herfra ──
      fill = pastellflate (ikonskiver, merker), bg = svak flate (kort, rader),
      strong = stolper, ringer og linjer (synlig på hvitt), ink = tekst og ikoner på flatene.
-     Betydning: Helse = rosa, Salg = oransje/gull, Konkurranse = lilla, Gjester = grønn. */
+     Betydning: Helse = rosa, Salg = oransje, Konkurranse = gul (trofé), Gjester = grønn.
+     Ingen lilla/lavendel: merkevaren er varm pastell oransje → rosa med plommefarget blekk. */
   --green-fill: #bfe9d3;
   --green-bg: #e7f6ee;
   --green-strong: #7cc9a1;
@@ -46,10 +47,11 @@
   --orange-bg: #fff2e4;
   --orange-strong: #f5b46e;
   --orange-ink: #87500f;
-  --lilac-fill: #dcd4fc;
-  --lilac-bg: #f2effe;
-  --lilac-strong: #ab9cf0;
-  --lilac-ink: #4a3e9e;
+  /* Utfaset: de gamle lilla tokenene peker nå på gul, så eventuelle rester blir varme. Bruk --yellow-* direkte. */
+  --lilac-fill: var(--yellow-fill);
+  --lilac-bg: var(--yellow-bg);
+  --lilac-strong: var(--yellow-strong);
+  --lilac-ink: var(--yellow-ink);
   --blue-fill: #cfdcf6;
   --blue-bg: #eef3fc;
   --blue-strong: #94b0e6;

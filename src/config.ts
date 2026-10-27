@@ -35,7 +35,7 @@ export const config = {
   avatarColor: {
     emma: '#f9cadb',
     jonas: '#cfdcf6',
-    ingrid: '#dcd4fc',
+    ingrid: '#bfe9d3',
     sander: '#c6e9f0',
     maja: '#ffd9b3',
     kari: '#fde3a7',
@@ -44,7 +44,7 @@ export const config = {
   avatarInk: {
     emma: '#94284c',
     jonas: '#2f4f88',
-    ingrid: '#4a3e9e',
+    ingrid: '#1f6a48',
     sander: '#1d5f70',
     maja: '#87500f',
     kari: '#6e5208',

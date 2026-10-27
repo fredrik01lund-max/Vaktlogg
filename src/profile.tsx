@@ -84,7 +84,7 @@ export function LevelCard() {
           <Stat icon="medal" tone="orange" value={num(p.medalCount)} label={L('medaljer', 'medals')} />
           <Stat icon="trophy" tone="yellow" value={num(p.trophies)} label={L('trofeer', 'trophies')} />
           <Stat icon="coins" tone="green" value={short(p.totals.tips)} label={L('kr i tips', 'kr in tips')} />
-          <Stat icon="receipt" tone="lilac" value={short(p.totals.sales)} label={L('kr solgt', 'kr sold')} />
+          <Stat icon="receipt" tone="pink" value={short(p.totals.sales)} label={L('kr solgt', 'kr sold')} />
         </span>
         {p.tonightXp > 0 && (
           <span className="lv-tonight" aria-hidden="true">
@@ -101,7 +101,7 @@ const medalProgress = (m: MedalState) => (m.goal >= 1000 ? `${short(m.value)} / 
 
 function XpSheet({ p, onClose }: { p: ProfileState; onClose: () => void }) {
   const rows = [
-    { icon: 'receipt', tone: 'lilac', label: L('Solgt', 'Sold'), what: `${num(p.totals.sales)} kr`, rule: L('1 XP per {n} kr', '1 XP per {n} kr', { n: profileXp.perSalesKr }), xp: p.parts.sales },
+    { icon: 'receipt', tone: 'pink', label: L('Solgt', 'Sold'), what: `${num(p.totals.sales)} kr`, rule: L('1 XP per {n} kr', '1 XP per {n} kr', { n: profileXp.perSalesKr }), xp: p.parts.sales },
     { icon: 'coins', tone: 'green', label: L('Tips', 'Tips'), what: `${num(p.totals.tips)} kr`, rule: L('1 XP per {n} kr', '1 XP per {n} kr', { n: profileXp.perTipsKr }), xp: p.parts.tips },
     { icon: 'medal', tone: 'orange', label: L('Medaljer', 'Medals'), what: `${p.medalCount} × ${num(profileXp.perMedal)}`, rule: L('milepæler', 'milestones'), xp: p.parts.medals },
     { icon: 'trophy', tone: 'yellow', label: L('Trofeer', 'Trophies'), what: `${p.trophies} × ${num(profileXp.perTrophy)}`, rule: L('personlige rekorder', 'personal records'), xp: p.parts.trophies },

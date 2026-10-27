@@ -1,6 +1,6 @@
 /* ══ Månedshistorien («Din september») ═══════════════════════════════════════
-   Mørke bokstøtter (åpning, del) og lyse Flyt-kort imellom. Hvert kapittel har fargen til sin ring:
-   grønn = folk, bær = deg/penger/kropp, lavendel = smak, gull = rekorder.
+   Bare lyse pastellkort i merkefargene (fersken → rosa) med plommeblekk. Hvert kapittel har sin tone:
+   fersken/rosa = åpning og del, mint = folk, rosa = deg/penger/kropp, korall = smak, blekgult = dessert, gull = rekorder.
    Bevegelse: nøkkelrammer går bare FRA (fill backwards) – grunn-CSS er sluttbildet og er også redusert bevegelse. */
 
 .wrapped {
@@ -9,17 +9,13 @@
   z-index: 85;
   display: flex;
   flex-direction: column;
-  background: #23314f;
-  color: #fff;
+  background: #ffe1c7;
+  color: #2e1a22;
   animation: fadeIn 260ms var(--ease-standard);
-  --w-chrome: #fff;
-  --w-track: rgba(255, 255, 255, 0.28);
-  --w-btn: rgba(255, 255, 255, 0.16);
-}
-.wrapped[data-ink='light'] {
-  --w-chrome: #17231f;
-  --w-track: rgba(23, 35, 31, 0.15);
-  --w-btn: rgba(23, 35, 31, 0.08);
+  /* Krom (fremdrift, ordmerke, knapper) i plommeblekk – lesbart på alle de lyse tonene */
+  --w-chrome: #3a1a24;
+  --w-track: rgba(58, 26, 36, 0.16);
+  --w-btn: rgba(255, 255, 255, 0.55);
 }
 .wrapped:focus {
   outline: none;
@@ -352,56 +348,51 @@
   }
 }
 
-/* ── Toner (bakgrunn, blekk, aksent) ── */
+/* ── Toner (bakgrunn, blekk, aksent) ──
+   Alle kortene er lyse pasteller med plommeblekk. Tonene veksler (fersken, mint, rosa, korall, blekgult, gull),
+   så kortene fortsatt skiller seg fra hverandre. Kontrast mot hver fargestopp: blekk #2e1a22 ≥ 12:1,
+   bildetekst #5e3a46 ≥ 6,8:1, øyelinjene ≥ 5,3:1 (se scratch wcontrast.mjs). */
+.wslide {
+  --w-ink: #2e1a22;
+  --w-muted: #5e3a46;
+}
 .wslide[data-tone='night'] {
-  --w-bg: radial-gradient(260px 180px at 100% 0%, rgba(255, 255, 255, 0.16), transparent 70%), linear-gradient(165deg, #23314f 0%, #3b3a8a 55%, #5a47b8 100%);
-  --w-ink: #fff;
-  --w-muted: #e2defc;
-  --w-eyebrow: #e2defc;
-  --w-a1: #9fe3bf;
-  --w-a2: #ffffff;
-  --w-deco: rgba(255, 255, 255, 0.06);
+  --w-bg: radial-gradient(260px 180px at 100% 0%, rgba(255, 255, 255, 0.55), transparent 70%), linear-gradient(165deg, #ffe1c7 0%, #fdd0ce 55%, #f9c6dc 100%);
+  --w-eyebrow: #6e2a3c;
+  --w-a1: #f6a2c8;
+  --w-a2: #ffc896;
+  --w-deco: rgba(255, 255, 255, 0.32);
 }
 .wslide[data-tone='lag'] {
-  --w-bg: linear-gradient(165deg, #dcf4e8, #e6f1ff);
-  --w-ink: #17231f;
-  --w-muted: #4b5a54;
-  --w-eyebrow: #1f6e48;
-  --w-a1: #3a9d6c;
-  --w-a2: #1f6e48;
-  --w-deco: rgba(46, 140, 94, 0.08);
+  --w-bg: linear-gradient(165deg, #d9f4e6, #f1f8d6);
+  --w-eyebrow: #1f6a48;
+  --w-a1: #7cc9a1;
+  --w-a2: #1f6a48;
+  --w-deco: rgba(124, 201, 161, 0.16);
 }
 .wslide[data-tone='deg'] {
-  --w-bg: linear-gradient(165deg, #fdeaf1, #ece9ff);
-  --w-ink: #17231f;
-  --w-muted: #4b5a54;
-  --w-eyebrow: #8a1f44;
-  --w-a1: #d0456e;
-  --w-a2: #8a1f44;
-  --w-deco: rgba(208, 69, 110, 0.08);
+  --w-bg: linear-gradient(165deg, #fde4ee, #ffe8da);
+  --w-eyebrow: #94284c;
+  --w-a1: #f08fb0;
+  --w-a2: #94284c;
+  --w-deco: rgba(240, 143, 176, 0.14);
 }
 .wslide[data-tone='smak'] {
-  --w-bg: linear-gradient(165deg, #ece8ff, #e2f4ee);
-  --w-ink: #17231f;
-  --w-muted: #4b5a54;
-  --w-eyebrow: #4a3fa0;
-  --w-a1: #8f82e6;
-  --w-a2: #6f5bc9;
-  --w-deco: rgba(111, 91, 201, 0.08);
+  --w-bg: linear-gradient(165deg, #ffe6d2, #ffd2c4);
+  --w-eyebrow: #8c3424;
+  --w-a1: #f6a596;
+  --w-a2: #8c3424;
+  --w-deco: rgba(240, 128, 110, 0.12);
 }
 .wslide[data-tone='dessert'] {
-  --w-bg: linear-gradient(165deg, #fff4e3, #ece8ff);
-  --w-ink: #17231f;
-  --w-muted: #4b5a54;
-  --w-eyebrow: #4a3fa0;
-  --w-a1: #8f82e6;
-  --w-a2: #6f5bc9;
-  --w-deco: rgba(111, 91, 201, 0.07);
+  --w-bg: linear-gradient(165deg, #fff5d2, #ffe4d6);
+  --w-eyebrow: #735806;
+  --w-a1: #f0cc5c;
+  --w-a2: #735806;
+  --w-deco: rgba(240, 204, 92, 0.2);
 }
 .wslide[data-tone='rekord'] {
   --w-bg: linear-gradient(165deg, #ffe7c7, #ffd9e5);
-  --w-ink: #17231f;
-  --w-muted: #4b5a54;
   --w-eyebrow: #6e3f02;
   --w-a1: #bf7a12;
   --w-a2: #9c5c08;
@@ -409,21 +400,17 @@
 }
 .wslide[data-tone='rekord-r'] {
   --w-bg: linear-gradient(165deg, #ffd9e5, #ffe7c7);
-  --w-ink: #17231f;
-  --w-muted: #4b5a54;
   --w-eyebrow: #6e3f02;
   --w-a1: #bf7a12;
   --w-a2: #9c5c08;
   --w-deco: rgba(191, 122, 18, 0.09);
 }
 .wslide[data-tone='blend'] {
-  --w-bg: linear-gradient(165deg, #1f6e48 0%, #3b3a8a 55%, #5a47b8 100%);
-  --w-ink: #fff;
-  --w-muted: #e2defc;
-  --w-eyebrow: #e2defc;
-  --w-a1: #9fe3bf;
-  --w-a2: #ffffff;
-  --w-deco: rgba(255, 255, 255, 0.06);
+  --w-bg: radial-gradient(260px 180px at 100% 0%, rgba(255, 255, 255, 0.5), transparent 70%), linear-gradient(165deg, #d6f2e3 0%, #fde3e6 55%, #fbd2e2 100%);
+  --w-eyebrow: #6e2a3c;
+  --w-a1: #7cc9a1;
+  --w-a2: #f6a2c8;
+  --w-deco: rgba(255, 255, 255, 0.45);
 }
 
 /* ── Navigasjon for tastatur og mus ── */
@@ -731,18 +718,18 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #2e1a22;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(110, 42, 60, 0.24);
 }
 .w-chip svg {
   width: 14px;
   height: 14px;
 }
 .w-chip[aria-checked='true'] {
-  background: #fff;
-  color: #23314f;
-  border-color: #fff;
+  background: #6e2a3c;
+  color: #fff;
+  border-color: #6e2a3c;
 }
 .w-chip[aria-disabled='true'] {
   opacity: 0.45;
@@ -751,7 +738,7 @@
   margin: -2px 0 0;
   font-size: 0.8125rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.86);
+  color: #5e3a46;
   text-align: center;
 }
 .w-actions {
@@ -762,12 +749,14 @@
 .w-actions .btn {
   flex: 1;
 }
+/* Som appens hovedknapp: merkegradienten med plommeblekk (≥ 5,3:1) */
 .w-btn-light {
-  background: #fff;
-  color: #23314f;
+  background: linear-gradient(90deg, #ffc896 0%, #fdb8b4 50%, #f6a2c8 100%);
+  color: #6e2a3c;
+  box-shadow: 0 8px 20px -10px rgba(110, 42, 60, 0.45);
 }
 .w-btn-ghost {
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.6);
+  color: #2e1a22;
+  border: 1px solid rgba(110, 42, 60, 0.28);
 }

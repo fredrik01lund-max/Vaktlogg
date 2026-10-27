@@ -90,24 +90,25 @@ const tone = (stopp, deco, a) => ({ stopp, form: stopp.map((s) => mix(deco, a, s
 const over = (t, fg, a) => ({ stopp: t.stopp.map((s) => mix(fg, a, s)), form: t.form.map((s) => mix(fg, a, s)) })
 
 const maned = {
-  // Tonebakgrunner (natt-tonen har i tillegg en lysflekk øverst til høyre)
-  natt: tone(['#23314f', '#3b3a8a', '#5a47b8', mix('#ffffff', 0.16, '#23314f')], '#ffffff', 0.06),
-  blend: tone(['#1f6e48', '#3b3a8a', '#5a47b8'], '#ffffff', 0.06),
-  lag: tone(['#dcf4e8', '#e6f1ff'], '#2e8c5e', 0.08),
-  deg: tone(['#fdeaf1', '#ece9ff'], '#d0456e', 0.08),
-  smak: tone(['#ece8ff', '#e2f4ee'], '#6f5bc9', 0.08),
-  dessert: tone(['#fff4e3', '#ece8ff'], '#6f5bc9', 0.07),
+  // Tonebakgrunner (lys pastell; lysflekkene ligger bak teksten)
+  natt: tone(['#ffe1c7', '#fdd0ce', '#f9c6dc'], '#ffffff', 0.32),
+  blend: tone(['#d6f2e3', '#fde3e6', '#fbd2e2'], '#ffffff', 0.45),
+  lag: tone(['#d9f4e6', '#f1f8d6'], '#7cc9a1', 0.16),
+  deg: tone(['#fde4ee', '#ffe8da'], '#f08fb0', 0.14),
+  smak: tone(['#ffe6d2', '#ffd2c4'], '#f0806e', 0.12),
+  dessert: tone(['#fff5d2', '#ffe4d6'], '#f0cc5c', 0.2),
   rekord: tone(['#ffe7c7', '#ffd9e5'], '#bf7a12', 0.09),
-  // Blekk
   white: '#ffffff',
-  ink: '#17231f',
-  muted: '#4b5a54',
-  mutedDark: '#e2defc',
-  eyeLag: '#1f6e48',
-  eyeDeg: '#8a1f44',
-  eyeSmak: '#4a3fa0',
+  // Blekk
+  ink: '#2e1a22',
+  muted: '#5e3a46',
+  mutedDark: '#5e3a46',
+  eyePlomme: '#6e2a3c',
+  eyeLag: '#1f6a48',
+  eyeDeg: '#94284c',
+  eyeSmak: '#8c3424',
+  eyeDessert: '#735806',
   eyeGull: '#6e3f02',
-  // Gull: rekordtrappen (søyler, brikkeblomster) og maratonflaggene på gangstien
   gold: ['#aa6a0c', '#9c5c08'],
   goldInk: '#6e3f02',
   cream: '#fffdf9',
@@ -119,10 +120,12 @@ maned.baseCol = over(maned.rekord, '#c48016', 0.18) // grunnsøylen: rgba(196,12
 maned.chip = over(maned.rekord, '#fffdf9', 0.7) // brikkene under trappen: rgba(255,253,249,.7)
 
 const manedPairs = [
-  ['Natt: hvit tekst', 'white', 'natt', 4.5],
-  ['Natt: dempet tekst og overlinje', 'mutedDark', 'natt', 4.5],
-  ['Blanding: hvit tekst', 'white', 'blend', 4.5],
-  ['Blanding: dempet tekst og overlinje', 'mutedDark', 'blend', 4.5],
+  ['Natt: hovedtekst', 'ink', 'natt', 4.5],
+  ['Natt: dempet tekst', 'muted', 'natt', 4.5],
+  ['Natt: overlinje', 'eyePlomme', 'natt', 4.5],
+  ['Blanding: hovedtekst', 'ink', 'blend', 4.5],
+  ['Blanding: dempet tekst', 'muted', 'blend', 4.5],
+  ['Blanding: overlinje', 'eyePlomme', 'blend', 4.5],
   ['Lag: hovedtekst', 'ink', 'lag', 4.5],
   ['Lag: dempet tekst', 'muted', 'lag', 4.5],
   ['Lag: overlinje', 'eyeLag', 'lag', 4.5],
@@ -134,7 +137,7 @@ const manedPairs = [
   ['Smak: overlinje', 'eyeSmak', 'smak', 4.5],
   ['Dessert: hovedtekst', 'ink', 'dessert', 4.5],
   ['Dessert: dempet tekst', 'muted', 'dessert', 4.5],
-  ['Dessert: overlinje', 'eyeSmak', 'dessert', 4.5],
+  ['Dessert: overlinje', 'eyeDessert', 'dessert', 4.5],
   ['Rekord: hovedtekst', 'ink', 'rekord', 4.5],
   ['Rekord: dempet tekst (også datoer)', 'muted', 'rekord', 4.5],
   ['Rekord: overlinje', 'eyeGull', 'rekord', 4.5],

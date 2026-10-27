@@ -71,7 +71,7 @@
 }
 .kt-date {
   font-weight: 600;
-  color: #5c6a64;
+  color: #5e3a46;
   flex: none;
 }
 .kt-msg {
@@ -79,7 +79,7 @@
   font-size: var(--kt-msg);
   line-height: 1.35;
   font-weight: 500;
-  color: #17231f;
+  color: #2e1a22;
 }
 .kt-more {
   align-self: center;

@@ -36,7 +36,9 @@ export function MonthCalendar({ cells, rows, highlightCol, highlightLabel, goldD
   const off = cells.filter((c) => !c.worked)
   const defs = (
     <defs>
-      <LinGrad id={id('stor')} from="#9fe3bf" to="#ffffff" />
+      <LinGrad id={id('stor')} from="#ffb784" to="#f292b8" />
+      {/* Plakaten har selv merkegradienten – der blir kjeksene en tone sterkere rosa */}
+      <LinGrad id={id('mini')} from="#f08fb0" to="#c85a82" />
     </defs>
   )
 
@@ -45,11 +47,11 @@ export function MonthCalendar({ cells, rows, highlightCol, highlightLabel, goldD
       <svg className="cal cal-mini" viewBox={`0 0 98 ${rows * 14}`} width={98} height={rows * 14} {...a11y}>
         {defs}
         {off.map((c) => (
-          <circle key={c.day} cx={7 + c.col * 14} cy={7 + c.row * 14} r={3} fill="rgba(255,255,255,.22)" />
+          <circle key={c.day} cx={7 + c.col * 14} cy={7 + c.row * 14} r={3} fill="rgba(110,42,60,.2)" />
         ))}
         {worked.map((c, i) => (
           <g key={c.day} transform={`translate(${1 + c.col * 14} ${1 + c.row * 14})`}>
-            <path className="cal-cookie" d={MINI} fill={fill} style={v({ '--i': i })} />
+            <path className="cal-cookie" d={MINI} fill={`url(#${id('mini')})`} style={v({ '--i': i })} />
           </g>
         ))}
       </svg>
@@ -68,12 +70,12 @@ export function MonthCalendar({ cells, rows, highlightCol, highlightLabel, goldD
         ))}
       </g>
       {highlightCol !== undefined && (
-        <rect className="cal-pill w-growy" x={cx(highlightCol) - 22} y={38} width={44} height={rows * 48} rx={22} fill="rgba(255,255,255,.08)" style={v({ '--d': '1350ms' })} />
+        <rect className="cal-pill w-growy" x={cx(highlightCol) - 22} y={38} width={44} height={rows * 48} rx={22} fill="rgba(255,255,255,.45)" style={v({ '--d': '1350ms' })} />
       )}
       <g className="w-fade" style={v({ '--d': '250ms' })}>
         {off.map((c) => (
           <g key={c.day}>
-            <circle cx={cx(c.col)} cy={cy(c.row)} r={15} fill="rgba(255,255,255,.08)" />
+            <circle cx={cx(c.col)} cy={cy(c.row)} r={15} fill="rgba(255,255,255,.45)" />
             <text className="cal-off" x={cx(c.col)} y={cy(c.row)} {...mid}>
               {c.day}
             </text>
@@ -99,7 +101,7 @@ export function MonthCalendar({ cells, rows, highlightCol, highlightLabel, goldD
         </text>
       )}
       {gold && (
-        <circle className="cal-ring w-draw" cx={cx(gold.col)} cy={cy(gold.row)} r={goldR} transform={`rotate(-90 ${cx(gold.col)} ${cy(gold.row)})`} pathLength={1} fill="none" stroke="#ffd27a" strokeWidth={2.5} strokeLinecap="round" style={v({ '--d': '1650ms' })} aria-hidden="true" />
+        <circle className="cal-ring w-draw" cx={cx(gold.col)} cy={cy(gold.row)} r={goldR} transform={`rotate(-90 ${cx(gold.col)} ${cy(gold.row)})`} pathLength={1} fill="none" stroke="#a8650f" strokeWidth={2.5} strokeLinecap="round" style={v({ '--d': '1650ms' })} aria-hidden="true" />
       )}
     </svg>
   )

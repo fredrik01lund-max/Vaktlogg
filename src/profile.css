@@ -10,7 +10,7 @@
   border-radius: 26px;
   text-align: left;
   color: var(--text);
-  background: linear-gradient(150deg, #fff4e6 0%, #fdeaf2 55%, #f1eefe 100%);
+  background: linear-gradient(150deg, #fff4e6 0%, #fdeaf2 55%, #fff6dc 100%);
   box-shadow: var(--shadow);
 }
 .lv-card:active {
@@ -135,8 +135,8 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: var(--tone-fill, var(--lilac-fill));
-  color: var(--tone-ink, var(--lilac-ink));
+  background: var(--tone-fill, var(--pink-fill));
+  color: var(--tone-ink, var(--pink-ink));
 }
 .lv-stat-ic svg {
   width: 15px;
@@ -154,9 +154,9 @@
   --tone-fill: var(--green-fill);
   --tone-ink: var(--green-ink);
 }
-[data-tone='lilac'] {
-  --tone-fill: var(--lilac-fill);
-  --tone-ink: var(--lilac-ink);
+[data-tone='pink'] {
+  --tone-fill: var(--pink-fill);
+  --tone-ink: var(--pink-ink);
 }
 .lv-tonight {
   display: inline-flex;

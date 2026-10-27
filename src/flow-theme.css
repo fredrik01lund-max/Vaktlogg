@@ -15,13 +15,13 @@
   --muted: #4b5a54;
   --faint: #5c6a64;
 
-  /* Hovedfarge for handlinger og «valgt»: marineblå, med lavendel som tonet flate */
-  --wine: #23314f;
-  --wine-deep: #18233b;
-  --wine-soft: #e9e5fc;
-  --wine-tint: #cfc7f4;
+  /* Hovedfarge for handlinger og «valgt»: plommeblekket fra app-ikonet, med lys rosa som tonet flate */
+  --wine: var(--primary-ink);
+  --wine-deep: #4f1c2b;
+  --wine-soft: #fde3ec;
+  --wine-tint: #f6c3d5;
   --on-primary: var(--primary-ink);
-  --accent-ink: #4a3fa0;
+  --accent-ink: var(--pink-ink);
 
   /* Laget / fellesskap / bekreftelse (pastell grønn; --sage brukes bare til linjer og stolper) */
   --sage: var(--green-strong);
@@ -46,7 +46,7 @@
 
   --radius: 28px;
   --radius-sm: 20px;
-  --shadow: 0 1px 2px rgba(20, 40, 30, 0.04), 0 12px 30px -20px rgba(60, 50, 140, 0.35);
+  --shadow: 0 1px 2px rgba(20, 40, 30, 0.04), 0 12px 30px -20px rgba(120, 60, 70, 0.3);
   --serif: var(--sans);
 }
 
@@ -108,30 +108,30 @@ details.more,
   border-color: transparent;
 }
 .card.tint-wine {
-  background: linear-gradient(140deg, #ece8ff 0%, #e2f4ee 100%);
+  background: linear-gradient(140deg, #fde6ee 0%, #fff0e0 100%);
   border-color: transparent;
 }
-/* «Mørkt» fremhevet kort (f.eks. «Din september er klar»): nå en lys pastell fersken → rosa → lilla med mørk tekst */
+/* «Mørkt» fremhevet kort (f.eks. «Din september er klar»): lys pastell fersken → rosa (som app-ikonet) med mørk tekst */
 .card.dark {
   background:
     radial-gradient(220px 140px at 100% 0%, rgba(255, 255, 255, 0.6), transparent 70%),
-    linear-gradient(140deg, #ffe2c6 0%, #fcd2e1 52%, #e2d9fd 100%);
-  color: #2a1f33;
+    linear-gradient(140deg, #ffe2c6 0%, #fdd6d3 52%, #f9cfe0 100%);
+  color: #33202a;
 }
 .card.dark .muted,
 .card.dark .eyebrow,
 .card.dark .hero-num .unit {
-  color: #5b4560;
+  color: #66404d;
 }
 .card.dark .chev {
-  color: #5b4560;
+  color: #66404d;
 }
 .event-line {
   background: var(--surface);
   box-shadow: var(--shadow);
 }
 
-/* Knapper: store piller. Sekundær = tonet lavendel. */
+/* Knapper: store piller. Sekundær = tonet rosa. */
 .btn {
   border-radius: 999px;
   min-height: 54px;
@@ -150,7 +150,7 @@ details.more,
 }
 .btn.secondary {
   background: var(--wine-soft);
-  color: #2e2470;
+  color: var(--primary-ink);
   border: 0;
   box-shadow: none;
 }
@@ -171,7 +171,7 @@ details.more,
 }
 .chip.wine {
   background: var(--wine-soft);
-  color: #2e2470;
+  color: var(--primary-ink);
 }
 .chip.gold {
   background: linear-gradient(90deg, #ffe7c7, #ffd9e5);
@@ -195,8 +195,8 @@ details.more,
 }
 /* Pastellflate med mørkt ikon i samme farge */
 .icon-badge {
-  background: var(--lilac-fill);
-  color: var(--lilac-ink);
+  background: var(--pink-fill);
+  color: var(--pink-ink);
 }
 .icon-badge.sage {
   background: var(--green-fill);
@@ -215,13 +215,13 @@ details.more,
   color: var(--text);
 }
 .avatar {
-  background: linear-gradient(140deg, #dcf4e8, #e6e0ff);
+  background: linear-gradient(140deg, #dcf4e8, #ffe6d2);
   color: var(--text);
   font-family: var(--sans);
   font-weight: 800;
 }
 .avatar.lg {
-  background: linear-gradient(140deg, var(--green-fill) 0%, var(--lilac-fill) 100%);
+  background: linear-gradient(140deg, var(--green-fill) 0%, var(--pink-fill) 100%);
   color: var(--text);
 }
 
@@ -232,19 +232,19 @@ details.more,
 }
 .option[aria-pressed='true'],
 .option[aria-checked='true'] {
-  border-color: var(--lilac-strong);
-  background: var(--lilac-bg);
+  border-color: var(--pink-strong);
+  background: var(--pink-bg);
 }
 .option[aria-pressed='true'] .check,
 .option[aria-checked='true'] .check {
-  background: var(--lilac-strong);
-  border-color: var(--lilac-strong);
-  color: var(--lilac-ink);
+  background: var(--pink-strong);
+  border-color: var(--pink-strong);
+  color: var(--primary-ink);
 }
 .segmented button[aria-pressed='true'] {
-  background: var(--lilac-fill);
-  color: var(--lilac-ink);
-  box-shadow: inset 0 0 0 2px var(--lilac-strong);
+  background: var(--pink-fill);
+  color: var(--primary-ink);
+  box-shadow: inset 0 0 0 2px var(--pink-strong);
 }
 
 /* Fremdriftsstolper: sterke pasteller som synes på hvitt */
@@ -270,15 +270,15 @@ details.more,
   background: linear-gradient(135deg, #e6f7ee, #eaf2ff);
 }
 .toast.duel {
-  background: linear-gradient(135deg, #fdeaf1, #ece9ff);
+  background: linear-gradient(135deg, #fdeaf1, #e8effc);
 }
 .toast.kudos {
-  background: linear-gradient(135deg, #e6f7ee, #f1edff);
+  background: linear-gradient(135deg, #e6f7ee, #fff2e4);
 }
 
 /* Introkort på vaktstart */
 .intro {
-  background: linear-gradient(140deg, #d6f3e6 0%, #e9e3ff 100%);
+  background: linear-gradient(140deg, #d6f3e6 0%, #ffe9d6 100%);
   border: 0;
 }
 .intro li svg {
@@ -289,12 +289,12 @@ details.more,
 .share-card {
   background:
     radial-gradient(240px 160px at 100% 0%, rgba(255, 255, 255, 0.6), transparent 70%),
-    linear-gradient(150deg, #ffe2c6 0%, #fcd2e1 55%, #e2d9fd 100%);
-  color: #2a1f33;
+    linear-gradient(150deg, #ffe2c6 0%, #fdd6d3 55%, #f9cfe0 100%);
+  color: #33202a;
   box-shadow: 0 18px 40px -18px rgba(150, 90, 120, 0.45);
 }
 .share-card .sc-row {
-  border-top-color: rgba(42, 31, 51, 0.12);
+  border-top-color: rgba(51, 32, 42, 0.12);
 }
 .share-card .sc-title {
   font-family: var(--sans);
@@ -306,7 +306,7 @@ details.more,
 }
 .share-card .sc-row span:first-child,
 .share-card .sc-foot {
-  color: #5b4560;
+  color: #66404d;
 }
 /* Bunnmeny: aktiv fane som pille (som på vaktsiden) */
 .tab[aria-current='page'] {

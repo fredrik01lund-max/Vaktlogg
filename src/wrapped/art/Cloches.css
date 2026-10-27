@@ -51,7 +51,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 .cl-btn:focus-visible {
-  outline: 3px solid #4a3fa0;
+  outline: 3px solid #6e2a3c;
   outline-offset: -1px;
 }
 
@@ -62,7 +62,7 @@
   font-size: clamp(13px, 4.6cqw, 1.125rem);
   font-weight: 700;
   line-height: 1.2;
-  color: #17231f;
+  color: #2e1a22;
   pointer-events: none;
 }
 .cl-label.cl-end {

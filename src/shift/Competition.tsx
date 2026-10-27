@@ -17,7 +17,7 @@ import { Card } from './parts.tsx'
 function CalmSwitch({ calm, onToggle }: { calm: boolean; onToggle: () => void }) {
   return (
     <button className="st-switch" role="switch" aria-checked={calm} onClick={onToggle}>
-      <Icon name="moon" />
+      <Icon name="calm" />
       <span className="grow">
         <b>{L('Rolig modus', 'Calm mode')}</b>
         <small>{calm ? L('Konkurransene er skjult', 'Competitions are hidden') : L('Skjul konkurransene i kveld', 'Hide competitions tonight')}</small>
@@ -104,7 +104,7 @@ export function CompetitionDetail({ live }: { live: LiveState }) {
       <>
         <CalmSwitch calm onToggle={toggleQuiet} />
         <Card className="st-empty">
-          <Icon name="moon" />
+          <Icon name="calm" />
           <p>{L('Konkurransene er skjult i kveld. Skru av rolig modus for å se dem igjen.', 'The competitions are hidden tonight. Turn off calm mode to see them again.')}</p>
         </Card>
       </>

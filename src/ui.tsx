@@ -9,6 +9,7 @@ import { DUR, PlaybackPaused, easeData, reduced, useReducedMotion } from './lib/
 // ── Ikoner (enkle strek-ikoner, 24×24) ──────────────────────────────────────
 
 export const paths: Record<string, ReactNode> = {
+  crown: <path d="M4 8.5 8.5 12 12 5.5l3.5 6.5L20 8.5 18.5 18h-13z" />,
   glass: <><path d="M7 3h10l-1 7a4 4 0 0 1-8 0z" /><path d="M12 14v6M8.5 21h7" /></>,
   clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,
   calendar: <><rect x="3.5" y="5" width="17" height="15.5" rx="3" /><path d="M3.5 10h17M8 3v4M16 3v4" /></>,
@@ -26,7 +27,8 @@ export const paths: Record<string, ReactNode> = {
   stop: <rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor" stroke="none" />,
   trophy: <><path d="M8 4h8v5a4 4 0 0 1-8 0z" /><path d="M16 5.5h3a3 3 0 0 1-3 4M8 5.5H5a3 3 0 0 0 3 4M12 13v4M8.5 20h7l-.8-3h-5.4z" /></>,
   // Duellen handler om desserter, så den bruker iskrem-ikonet.
-  duel: <><path d="M7.5 10a4.5 4.5 0 0 1 9 0" /><path d="M7 10h10l-5 10.5z" /><path d="M9.5 13.5h5" /></>,
+  // To mot hverandre med lyn mellom (samme motiv som spillikonet)
+  duel: <><circle cx="6" cy="8.5" r="2.6" /><circle cx="18" cy="8.5" r="2.6" /><path d="M1.8 19.5c.4-3 2-4.6 4.2-4.6s3.4 1.2 3.9 3.2M22.2 19.5c-.4-3-2-4.6-4.2-4.6s-3.4 1.2-3.9 3.2" /><path d="M13 3.5 10.6 10h2.8L11 16.5" /></>,
   team: <><circle cx="9" cy="9" r="3.2" /><circle cx="17" cy="10" r="2.5" /><path d="M3.5 19c.8-3.2 3-4.8 5.5-4.8s4.7 1.6 5.5 4.8M15 14.5c2.6-.3 4.6 1 5.4 3.8" /></>,
   tag: <><path d="M3.5 12.5V5a1.5 1.5 0 0 1 1.5-1.5h7.5l8 8-9 9z" /><circle cx="8" cy="8" r="1.4" fill="currentColor" /></>,
   heart: <path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z" />,
@@ -70,7 +72,10 @@ export const paths: Record<string, ReactNode> = {
   coffee: <><path d="M5 9h11v5.5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z" /><path d="M16 10.5h1.4a2.5 2.5 0 0 1 0 5H16" /><path d="M9 3.5v3M12.5 3.5v3" /></>,
   ticket: <><path d="M3.5 7.5h17v3a1.7 1.7 0 0 0 0 3.2v3h-17v-3a1.7 1.7 0 0 0 0-3.2z" /><path d="M14.5 8v1.5M14.5 11.3v1.4M14.5 14.6V16" /></>,
   plate: <><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4.6" /></>,
-  pair: <><circle cx="8.5" cy="12" r="4.8" /><circle cx="15.5" cy="12" r="4.8" /></>,
+  // To sammen over en felles perlerad (samme motiv som spillikonet)
+  pair: <><circle cx="7.5" cy="5.5" r="2.4" /><circle cx="16.5" cy="5.5" r="2.4" /><path d="M3.2 14c.4-2.6 2-4 4.3-4s3.9 1.4 4.3 4M11.7 14c.4-2.6 2-4 4.3-4s3.9 1.4 4.3 4" /><rect x="2.5" y="16.5" width="19" height="5" rx="2.5" /><circle cx="7" cy="19" r=".9" fill="currentColor" /><circle cx="12" cy="19" r=".9" fill="currentColor" /></>,
+  // Rolig: bare din egen ring – én person i ringen
+  calm: <><path d="M19.4 16.5A8.5 8.5 0 1 1 17.8 5.6" /><circle cx="12" cy="10" r="2.4" /><path d="M8 17c.6-2.2 2.1-3.4 4-3.4s3.4 1.2 4 3.4" /></>,
   grid: <><rect x="3.5" y="3.5" width="17" height="17" rx="3" /><path d="M9.2 3.5v17M14.8 3.5v17M3.5 9.2h17M3.5 14.8h17" /></>,
   medal: <><circle cx="12" cy="15" r="5.2" /><path d="M8.3 3.5 10.4 10M15.7 3.5 13.6 10" /></>,
   cake: <><path d="M3.5 20.5h17M5 20.5v-6h14v6" /><path d="M5 14.5c1.5 1.2 3 1.2 4.6 0s3-1.2 4.5 0 3 1.2 4.9 0" /><path d="M12 14.5v-4" /><path d="M12 8.2a1.4 1.4 0 0 1-1-2.3L12 4l1 1.9a1.4 1.4 0 0 1-1 2.3z" /></>,
@@ -368,7 +373,7 @@ export function Check() {
   )
 }
 
-const confettiColors = ['#f08fb0', '#f5b46e', '#7cc9a1', '#ab9cf0', '#f0cc5c']
+const confettiColors = ['#f08fb0', '#f5b46e', '#7cc9a1', '#ffb38a', '#f0cc5c']
 
 export function Confetti({ count = 18 }: { count?: number }) {
   const [pieces] = useState(() =>

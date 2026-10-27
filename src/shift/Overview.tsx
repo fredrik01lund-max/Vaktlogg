@@ -170,7 +170,7 @@ function CompetitionTile({ live, game, calm }: { live: LiveState; game: string; 
         }
       >
         <span className="st-kicker">
-          <Icon name="moon" /> {L('Rolig modus', 'Calm mode')}
+          <Icon name="calm" /> {L('Rolig modus', 'Calm mode')}
         </span>
         <span className="st-big">
           <CountUp value={Math.round(recordPct)} />
@@ -190,15 +190,21 @@ function CompetitionTile({ live, game, calm }: { live: LiveState; game: string; 
         art={
           <span className="st-duel">
             <span className="st-duel-row">
-              <Face id={config.persona.id} size={30} />
+              <span className="st-duel-face" data-lead={d.leader === 'me'}>
+                <Face id={config.persona.id} size={30} />
+                <Icon name="crown" />
+              </span>
               <TugBar share={duelShare(d)} me={['#f6b3cb', '#f08fb0']} them="#a7bfeb" height={14} initial="" />
-              <Face id={d.opponentId} size={30} />
+              <span className="st-duel-face" data-lead={d.leader === 'opponent'}>
+                <Face id={d.opponentId} size={30} />
+                <Icon name="crown" />
+              </span>
             </span>
-            <span className="st-duel-nums">
-              <b>{pct(Math.round(d.me.ofAvg))}</b>
-              <small>{L('av vanlig', 'of usual')}</small>
-              <b>{pct(Math.round(d.opponent.ofAvg))}</b>
-            </span>
+            {lead > 0 && (
+              <span className="st-duel-lead" data-who={d.leader}>
+                {L('{p} foran', '{p} ahead', { p: pct(lead) })}
+              </span>
+            )}
           </span>
         }
       >

@@ -112,7 +112,7 @@
   font-size: 0.75rem;
   font-weight: 600;
   line-height: 1.25;
-  color: #4b5a54;
+  color: #5e3a46;
 }
 .rs-chip-line {
   display: flex;
@@ -125,11 +125,11 @@
   font-weight: 800;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
-  color: #17231f;
+  color: #2e1a22;
   white-space: nowrap;
 }
 .rs-chip-date {
   font-size: 0.75rem;
-  color: #4b5a54;
+  color: #5e3a46;
   white-space: nowrap;
 }

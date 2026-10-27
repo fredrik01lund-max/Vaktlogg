@@ -203,7 +203,7 @@ export function Story({ month }: { month: string }) {
       aria-modal="true"
       aria-label={L('Månedsoppsummering for {m}', 'Monthly summary for {m}', { m: name })}
       tabIndex={-1}
-      data-ink={def?.ink ?? 'dark'}
+      data-ink={def?.ink ?? 'light'}
       data-paused={paused ? 'true' : 'false'}
     >
       <div className="w-top">
