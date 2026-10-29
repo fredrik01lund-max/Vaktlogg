@@ -29,6 +29,8 @@ export interface Settings {
   lang: Lang
   /** Sir Domeos guide til demolinjen er vist (eller hoppet over). */
   guideSeen: boolean
+  /** Svaret på Sir Domeos spørsmål: omvisning, eller utforske selv (da er han ikke med i månedsoppsummeringen). */
+  guide: 'unset' | 'tour' | 'self'
 }
 
 export interface Demo {
@@ -67,6 +69,7 @@ const defaultSettings: Settings = {
   introDismissed: false,
   lang: 'no',
   guideSeen: false,
+  guide: 'unset',
 }
 
 const defaultDemo: Demo = {
@@ -132,6 +135,8 @@ interface Store {
   finishShift: () => void
   togglePlay: () => void
   reset: () => void
+  /** Omvisningen: spol vakten frem til et travelt øyeblikk og hold klokka i ro (false = la den gå igjen). */
+  holdShift: (hold: boolean) => void
   saveShift: () => void
   /** Rolig modus eller «Rolig» som kveldens spill: ingen konkurranse vises. */
   quiet: boolean
@@ -173,6 +178,8 @@ const stepMin = Array.from({ length: lastStepIndex + 1 }, (_, i) => liveAt(i).mi
 const RATE = (endMin - startMin) / (LOOP_MS - HOLD_MS)
 const TICK_MS = 250
 const minutesAt = (step: number) => (step < 0 ? startMin : stepMin[step])
+/** Omvisningen spoler vakten frem hit (20:30). */
+const TOUR_MIN = 20 * 60 + 30
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const initial = useMemo(load, [])
@@ -323,6 +330,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     navigate('/vakt')
   }, [])
 
+  const holdShift = useCallback((hold: boolean) => {
+    const d = ref.current.demo
+    if (d.phase !== 'live') return
+    if (!hold) {
+      if (!MANUAL) setPlaying(true)
+      return
+    }
+    // Rundt halv ni er det mest å se i boksene
+    const busy = stepMin.findIndex((m) => m >= TOUR_MIN)
+    if (busy > d.step) {
+      setDemo({ ...d, step: busy })
+      clockRef.current = stepMin[busy]
+      if (!MANUAL) setClock(stepMin[busy])
+    }
+    setPlaying(false)
+  }, [])
+
   const store: Store = {
     settings,
     demo,
@@ -337,6 +361,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     finishShift,
     togglePlay,
     reset,
+    holdShift,
     saveShift: () => setDemo((d) => ({ ...d, saved: true })),
     quiet: isQuiet(settings, demo),
     // Månen på vaktsiden: på en «Rolig»-kveld bytter den til Laget, ellers skrus rolig modus av og på.

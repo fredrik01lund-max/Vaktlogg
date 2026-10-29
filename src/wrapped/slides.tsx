@@ -2,25 +2,21 @@
 // Alle tall kommer fra monthStory() i calc.ts – her bare formateres de.
 // Tekst: L('norsk', 'engelsk') for kortenes egen tekst, td() for navn og tekst fra dataene (retter, ros, typer).
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { colleagueName, config } from '../config.ts'
 import { L, isEn, td } from '../i18n.ts'
 import type { MonthStory } from '../lib/calc.ts'
-import { capitalize, dateLong, dayLabel, dayMonth, dec1, hoursText, kr, monthName, num, numberWord, ordinalWord, plural, weekdayByCol, weekdayPluralDef } from '../lib/format.ts'
+import { capitalize, dayMonth, dec1, hoursText, kr, monthName, num, numberWord, ordinalWord, plural, weekdayByCol, weekdayPluralDef } from '../lib/format.ts'
 import { easeData } from '../lib/motion.ts'
 import { useStore } from '../state.tsx'
 import { Icon } from '../ui.tsx'
-import { momentMeta } from '../game-ui.tsx'
+import { storyReveal } from '../guide.tsx'
 import { Caption, Eyebrow, Hero, Stage } from './parts.tsx'
 import type { Mode } from './parts.tsx'
 import { MonthCalendar } from './art/MonthCalendar.tsx'
 import { Storefronts } from './art/Storefronts.tsx'
-import { MonthReceipt } from './art/MonthReceipt.tsx'
 import { Cloches } from './art/Cloches.tsx'
-import { DessertTray } from './art/DessertTray.tsx'
-import { RecordStairs } from './art/RecordStairs.tsx'
-import { Postcard } from './art/Postcard.tsx'
 import { WalkPath } from './art/WalkPath.tsx'
 import { KudosThread } from './art/KudosThread.tsx'
 import { PersonaBadge } from './art/PersonaBadge.tsx'
@@ -54,14 +50,12 @@ export interface SlideDef {
 }
 
 const mName = (s: MonthStory) => monthName(`${s.month}-01`)
-const year = (s: MonthStory) => s.month.slice(0, 4)
 const cssVars = (o: Record<string, string | number>) => o as React.CSSProperties
 const andList = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} ${L('og', 'and')} ${xs.at(-1)}`)
 const ganger = (n: number) => (n === 1 ? L('gang', 'time') : L('ganger', 'times'))
 /** «3 ganger» / «3 times» */
 const timesText = (n: number) => plural(n, ganger(1), ganger(2))
 /** Dag i måneden i en opplest liste: «5.» / «5». */
-const dayNo = (iso: string) => L('{d}.', '{d}', { d: Number(iso.slice(8)) })
 /** De tre mest solgte hovedrettene i quizrekkefølge (alfabetisk på gjeldende språk), med oversatte navn. */
 const quizItems = (s: MonthStory) => s.topMains.map((m) => ({ ...m, name: td(m.name) })).sort((a, b) => a.name.localeCompare(b.name, isEn() ? 'en' : 'nb'))
 /** Trekkene rundt typemerket. Ukedag og rett settes sammen på engelsk; resten kommer fra ordlisten. */
@@ -134,39 +128,15 @@ function Gjester({ s, mode }: BodyProps) {
   )
 }
 
-// ── 3. Kassalappen ──
-function Kassalapp({ s, mode }: BodyProps) {
-  const records = s.receipt.filter((r) => r.record).map((r) => dayNo(r.date))
-  return (
-    <>
-      <div className="w-head">
-        <Eyebrow>{L('Kassalappen din', 'Your receipt')}</Eyebrow>
-      </div>
-      <Stage>
-        <MonthReceipt
-          title={config.restaurant.name}
-          subtitle={`${td(config.persona.section)} · ${mName(s)} ${year(s)}`}
-          rows={s.receipt.map((r) => ({ id: r.id, label: dayLabel(r.date), sales: r.sales, record: r.record }))}
-          total={s.sales}
-          tips={s.tips}
-          mode={mode}
-          label={
-            L('Kassalapp for {m}: {n} vakter, totalt {total}, tips {tips}', 'Receipt for {m}: {n} shifts, total {total}, tips {tips}', { m: mName(s), n: num(s.count), total: kr(s.sales), tips: kr(s.tips) }) +
-            (records.length ? L(', salgsrekord {days} {m}', ', sales record on {days} {m}', { days: andList(records), m: mName(s) }) : '')
-          }
-        />
-      </Stage>
-      <Caption d={1950}>{L('{avg} per vakt i snitt', '{avg} per shift on average', { avg: kr(s.avgPerShift) })}</Caption>
-    </>
-  )
-}
-
 // ── 4. Gjett månedens rett ──
 // Lokkene løftes ved et trykk, eller av seg selv etter 4,5 s. Tidsuret er en usynlig CSS-animasjon,
 // så det står stille på pause (knapp, hold inne, skjult fane) akkurat som resten av kortet.
 // Ved redusert bevegelse: ingen tidsur – lokkene løftes når du trykker (eller når du går videre).
-function Gjett({ s, mode, seen, onResume }: BodyProps) {
+function Gjett({ s, mode, seen, active, onResume }: BodyProps) {
   const [revealed, setRevealed] = useState(false)
+  useEffect(() => {
+    if (revealed && active) storyReveal()
+  }, [revealed, active])
   const [guess, setGuess] = useState<string | null>(null)
   const items = quizItems(s)
   const winner = s.topMains[0]
@@ -217,89 +187,6 @@ function Gjett({ s, mode, seen, onResume }: BodyProps) {
       <p className="sr-only" aria-live="polite">
         {revealed ? `${guessed ? verdict : L('Månedens rett:', 'Dish of the month:')} ${winnerName}, ${times}` : ''}
       </p>
-    </>
-  )
-}
-
-// ── 5. Desserter ──
-function Desserter({ s, mode }: BodyProps) {
-  const items = s.desserts.items.map((d) => ({ ...d, name: td(d.name) }))
-  return (
-    <>
-      <div className="w-head">
-        <Eyebrow>{L('Til dessert', 'For dessert')}</Eyebrow>
-        <Hero value={s.desserts.total} unit={(n) => (n === 1 ? L('dessert', 'dessert') : L('desserter', 'desserts'))} mode={mode} duration={1070} delay={200} />
-      </div>
-      <Stage>
-        <DessertTray
-          items={items}
-          total={s.desserts.total}
-          label={L('{n} desserter: {list}', '{n} desserts: {list}', { n: num(s.desserts.total), list: items.map((d) => `${d.name} ${num(d.qty)}`).join(', ') })}
-        />
-      </Stage>
-      <span />
-    </>
-  )
-}
-
-// ── 6. Rekordtrappen ──
-function Rekorder({ s, mode }: BodyProps) {
-  const l = s.ladder!
-  const steps = l.steps.slice(-3)
-  const columns = [{ value: num(l.baseline.value), date: dayMonth(l.baseline.date), base: true }, ...steps.map((x) => ({ value: num(x.value), date: dayMonth(x.date) }))]
-  const extras = s.recordBests.map((b) => ({
-    icon: b.metric === 'desserts' ? 'dessert' : 'receipt',
-    label: td(b.short),
-    value: b.metric === 'avgCheck' ? kr(b.value) : num(b.value),
-    date: dayMonth(b.date),
-  }))
-  const ladderVars = { times: timesText(l.steps.length), from: num(l.baseline.value), to: steps.map((x) => num(x.value)).join(', ') }
-  return (
-    <>
-      <div className="w-head">
-        <Eyebrow>{L('Du slo salgsrekorden din', 'You beat your sales record')}</Eyebrow>
-        <Hero value={l.steps.length} unit={ganger} mode={mode} duration={1000} delay={650} />
-      </div>
-      <Stage>
-        <RecordStairs
-          columns={columns}
-          extras={extras}
-          label={L('Salgsrekorden slått {times}: fra {from} til {to} kr', 'Sales record beaten {times}: from {from} to {to} kr', ladderVars)}
-        />
-      </Stage>
-      <span />
-    </>
-  )
-}
-
-// ── 7. Beste vakt: postkortet ──
-function Beste({ s, watch }: BodyProps) {
-  const b = s.bestShift
-  const icon = (b.moments[0] && momentMeta[b.moments[0]]?.icon) || 'star'
-  const note = td(b.activity.highlight)
-  const guests = L('{n} gjester', '{n} guests', { n: num(b.guests) })
-  const desserts = L('{n} desserter', b.desserts === 1 ? '{n} dessert' : '{n} desserts', { n: num(b.desserts) })
-  const cardVars = { date: dateLong(b.date), sales: kr(b.sales), guests, desserts, avg: kr(b.avgCheck) }
-  return (
-    <>
-      <div className="w-head">
-        <Eyebrow>{L('Beste vakt', 'Best shift')}</Eyebrow>
-      </div>
-      <Stage>
-        <Postcard
-          dateText={capitalize(dateLong(b.date))}
-          amount={num(b.sales)}
-          icon={icon}
-          quote={watch ? note : undefined}
-          chips={[
-            { icon: 'guests', text: guests },
-            { icon: 'dessert', text: desserts },
-            { icon: 'receipt', text: L('{kr} snitt', '{kr} per guest', { kr: kr(b.avgCheck) }) },
-          ]}
-          label={L('Beste vakt: {date}, {sales}, {guests}, {desserts}, {avg} i snitt', 'Best shift: {date}, {sales}, {guests}, {desserts}, {avg} per guest', cardVars) + (watch ? `. ${note}` : '')}
-        />
-      </Stage>
-      <span />
     </>
   )
 }
@@ -485,7 +372,6 @@ export const slideDefs: SlideDef[] = [
     Body: Apning,
   },
   { id: 'gjester', title: () => L('Gjestene dine', 'Your guests'), tone: 'lag', ink: 'light', dur: 4500, aria: (s) => L('{n} gjester', '{n} guests', { n: num(s.guests) }), Body: Gjester },
-  { id: 'kassalapp', title: () => L('Kassalappen din', 'Your receipt'), tone: 'deg', ink: 'light', dur: 5000, aria: (s) => L('Totalt {kr}', 'Total {kr}', { kr: kr(s.sales) }), Body: Kassalapp },
   {
     id: 'gjett',
     title: () => L('Månedens rett', 'Dish of the month'),
@@ -497,27 +383,6 @@ export const slideDefs: SlideDef[] = [
     aria: (s) => L('Gjett hva du bar ut mest: {list}', 'Guess what you carried out most: {list}', { list: quizList(s) }),
     Body: Gjett,
   },
-  {
-    id: 'desserter',
-    title: () => L('Desserter', 'Desserts'),
-    tone: 'dessert',
-    ink: 'light',
-    dur: 4500,
-    when: ({ s }) => s.desserts.total > 0,
-    aria: (s) => L('{n} desserter', s.desserts.total === 1 ? '{n} dessert' : '{n} desserts', { n: num(s.desserts.total) }),
-    Body: Desserter,
-  },
-  {
-    id: 'rekorder',
-    title: () => L('Rekorder', 'Records'),
-    tone: 'rekord',
-    ink: 'light',
-    dur: 5000,
-    when: ({ s }) => s.ladder !== null,
-    aria: (s) => L('Salgsrekorden slått {times}', 'Sales record beaten {times}', { times: timesText(s.ladder?.steps.length ?? 0) }),
-    Body: Rekorder,
-  },
-  { id: 'beste', title: () => L('Beste vakt', 'Best shift'), tone: 'rekord-r', ink: 'light', dur: 6500, aria: (s) => L('Beste vakt {date}', 'Best shift: {date}', { date: dateLong(s.bestShift.date) }), Body: Beste },
   { id: 'gikk', title: () => L('Du gikk', 'You walked'), tone: 'deg', ink: 'light', dur: 5000, when: ({ watch }) => watch, aria: (s) => `${num(s.km)} km`, Body: Gikk },
   {
     id: 'ros',

@@ -15,6 +15,7 @@ import { Icon } from '../ui.tsx'
 import { BgShapes } from './art/kit.tsx'
 import type { Mode } from './parts.tsx'
 import { slideDefs } from './slides.tsx'
+import { storyHost } from '../guide.tsx'
 import './wrapped.css'
 
 /** Måneden historien sist ble lukket fra – Historikk gir fokus tilbake til inngangen. */
@@ -48,6 +49,10 @@ export function Story({ month }: { month: string }) {
   useEffect(() => {
     if (!s) navigate('/historikk')
   }, [s])
+
+  // Sir Domeo er programleder: han får vite hvilken side som vises
+  useEffect(() => storyHost(def?.id ?? null), [def?.id])
+  useEffect(() => () => storyHost(null), [])
 
   // Kortet som vises, spilles første gang.
   useEffect(() => {

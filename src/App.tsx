@@ -382,7 +382,7 @@ function Shell() {
           {!boss && (
           <nav className="tabbar" aria-label={L('Hovedmeny', 'Main menu')}>
             {tabs.map((t) => (
-              <button key={t.id} className={`tab ${nudge && t.id === 'historikk' ? 'nudge' : ''}`} aria-current={tab === t.id ? 'page' : undefined} onClick={() => navigate(`/${t.id}`)}>
+              <button key={t.id} data-tab={t.id} className={`tab ${nudge && t.id === 'historikk' ? 'nudge' : ''}`} aria-current={tab === t.id ? 'page' : undefined} onClick={() => navigate(`/${t.id}`)}>
                 <Icon name={t.icon} />
                 {t.label}
                 {t.id === 'vakt' && demo.phase === 'live' && tab !== 'vakt' && <i className="dot" />}

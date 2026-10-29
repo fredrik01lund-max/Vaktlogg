@@ -26,7 +26,8 @@ export const D3D_BODY = { feet: 0.6, head: 0.68, half: 0.9 }
 
 // Små vaner han har når han venter
 type Habit = 'peek' | 'tilt' | 'chatter' | 'stache' | 'monocle' | 'polish'
-type Action = Move | Habit
+/** En bevegelse eller en av vanene hans – alle kan brukes når han kommer til et nytt stopp. */
+export type Action = Move | Habit
 // Hvor lenge hver bevegelse varer (sekunder)
 const DURATION: Record<Action, number> = {
   tip: 1.6,
@@ -47,7 +48,7 @@ const DURATION: Record<Action, number> = {
   polish: 2.4,
 }
 // Når armen begynner å peke (sekunder etter at han kom frem) – noen bevegelser skal bli ferdige først
-const POINT_AT: Partial<Record<Move, number>> = { hop: 0.95, dance: 1.45, present: 1.45, flip: 0.9 }
+const POINT_AT: Partial<Record<Action, number>> = { hop: 0.95, dance: 1.45, present: 1.45, flip: 0.9 }
 
 type Live = {
   mood: Mood
@@ -110,7 +111,7 @@ export function Domeo3D({
   fallback,
 }: {
   mood: Mood
-  move: Move
+  move: Action
   actionKey: number
   dir?: number
   /** Hvor lenge han snakker (ms) – lokket går opp og ned i takt. */
@@ -751,7 +752,9 @@ export function Domeo3D({
           const aims = L.aims
           const pointing = aims.length > 0 && !L.leaving && tp >= 0 && tp < 4.6
           const phaseA = pointing && tp < 2.4 && L.hand === 'point'
-          const ai = L.action === 'pick' && tp < 3.3 ? Math.floor(Math.max(0, tp) / 1.1) % aims.length : 0
+          // «pick» peker på hvert mål etter tur
+          const per = Math.min(1.1, 3.3 / Math.max(1, aims.length))
+          const ai = L.action === 'pick' && tp < 3.3 ? Math.floor(Math.max(0, tp) / per) % aims.length : 0
 
           // Grunnstilling: svev, vugg og pust
           let x = 0

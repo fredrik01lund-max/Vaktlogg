@@ -4,7 +4,8 @@
 
 .kg-layer {
   position: absolute;
-  z-index: 70;
+  /* Over månedsoppsummeringen (85) og arkene, under varslene (90) */
+  z-index: 88;
   left: 0;
   top: 0;
   width: 0;
@@ -151,11 +152,94 @@
   transform: scale(0.97);
 }
 
-/* Knappen han forklarer, får en myk ring i demolinjen */
-.demo-bar[data-guide-step='start'] [data-guide='start'],
-.demo-bar[data-guide-step='roles'] [data-guide='roles'],
-.demo-bar[data-guide-step='more'] [data-guide='more'] {
-  box-shadow: 0 0 0 3px #ffd6ae;
+/* Når han står under det han forklarer, står boblen under ham med halen opp */
+.kg-say.up .kg-tail {
+  top: auto;
+  bottom: calc(100% - 1px);
+  transform: scaleY(-1);
+}
+.kg-say.up .kg-tail .f {
+  fill: #fff7f1;
+}
+/* Kapittelet i omvisningen */
+.kg-eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pink-ink);
+}
+.kg-text .kg-note {
+  margin-top: 6px;
+  font-size: var(--fs-cap);
+  color: #8a7480;
+}
+/* Spørsmålet i starten: valgene under hverandre */
+.kg-foot.choices {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+.kg-foot.choices > * {
+  min-height: 42px;
+}
+.kg-alt {
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--primary-ink);
+  font-weight: 750;
+  box-shadow: 0 0 0 1.5px rgba(232, 140, 170, 0.35);
+}
+.kg-foot:not(.choices) .kg-skip {
+  margin-right: auto;
+}
+/* Programlederen i månedsoppsummeringen: liten boble som ikke tar trykk, og som blekner når han er ferdig */
+.kg-say.host {
+  padding: 10px 14px 9px;
+  border-radius: 22px;
+}
+.kg-say.host .kg-text p {
+  font-size: var(--fs-cap);
+  line-height: 1.38;
+}
+.kg-say.quiet {
+  pointer-events: none;
+}
+.kg-say.faded {
+  opacity: 0;
+  transform: translateY(6px) scale(0.96);
+  transition:
+    opacity 500ms var(--ease-standard),
+    transform 500ms var(--ease-standard);
+}
+
+/* «Prøv selv»: en myk, pulserende ring rundt det han ber deg trykke på */
+.kg-ring {
+  outline: 3px solid rgba(255, 190, 150, 0.95);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .kg-ring {
+    animation: kgRing 1.4s ease-out infinite;
+  }
+}
+@keyframes kgRing {
+  0% {
+    outline-color: rgba(255, 175, 140, 0.95);
+    outline-offset: 2px;
+  }
+  70% {
+    outline-color: rgba(255, 175, 140, 0);
+    outline-offset: 10px;
+  }
+  100% {
+    outline-color: rgba(255, 175, 140, 0);
+    outline-offset: 10px;
+  }
 }
 
 /* Lille Sir Domeo i demolinjen: viser at linjen er regissørens, og henter guiden frem igjen */
@@ -209,6 +293,9 @@
   }
   .kg-layer.placed .kg-float > .kg-bob {
     animation: kgPop 600ms var(--ease-pop) both;
+  }
+  .kg-layer.placed .kg-say.up {
+    transform-origin: var(--tail, 50%) -16px;
   }
   .kg-layer.placed .kg-say {
     transform-origin: var(--tail, 50%) calc(100% + 16px);
