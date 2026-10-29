@@ -135,7 +135,7 @@ Enkeltfilen `Vaktlogg-prototype.html` kan ikke installeres (filer åpnet fra dis
 
 Demo-kontrollen ligger utenfor appen – under telefonrammen på stor skjerm, og som en mørk stripe under appen på mobil:
 
-- **Klappen** (den lille filmklapperen først i linjen): guiden til prototypen. Første gang prototypen åpnes, svever han inn i 3D, forteller historien (en fredagsvakt som spilles av som en film), lar deg velge språk, og flyr så til Start vakt, E/K og ⋯. Kan hoppes over, og hentes frem igjen ved å trykke på ham eller fra ⋯. Three.js lastes bare når han vises (`src/klappen3d.tsx`, `src/guide.tsx`). Vises ikke med `?manuell` eller i automatiske tester; `?guide` viser ham alltid.
+- **Klappen** (den lille filmklapperen først i linjen): guiden til prototypen. Første gang prototypen åpnes, svever han inn i 3D, forteller at du er Emma og kan trykke deg rundt, lar deg velge språk, og flyr så til Start vakt (trykk på det du vil se mens vakten går), Avslutt vakt (sluttrapporten – Historikk, Goals og Meg kan ses når som helst), E/K og ⋯. Kan hoppes over, og hentes frem igjen ved å trykke på ham eller fra ⋯. Three.js lastes bare når han vises (`src/klappen3d.tsx`, `src/guide.tsx`). Vises ikke med `?manuell` eller i automatiske tester; `?guide` viser ham alltid.
 - **⋯**: språk (Norsk/English) øverst, så start på nytt, «Din september», installer som app og Klappens guide.
 
 - **E / K**: bytter mellom Emmas telefon og Karis telefon (arbeidsgiver)

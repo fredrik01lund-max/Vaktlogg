@@ -93,19 +93,24 @@ export function Klappen({ mood = 'wave', size = 84, clapKey = 0 }: { mood?: Mood
   )
 }
 
-// Fire stopp: midt på skjermen (historien og språket), så over knappene han forklarer.
+// Fem stopp: midt på skjermen (hvem du er, språket), så over knappene han forklarer.
 const steps = (): { target: string | null; mood: Mood; text: string; title?: string; lang?: boolean }[] => [
   {
     target: null,
     mood: 'wave',
     title: L('Hei! Jeg er Klappen.', 'Hi! I’m Clappy.'),
-    text: L('Prototypen er en film om én fredagsvakt, og du er Emma. Jeg viser deg hvordan du styrer den.', 'The prototype is a film about one Friday shift, and you’re Emma. Let me show you how to run it.'),
+    text: L('Du er Emma, servitør på en fredagsvakt. Trykk deg rundt i appen akkurat som hun ville gjort.', 'You’re Emma, a server on a Friday shift. Tap around the app just like she would.'),
     lang: true,
   },
   {
     target: 'start',
     mood: 'point',
-    text: L('Trykk her, så spilles kvelden av på to minutter – om igjen til du trykker «Avslutt vakt».', 'Tap here and the evening plays in two minutes – over and over until you tap “End shift”.'),
+    text: L('Start vakten her. Kvelden går av seg selv på to minutter – trykk på det du vil se mens den pågår.', 'Start the shift here. The evening runs by itself in two minutes – tap whatever you want to see while it’s on.'),
+  },
+  {
+    target: 'start',
+    mood: 'wink',
+    text: L('Ferdig? Trykk «Avslutt vakt» her og få sluttrapporten. Historikk, Goals og Meg kan du se når som helst.', 'Done? Tap “End shift” here to get the shift report. History, Goals and Me are there any time.'),
   },
   {
     target: 'roles',
@@ -115,7 +120,7 @@ const steps = (): { target: string | null; mood: Mood; text: string; title?: str
   {
     target: 'more',
     mood: 'wink',
-    text: L('Her bytter du språk og starter alt på nytt. Den mørke linjen er ikke en del av appen – den styrer bare filmen.', 'Switch language and start over here. The dark bar isn’t part of the app – it just runs the film.'),
+    text: L('Her bytter du språk og starter alt på nytt. Den mørke linjen styrer bare demoen.', 'Switch language and start over here. The dark bar just runs the demo.'),
   },
 ]
 
