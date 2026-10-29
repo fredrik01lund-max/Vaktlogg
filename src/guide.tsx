@@ -10,8 +10,8 @@ import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalSto
 import { config } from './config.ts'
 import { L } from './i18n.ts'
 import { MANUAL, useStore } from './state.tsx'
-import { D3D_SIZE, Domeo3D } from './domeo3d.tsx'
-import type { Mood, Move } from './domeo3d.tsx'
+import { D3D_BODY, D3D_PX, D3D_SIZE, Domeo3D } from './domeo3d.tsx'
+import type { Aim, Hand, Mood, Move } from './domeo3d.tsx'
 import './guide.css'
 
 // ── Liten felles tilstand: overlever at appen tegnes på nytt når språket byttes ──
@@ -45,110 +45,127 @@ export function useGuide(): GuideState {
   )
 }
 
-/** Sir Domeo flat: serveringsklokke i rosegull med store øyne, bart, monokkel, sløyfe og hvite hansker. */
+/** Sir Domeo flat: sølvklokke med brune øyne under sølvlokk, handlebar-bart, monokkel, vinrød sløyfe, frakkeermer og lakksko. */
 export function Domeo({ mood = 'wave', size = 84, talkKey = 0 }: { mood?: Mood; size?: number; talkKey?: number }) {
   const id = useId()
   const closed = mood === 'cheer'
   const eye = (cx: number, shut: boolean) =>
     shut ? (
-      <path d={`M${cx - 4.5} 57q4.5-6 9 0`} stroke="#33212A" strokeWidth="2.6" strokeLinecap="round" fill="none" />
+      <path d={`M${cx - 5} 53q5-5.5 10 0`} stroke="#3A2622" strokeWidth="2.4" strokeLinecap="round" fill="none" />
     ) : (
       <g>
-        <ellipse cx={cx} cy="55" rx="4.6" ry="6" fill="#33212A" />
-        <circle cx={cx + 1.6} cy="52.6" r="1.7" fill="#fff" />
-        <circle cx={cx - 1.2} cy="57.4" r="0.9" fill="#fff" />
+        <ellipse cx={cx} cy="52" rx="6.2" ry="7.4" fill="#FBFAF7" stroke="#8F96A0" strokeWidth="0.8" />
+        <circle cx={cx + 0.3} cy="53" r="4.2" fill="#8C5430" />
+        <circle cx={cx + 0.3} cy="53" r="2.2" fill="#120B08" />
+        <circle cx={cx - 1.2} cy="51.2" r="1.2" fill="#fff" />
+        {/* Øyelokket i sølv */}
+        <path d={`M${cx - 6.4} 50.4a6.4 7.6 0 0 1 12.8 0q-6.4-2.6-12.8 0z`} fill={`url(#${id}c)`} stroke="#8F96A0" strokeWidth="0.6" />
       </g>
     )
   return (
     <svg className={`domeo mood-${mood}`} width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
       <defs>
-        <linearGradient id={`${id}d`} x1="0.1" y1="0" x2="0.6" y2="1">
-          <stop offset="0" stopColor="#FFE3D6" />
-          <stop offset="1" stopColor="#FFB4A6" />
+        <linearGradient id={`${id}c`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#C4C8CF" />
+          <stop offset="0.32" stopColor="#FFFFFF" />
+          <stop offset="0.68" stopColor="#E7E9ED" />
+          <stop offset="1" stopColor="#A9AFB8" />
         </linearGradient>
         <linearGradient id={`${id}p`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#FFFFFF" />
-          <stop offset="1" stopColor="#EAD9D6" />
+          <stop offset="1" stopColor="#B5BAC3" />
         </linearGradient>
       </defs>
       {/* Skygge */}
-      <ellipse cx="50" cy="96" rx="26" ry="3.5" fill="#6E2A3C" opacity="0.12" />
-      {/* Bein og rosa sko */}
-      <path d="M40 79v8M60 79v8" stroke="#F3AE9E" strokeWidth="4.5" strokeLinecap="round" />
-      <ellipse cx="39" cy="90" rx="6.5" ry="4" fill="#F8A6C2" />
-      <ellipse cx="61" cy="90" rx="6.5" ry="4" fill="#F8A6C2" />
-      {/* Armer med hvite hansker: venstre hviler, høyre vinker eller peker */}
-      <path d="M11 76q-5 3-5 10" stroke="#F3AE9E" strokeWidth="4" strokeLinecap="round" fill="none" />
-      <circle cx="6" cy="88" r="4.6" fill="#fff" stroke="#6E2A3C" strokeOpacity="0.15" />
-      <g className="k-arm-r">
-        <path d="M89 76q6-3 6-12" stroke="#F3AE9E" strokeWidth="4" strokeLinecap="round" fill="none" />
-        <circle cx="95" cy="62" r="4.6" fill="#fff" stroke="#6E2A3C" strokeOpacity="0.15" />
-      </g>
+      <ellipse cx="50" cy="96" rx="26" ry="3.5" fill="#2A2830" opacity="0.14" />
+      {/* Bukser, hvite gamasjer og lakksko */}
+      <path d="M41 80v7M59 80v7" stroke="#302E33" strokeWidth="5" strokeLinecap="round" />
+      <rect x="37.6" y="85.5" width="6.8" height="3.4" rx="1.2" fill="#F3F1EC" />
+      <rect x="55.6" y="85.5" width="6.8" height="3.4" rx="1.2" fill="#F3F1EC" />
+      <ellipse cx="39" cy="91.5" rx="7" ry="3.8" fill="#1B1A1E" />
+      <ellipse cx="61" cy="91.5" rx="7" ry="3.8" fill="#1B1A1E" />
+      <ellipse cx="36.5" cy="90.4" rx="2.2" ry="0.9" fill="#fff" opacity="0.55" />
+      <ellipse cx="58.5" cy="90.4" rx="2.2" ry="0.9" fill="#fff" opacity="0.55" />
+      {/* Brettet */}
+      <ellipse cx="50" cy="77" rx="46" ry="6" fill={`url(#${id}p)`} stroke="#8F96A0" strokeOpacity="0.45" />
+      {/* Venstre arm hviler: frakkeerme, mansjett og hanske */}
+      <path d="M18 77q-7 2-8 9" stroke="#302E33" strokeWidth="4.5" strokeLinecap="round" fill="none" />
+      <circle cx="9.6" cy="89" r="4.6" fill="#fff" stroke="#2A2830" strokeOpacity="0.18" />
       {/* Lokket – munnen hans – med ansiktet, barten og monokkelen. Det hopper litt når han snakker. */}
       <g className="k-lid" key={talkKey}>
-        <path d="M15 73a35 41 0 0 1 70 0z" fill={`url(#${id}d)`} />
-        <path d="M24 58q4-15 19-20" stroke="#fff" strokeOpacity="0.75" strokeWidth="3.5" strokeLinecap="round" fill="none" />
-        <rect x="13.5" y="70.5" width="73" height="4" rx="2" fill={`url(#${id}p)`} />
-        <rect x="47.5" y="27" width="5" height="6" rx="1.5" fill={`url(#${id}p)`} />
-        <circle cx="50" cy="25" r="5" fill={`url(#${id}p)`} stroke="#6E2A3C" strokeOpacity="0.12" />
-        <path d="M34.5 45.5q4.5-2.5 9-.5M56.5 43.5q4.5-2.5 9 .5" stroke="#7A4E3C" strokeWidth="2" strokeLinecap="round" fill="none" />
+        <path d="M16 74a34 40 0 0 1 68 0z" fill={`url(#${id}c)`} stroke="#8F96A0" strokeOpacity="0.4" />
+        <path d="M26 57q3-14 17-20" stroke="#fff" strokeOpacity="0.9" strokeWidth="3" strokeLinecap="round" fill="none" />
+        <rect x="14.5" y="71.5" width="71" height="4.2" rx="2.1" fill={`url(#${id}p)`} stroke="#8F96A0" strokeOpacity="0.4" strokeWidth="0.8" />
+        <rect x="47.8" y="29.5" width="4.4" height="6" fill={`url(#${id}p)`} />
+        <circle cx="50" cy="27.5" r="4.6" fill={`url(#${id}c)`} stroke="#8F96A0" strokeOpacity="0.5" strokeWidth="0.8" />
+        <path d="M33 41.6q6-3.6 12-1M55 40.6q6-2.6 12 1" stroke="#4A2A1C" strokeWidth="2.6" strokeLinecap="round" fill="none" />
         <g className="k-eyes">
           {eye(39, mood === 'wink' || closed)}
           {eye(61, closed)}
         </g>
-        <ellipse cx="28" cy="63" rx="5" ry="2.8" fill="#FF8FB0" opacity="0.55" />
-        <ellipse cx="72" cy="63" rx="5" ry="2.8" fill="#FF8FB0" opacity="0.55" />
+        <ellipse cx="27.5" cy="61.5" rx="5" ry="2.8" fill="#FF8FB0" opacity="0.5" />
+        <ellipse cx="72.5" cy="61.5" rx="5" ry="2.8" fill="#FF8FB0" opacity="0.5" />
         {/* Monokkel med kjede */}
-        <circle cx="61" cy="55" r="8.2" fill="#fff" fillOpacity="0.16" stroke="#E9B65C" strokeWidth="1.8" />
-        <path d="M66.5 61q5 4 6.5 9.5" stroke="#E9B65C" strokeWidth="0.9" strokeLinecap="round" fill="none" />
-        {/* Bart med krøllete tupper */}
+        <circle cx="61" cy="52" r="8.6" fill="#fff" fillOpacity="0.14" stroke="#E9B65C" strokeWidth="1.8" />
+        <path d="M67.5 57.5q4 5 3 11" stroke="#E9B65C" strokeWidth="0.9" strokeLinecap="round" fill="none" />
+        {/* Handlebar-bart med krøller */}
         <path
-          d="M50 65.2c-2.4-2.4-6.6-3-10.4-1.4-2.4 1-4.4.8-5.4-.9-.7 2.6 1.4 4.6 4.6 4.8 4 .3 8.2-.7 11.2-2.1 3 1.4 7.2 2.4 11.2 2.1 3.2-.2 5.3-2.2 4.6-4.8-1 1.7-3 1.9-5.4.9-3.8-1.6-8-1-10.4 1.4z"
-          fill="#7A4E3C"
+          d="M50 64.6c-2.6-2.8-7.4-3.6-11.6-1.6-2.8 1.3-5 .9-6.2-1-.8 3.1 1.6 5.4 5.4 5.6 4.6.3 9.4-.8 12.4-2.4 3 1.6 7.8 2.7 12.4 2.4 3.8-.2 6.2-2.5 5.4-5.6-1.2 1.9-3.4 2.3-6.2 1-4.2-2-9-1.2-11.6 1.6z"
+          fill="#4A2A1C"
         />
+        <path d="M32.4 62.1c-1.8-.6-2.6-2.4-1.6-3.8 1-1.3 3-1 3.2.5M67.6 62.1c1.8-.6 2.6-2.4 1.6-3.8-1-1.3-3-1-3.2.5" stroke="#4A2A1C" strokeWidth="1.7" strokeLinecap="round" fill="none" />
       </g>
-      {/* Fatet og sløyfen */}
-      <ellipse cx="50" cy="77" rx="44" ry="5.5" fill={`url(#${id}p)`} stroke="#6E2A3C" strokeOpacity="0.12" />
-      <path d="M43 79.5l7 3.5-7 3.5zM57 79.5l-7 3.5 7 3.5z" fill="#F8A6C2" />
-      <circle cx="50" cy="83" r="2.3" fill="#EE86A8" />
+      {/* Vinrød sløyfe */}
+      <path d="M50 83c-3-2.6-6-4-8-3.6-1 .4-1 6.8 0 7.2 2 .4 5-1 8-3.6zM50 83c3-2.6 6-4 8-3.6 1 .4 1 6.8 0 7.2-2 .4-5-1-8-3.6z" fill="#94284C" />
+      <ellipse cx="50" cy="83" rx="2" ry="2.4" fill="#7A2040" />
+      {/* Høyre arm: vinker eller peker */}
+      <g className="k-arm-r">
+        <path d="M82 77q8-2 9.5-13" stroke="#302E33" strokeWidth="4.5" strokeLinecap="round" fill="none" />
+        <circle cx="92" cy="60.5" r="4.8" fill="#fff" stroke="#2A2830" strokeOpacity="0.18" />
+      </g>
       {/* Gnist ved hodet */}
-      <path className="k-spark" d="M88 18c.6 3 2 4.4 5 5-3 .6-4.4 2-5 5-.6-3-2-4.4-5-5 3-.6 4.4-2 5-5z" fill="#F5C64D" />
+      <path className="k-spark" d="M88 16c.6 3 2 4.4 5 5-3 .6-4.4 2-5 5-.6-3-2-4.4-5-5 3-.6 4.4-2 5-5z" fill="#F5C64D" />
     </svg>
   )
 }
 
 // Fem stopp: midt på skjermen (hvem du er, språket), så over knappene han forklarer.
 // `anchor`: noe i appen han presenterer – da står boblen rett under det.
-type Step = { target: string | null; anchor?: string; mood: Mood; move: Move; text: string; title?: string; lang?: boolean }
+// `aim`: det han peker på (velgere), og `hand`: pekefinger eller flat hånd.
+type Step = { target: string | null; anchor?: string; aim?: string[]; hand?: Hand; mood: Mood; move: Move; text: string; title?: string; lang?: boolean }
 const steps = (): Step[] => [
   {
     target: null,
     mood: 'wave',
     move: 'tip',
-    title: L('Hei! Jeg er Sir Domeo.', 'Hi! I’m Sir Domeo.'),
+    title: L('Sir Domeo, til tjeneste!', 'Sir Domeo, at your service!'),
     text: L('Du er Emma, servitør på en fredagsvakt. Trykk deg rundt i appen akkurat som hun ville gjort.', 'You’re Emma, a server on a Friday shift. Tap around the app just like she would.'),
     lang: true,
   },
   {
     target: 'start',
+    aim: ["[data-guide='start']"],
     mood: 'point',
-    move: 'flip',
+    move: 'watch',
     text: L('Start vakten her. Kvelden går av seg selv på to minutter – trykk på det du vil se mens den pågår.', 'Start the shift here. The evening runs by itself in two minutes – tap whatever you want to see while it’s on.'),
   },
   {
     target: 'start',
+    aim: ["[data-guide='start']"],
     mood: 'wink',
-    move: 'twirl',
+    move: 'hop',
     text: L('Ferdig? Trykk «Avslutt vakt» her og få sluttrapporten. Historikk, Goals og Meg kan du se når som helst.', 'Done? Tap “End shift” here to get the shift report. History, Goals and Me are there any time.'),
   },
   {
     target: 'roles',
+    aim: ["[data-guide='roles'] button:first-child", "[data-guide='roles'] button:last-child"],
     mood: 'point',
-    move: 'look',
+    move: 'pick',
     text: L('Her bytter du mellom Emmas telefon og sjefen Karis.', 'Switch between Emma’s phone and her manager Kari’s here.'),
   },
   {
     target: 'more',
+    aim: ["[data-guide='more']"],
     mood: 'wink',
     move: 'dance',
     text: L('Her bytter du språk og starter alt på nytt. Den mørke linjen styrer bare demoen.', 'Switch language and start over here. The dark bar just runs the demo.'),
@@ -171,6 +188,8 @@ const doneSteps = (): Step[] => [
   {
     target: null,
     anchor: '.er-peek',
+    aim: ['.er-peek-more'],
+    hand: 'palm',
     mood: 'point',
     move: 'present',
     title: L('Gratulerer med en god vakt, {name}!', 'Congrats on a great shift, {name}!', { name: config.persona.firstName }),
@@ -180,7 +199,7 @@ const doneSteps = (): Step[] => [
 
 const SIZE = D3D_SIZE
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
-type Pos = { cx: number; cy: number; scale: number; bx: number; by: number; bw: number; tail: number; dir: number }
+type Pos = { cx: number; cy: number; scale: number; bx: number; by: number; bw: number; tail: number; dir: number; aims: Aim[] }
 
 /** Sir Domeo svever over skjermen dit han forklarer noe, med en snakkeboble som følger ham. */
 export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean }) {
@@ -240,9 +259,12 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
       const A = app.getBoundingClientRect()
       const anchor = s.anchor ? document.querySelector<HTMLElement>(s.anchor) : null
       const el = s.target ? bar.querySelector<HTMLElement>(`[data-guide='${s.target}']`) : null
-      const scale = anchor ? 1.05 : el ? 0.8 : 1.3
-      const w = SIZE * scale * 0.72
-      const h = SIZE * scale
+      const scale = anchor ? 1.05 : el ? 0.9 : 1.3
+      // Kroppens mål i piksler ved denne skalaen
+      const px = D3D_PX * scale
+      const half = D3D_BODY.half * px
+      const feet = D3D_BODY.feet * px
+      const head = D3D_BODY.head * px
       const bw = Math.min(296, A.width - 24)
       say.style.width = `${bw}px`
       const bh = say.offsetHeight
@@ -251,24 +273,32 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
       if (anchor) {
         // Boblen rett under det han presenterer, han selv under boblen ute til høyre – men over fanelinjen
         const r = anchor.getBoundingClientRect()
-        cx = A.right - B.left - h / 2 - 2
-        cy = Math.min(r.bottom - B.top + 10 + bh + 6 + h * 0.36, A.bottom - B.top - h * 0.24)
+        cx = A.right - B.left - half - 14
+        cy = Math.min(r.bottom - B.top + 10 + bh + 22 + head, A.bottom - B.top - feet - 4)
       } else if (el) {
+        // Han står ved siden av knappen (der det er mest plass), med skoene på høyde med toppen av den
         const r = el.getBoundingClientRect()
-        cx = r.left + r.width / 2 - B.left
-        // Skoene står rett over knappen (det nederste av lerretet er luft)
-        cy = r.top - B.top - 2 - h * 0.2
+        const left = r.left - A.left >= A.right - r.right
+        cx = left ? r.left - B.left - half - 2 : r.right - B.left + half + 2
+        cy = r.top - B.top - feet + 8
       } else {
         cx = A.left + A.width / 2 - B.left
         cy = A.top + A.height * 0.6 - B.top
       }
-      cx = clamp(cx, A.left - B.left + w / 2 + 4, A.right - B.left - w / 2 - 4)
+      cx = clamp(cx, A.left - B.left + half + 4, A.right - B.left - half - 4)
       const bx = clamp(cx - bw / 2, A.left - B.left + 12, A.right - B.left - 12 - bw)
-      const by = Math.max(A.top - B.top + 12, cy - h * 0.36 - 6 - bh)
+      const by = Math.max(A.top - B.top + 12, cy - head - 22 - bh)
+      // Det han peker på: midten av knappen, målt fra midten av lerretet hans (før skalering)
+      const aims = (s.aim ?? []).flatMap((sel) => {
+        const t = document.querySelector<HTMLElement>(sel)
+        if (!t) return []
+        const r = t.getBoundingClientRect()
+        return [{ x: (r.left + r.width / 2 - (B.left + cx)) / scale, y: (r.top + r.height / 2 - (B.top + cy)) / scale }]
+      })
       // Retningen han flyr, så han kan lene seg inn i svingen
       const dir = prevCx.current === null ? 0 : Math.sign(Math.round(cx - prevCx.current))
       prevCx.current = cx
-      setPos({ cx, cy, scale, bx, by, bw, tail: clamp(cx - bx, 30, bw - 30), dir })
+      setPos({ cx, cy, scale, bx, by, bw, tail: clamp(cx - bx, 30, bw - 30), dir, aims })
     }
     place()
     window.addEventListener('resize', place)
@@ -317,6 +347,8 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
             actionKey={key + (leaving ? 1000 : 0)}
             dir={pos?.dir ?? 0}
             talk={leaving ? 0 : talk}
+            aims={leaving ? undefined : pos?.aims}
+            hand={s.hand}
             leaving={leaving}
             fallback={<Domeo mood={s.mood} talkKey={key} size={100} />}
           />

@@ -21,8 +21,8 @@
   visibility: visible;
 }
 .kg-float {
-  width: 170px;
-  height: 170px;
+  width: 200px;
+  height: 200px;
   transform-origin: center;
   pointer-events: none;
   filter: drop-shadow(0 12px 14px rgba(110, 42, 60, 0.22));
@@ -30,11 +30,11 @@
 .k3d,
 .k3d canvas {
   display: block;
-  width: 170px;
-  height: 170px;
+  width: 200px;
+  height: 200px;
 }
 .k3d .domeo {
-  margin: 30px auto 0;
+  margin: 40px auto 0;
 }
 /* Snakkeboblen: rund og blank, svakt fersken øverst og rosa nederst, med en buet hale */
 .kg-say {
@@ -175,18 +175,18 @@
 }
 .k-arm-r {
   transform-box: view-box;
-  transform-origin: 89px 76px;
+  transform-origin: 82px 77px;
 }
 .mood-point .k-arm-r {
   transform: rotate(40deg);
 }
 .k-lid {
   transform-box: view-box;
-  transform-origin: 18px 73px;
+  transform-origin: 16px 74px;
 }
 .k-eyes {
   transform-box: view-box;
-  transform-origin: 50px 55px;
+  transform-origin: 50px 52px;
 }
 .k-spark {
   transform-box: fill-box;
