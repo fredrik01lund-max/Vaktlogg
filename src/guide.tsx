@@ -10,7 +10,7 @@ import { colleagueName, config } from './config.ts'
 import { L } from './i18n.ts'
 import { navigate, useRoute } from './router.ts'
 import { MANUAL, useStore } from './state.tsx'
-import { D3D_BODY, D3D_PX, D3D_SIZE, Domeo3D } from './domeo3d.tsx'
+import { D3D_BODY, D3D_PX, D3D_SIZE, Domeo3D, onBody, preloadDomeo } from './domeo3d.tsx'
 import type { Action, Aim, Hand, Mood } from './domeo3d.tsx'
 import './guide.css'
 
@@ -628,7 +628,7 @@ type View = {
 const SIZE = D3D_SIZE
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
 const hash = (s: string) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7)
-type Pos = { cx: number; cy: number; scale: number; bx: number; by: number; bw: number; tail: number; dir: number; up: boolean; aims: Aim[] }
+type Pos = { cx: number; cy: number; scale: number; bx: number; by: number; bw: number; tail: number; up: boolean; aims: Aim[] }
 
 /** Sir Domeo svever over skjermen dit han forklarer noe, med en snakkeboble som følger ham. */
 export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean }) {
@@ -643,7 +643,6 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   const [leaving, setLeaving] = useState(false)
   const [away, setAway] = useState(false)
   const [faded, setFaded] = useState(false)
-  const prevCx = useRef<number | null>(null)
   const held = useRef(false)
   const storyOpened = useRef(false)
   const steps = tourSteps({ watchOn: settings.watch, game: demo.game, mate: colleagueName(demo.invites[demo.game === 'makker' ? 'makker' : 'duell']), fromKudos: lastStep === 11, phase: demo.phase })
@@ -665,9 +664,8 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     window.setTimeout(() => {
       setLeaving(false)
       setPos(null)
-      prevCx.current = null
       setGuide({ open: false, step: 0, mode: 'welcome' })
-    }, 320)
+    }, 400)
   }
   const startTour = () => {
     // Klokka står av når omvisningen starter – du skrur den på selv
@@ -698,7 +696,9 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     if (autoTried) return
     autoTried = true
     // Tidtakeren avbrytes ikke: appen tegnes på nytt ved språkbytte, og han skal komme bare én gang
-    if (!gated()) window.setTimeout(() => !state.open && setGuide({ open: true, step: 0, mode: 'welcome' }), 700)
+    if (gated()) return
+    preloadDomeo()
+    window.setTimeout(() => !state.open && setGuide({ open: true, step: 0, mode: 'welcome' }), 700)
   }, [])
 
   // Karis telefon: han dukker opp og sier at siden er under arbeid (én gang per besøk)
@@ -943,11 +943,72 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     }
   }, [vkey, path]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // «Her!»: venter du lenge, eller trykker et annet sted på siden, minner han deg på hvor du skal trykke – han spretter og peker dit
+  const [remind, setRemind] = useState({ n: 0, at: [] as Aim[] })
+  const remindedAt = useRef(0)
+  const remindNow = useRef(() => {})
+  remindNow.current = () => {
+    const bar = ref.current?.parentElement
+    if (!view?.tap?.length || !bar || !pos || Date.now() - remindedAt.current < 3000) return
+    const B = bar.getBoundingClientRect()
+    const at = [...document.querySelectorAll(view.tap.join(','))]
+      .map((t) => t.getBoundingClientRect())
+      .filter((r) => r.width > 0)
+      .slice(0, 3)
+      .map((r) => ({ x: (r.left + r.width / 2 - (B.left + pos.cx)) / pos.scale, y: (r.top + r.height / 2 - (B.top + pos.cy)) / pos.scale }))
+    if (!at.length) return
+    remindedAt.current = Date.now()
+    setRemind((r) => ({ n: r.n + 1, at }))
+  }
+  const nudgeable = !!view?.tap?.length && vkey.startsWith('tour-') && !vkey.includes('-mer-')
+  useEffect(() => {
+    if (!nudgeable) return
+    const step = g.step
+    const hash = window.location.hash
+    const still = () => state.open && state.mode === 'tour' && state.step === step && window.location.hash === hash
+    // Venter du: første gang etter 10 s, så hvert 12. sekund (høyst tre ganger)
+    let n = 0
+    let idle = 0
+    const wait = (ms: number) => {
+      idle = window.setTimeout(() => {
+        if (!still()) return
+        remindNow.current()
+        if (++n < 3) wait(12000)
+      }, ms)
+    }
+    wait(10000)
+    // Trykker du et annet sted på siden (ikke i boblen, i demolinjen eller på ham – da fniser han)
+    const sel = view?.tap?.join(',') ?? ''
+    let soon = 0
+    const onClick = (e: MouseEvent) => {
+      const t = e.target as Element | null
+      if (!t?.closest || t.closest(sel) || t.closest('.kg-say, .demo-bar')) return
+      const me = ref.current?.querySelector('.k3d')?.getBoundingClientRect()
+      if (me && me.width && onBody(((e.clientX - me.left) * D3D_SIZE) / me.width - D3D_SIZE / 2, ((e.clientY - me.top) * D3D_SIZE) / me.width - D3D_SIZE / 2)) return
+      window.clearTimeout(soon)
+      soon = window.setTimeout(() => still() && remindNow.current(), 350)
+    }
+    document.addEventListener('click', onClick, true)
+    return () => {
+      window.clearTimeout(idle)
+      window.clearTimeout(soon)
+      document.removeEventListener('click', onClick, true)
+    }
+  }, [vkey, path, nudgeable]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Esc lukker hjelpen og beskjedene hans (omvisningen avsluttes med knappen i boblen)
+  useEffect(() => {
+    if (!g.open || !['help', 'self', 'kari', 'done'].includes(g.mode)) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [g.open, g.mode]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Programlederens boble blekner når han har snakket ferdig, så siden synes
   useEffect(() => {
     setFaded(false)
     if (!view?.host || view.buttons.length || view.ring) return
-    const t = window.setTimeout(() => setFaded(true), talkFor(view) + 1700)
+    const t = window.setTimeout(() => setFaded(true), readFor(view) + 1700)
     return () => window.clearTimeout(t)
   }, [vkey]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1047,10 +1108,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
         const r = t.getBoundingClientRect()
         return [{ x: (r.left + r.width / 2 - (B.left + cx)) / scale, y: (r.top + r.height / 2 - (B.top + cy)) / scale }]
       })
-      // Retningen han flyr, så han kan lene seg inn i svingen
-      const dir = prevCx.current === null ? 0 : Math.sign(Math.round(cx - prevCx.current))
-      prevCx.current = cx
-      setPos({ cx, cy, scale, bx, by, bw, tail: clamp(cx - bx, 30, bw - 30), dir, up, aims })
+      setPos({ cx, cy, scale, bx, by, bw, tail: clamp(cx - bx, 30, bw - 30), up, aims })
     }
     place()
     // Sidene glir inn – mål en gang til når de har landet
@@ -1078,18 +1136,19 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
         <div className="kg-bob">
           <Domeo3D
             mood={leaving && view.buttons.some((b) => b.kind === 'next') && g.mode !== 'kari' ? 'cheer' : view.mood}
-            move={leaving ? 'twirl' : view.move}
+            move={leaving ? 'tip' : view.move}
             actionKey={key + (leaving ? 1000 : 0)}
-            dir={pos?.dir ?? 0}
+            say={leaving ? '' : [view.title, view.text].filter(Boolean).join(' ')}
             talk={leaving ? 0 : talk}
             aims={leaving ? undefined : pos?.aims}
             hand={view.hand}
+            remind={remind}
             leaving={leaving}
             fallback={<Domeo mood={view.mood} talkKey={key} size={100} />}
           />
         </div>
       </div>
-      <div className={cls} ref={sayRef} style={pos ? { left: pos.bx, top: pos.by, width: pos.bw, ['--tail' as string]: `${pos.tail}px` } : undefined}>
+      <div className={cls} ref={sayRef} aria-live="polite" style={pos ? { left: pos.bx, top: pos.by, width: pos.bw, ['--tail' as string]: `${pos.tail}px` } : undefined}>
         <div className="kg-text" key={vkey}>
           {view.eyebrow && <span className="kg-eyebrow">{view.eyebrow}</span>}
           {view.title && <b>{view.title}</b>}
@@ -1124,7 +1183,11 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   )
 }
 
-/** Han snakker omtrent så lenge det tar å lese boblen (lokket går opp og ned imens). */
+/** Hvor lenge han høyst snakker: korte replikker sier han helt, de lange bare begynnelsen av (så leser du resten selv). */
 function talkFor(v: View) {
+  return Math.min(3600, 600 + ((v.title ?? '') + v.text).length * 60)
+}
+/** Omtrent så lenge det tar å lese boblen. */
+function readFor(v: View) {
   return Math.min(3600, 600 + ((v.title ?? '') + v.text).length * 22)
 }

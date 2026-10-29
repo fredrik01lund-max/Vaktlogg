@@ -305,9 +305,12 @@
   .kg-text {
     animation: kgIn 280ms var(--ease-decel) both;
   }
-  .kg-layer.leaving .kg-say,
+  .kg-layer.leaving .kg-say {
+    animation: kgOut 400ms var(--ease-accel) forwards;
+  }
+  /* Han letter på lokket og spretter opp og bort (selve sprettet tegnes i 3D) */
   .kg-layer.leaving .kg-float {
-    animation: kgOut 320ms var(--ease-accel) forwards;
+    animation: kgAway 280ms 120ms var(--ease-accel) forwards;
   }
   /* Den flate figuren: lokket går opp og ned når han snakker */
   .k-lid {
@@ -339,6 +342,11 @@
   to {
     opacity: 0;
     transform: translateY(16px) scale(0.9);
+  }
+}
+@keyframes kgAway {
+  to {
+    opacity: 0;
   }
 }
 @keyframes kgBubble {
