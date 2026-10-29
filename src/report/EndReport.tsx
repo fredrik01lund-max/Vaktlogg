@@ -3,6 +3,8 @@
 //    og kveldens høydepunkter. Mørk, fargerik og lettlest.
 //  • Under: det som motiverer videre – takkekortet fra Kari og hvordan kvelden flyttet premiene.
 //  • «Del» åpner plakaten med valg for hva som skal være med.
+//  • Kveldens rapport vises som en forhåndsvisning som fyller den ledige plassen – trykk for å se hele –
+//    så takkekortet, premiene og poletten får plass uten scrolling.
 // Brukes både for kveldens vakt (isTonight) og for vakter i historikken.
 
 import { useEffect, useState } from 'react'
@@ -275,6 +277,7 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
   const { settings, demo, saveShift, openCard } = useStore()
   const [share, setShare] = useState(false)
   const [thanks, setThanks] = useState(false)
+  const [big, setBig] = useState(false)
   // En rolig vakt viser ikke konkurransene før Emma selv vil se dem.
   const [revealed, setRevealed] = useState(false)
   const quiet = isTonight && (settings.calm || demo.quietShift) && !revealed
@@ -288,8 +291,12 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
     if (isTonight && !demo.saved) saveShift()
   }, [isTonight, demo.saved, saveShift])
 
+  // Kveldens rapport: plakaten som forhåndsvisning (trykk for å se hele), resten under uten scrolling
+  const compact = isTonight
+  const poster = <ReportPoster summary={summary} data={data} show={{ sales: true, tips: true, steps: true, games: !quiet }} animate={animate} />
+
   return (
-    <div className="er">
+    <div className={`er ${compact ? 'compact' : ''}`}>
       <div className="er-bar">
         {left ?? (
           <span className="saved-pill">
@@ -301,7 +308,23 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
         </button>
       </div>
 
-      <ReportPoster summary={summary} data={data} show={{ sales: true, tips: true, steps: true, games: !quiet }} animate={animate} />
+      {compact ? (
+        <div
+          className="er-peek"
+          role="button"
+          tabIndex={0}
+          onClick={() => setBig(true)}
+          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setBig(true)}
+          aria-label={L('Sluttrapporten. Trykk for å se hele', 'Shift report. Tap to see all of it')}
+        >
+          {poster}
+          <span className="er-peek-more" aria-hidden="true">
+            <Icon name="expand" /> {L('Se hele rapporten', 'See the full report')}
+          </span>
+        </div>
+      ) : (
+        poster
+      )}
 
       {quiet && (
         <div className="er-card er-quiet">
@@ -315,6 +338,7 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
 
       {isTonight && (
         <div className={`er-more ${card ? 'two' : ''}`}>
+          <div className="er-duo">
           {card && (
             <button className="er-card er-thanks" onClick={() => setThanks(true)}>
               <span className="er-env" aria-hidden="true">
@@ -328,8 +352,9 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
               <Face id={config.employer.id} size={32} />
             </button>
           )}
+            <PolettCard />
+          </div>
           <PrizeProgress quiet={quiet} />
-          <PolettCard />
         </div>
       )}
 
@@ -339,6 +364,11 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
         </Sheet>
       )}
       {share && <ShareReport summary={summary} data={data} onClose={() => setShare(false)} />}
+      {big && (
+        <Sheet title={L('Sluttrapport', 'Shift report')} onClose={() => setBig(false)}>
+          <ReportPoster summary={summary} data={data} show={{ sales: true, tips: true, steps: true, games: !quiet }} />
+        </Sheet>
+      )}
     </div>
   )
 }

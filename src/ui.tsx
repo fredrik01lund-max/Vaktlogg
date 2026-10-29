@@ -9,6 +9,7 @@ import { DUR, PlaybackPaused, easeData, reduced, useReducedMotion } from './lib/
 // ── Ikoner (enkle strek-ikoner, 24×24) ──────────────────────────────────────
 
 export const paths: Record<string, ReactNode> = {
+  expand: <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" />,
   crown: <path d="M4 8.5 8.5 12 12 5.5l3.5 6.5L20 8.5 18.5 18h-13z" />,
   glass: <><path d="M7 3h10l-1 7a4 4 0 0 1-8 0z" /><path d="M12 14v6M8.5 21h7" /></>,
   clock: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>,

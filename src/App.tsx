@@ -321,6 +321,22 @@ function DemoControl({ boss }: { boss: boolean }) {
   )
 }
 
+/** Etter vakten: har brukeren vært innom Historikk? Da slutter fanen å blinke. */
+let historyVisited = false
+
+/** Historikk-fanen begynner å blinke etter 10 sekunder på sluttrapporten – til den er besøkt. */
+function useHistoryNudge(onReport: boolean, phase: string, tab: string): boolean {
+  const [nudge, setNudge] = useState(false)
+  if (phase !== 'done') historyVisited = false
+  if (phase === 'done' && tab === 'historikk') historyVisited = true
+  useEffect(() => {
+    if (!onReport || historyVisited) return setNudge(false)
+    const t = window.setTimeout(() => setNudge(true), 10_000)
+    return () => window.clearTimeout(t)
+  }, [onReport])
+  return nudge && onReport && !historyVisited
+}
+
 function Shell() {
   const route = useRoute()
   const { demo, loop } = useStore()
@@ -329,6 +345,7 @@ function Shell() {
   const boss = first === 'sjef'
   const tabs = tabList()
   const tab = overlayMonth ? 'historikk' : tabs.some((t) => t.id === first) ? first : 'vakt'
+  const nudge = useHistoryNudge(!boss && tab === 'vakt' && !second && demo.phase === 'done', demo.phase, tab)
 
   let screen
   if (boss) screen = <Employer />
@@ -363,7 +380,7 @@ function Shell() {
           {!boss && (
           <nav className="tabbar" aria-label={L('Hovedmeny', 'Main menu')}>
             {tabs.map((t) => (
-              <button key={t.id} className="tab" aria-current={tab === t.id ? 'page' : undefined} onClick={() => navigate(`/${t.id}`)}>
+              <button key={t.id} className={`tab ${nudge && t.id === 'historikk' ? 'nudge' : ''}`} aria-current={tab === t.id ? 'page' : undefined} onClick={() => navigate(`/${t.id}`)}>
                 <Icon name={t.icon} />
                 {t.label}
                 {t.id === 'vakt' && demo.phase === 'live' && tab !== 'vakt' && <i className="dot" />}

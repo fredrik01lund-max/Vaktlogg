@@ -492,3 +492,125 @@
     transform: translateY(8px);
   }
 }
+
+/* ── Kveldens rapport: plakaten fyller den ledige plassen, resten står under uten scrolling ── */
+.screen:has(> .fade-in > .er.compact) {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 12px;
+}
+.screen:has(> .fade-in > .er.compact) > .fade-in {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.er.compact {
+  flex: 1;
+  min-height: 0;
+  gap: 10px;
+}
+.er.compact .er-more {
+  gap: 10px;
+}
+/* Forhåndsvisningen: toppen av plakaten, myk overgang nederst – trykk for å se hele */
+.er-peek {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 150px;
+  overflow: hidden;
+  border-radius: 28px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.er-peek:active {
+  transform: scale(0.99);
+}
+.er-peek::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 96px;
+  background: linear-gradient(rgba(253, 228, 234, 0), rgba(253, 228, 234, 0.96) 70%);
+  pointer-events: none;
+}
+.er-peek-more {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.94);
+  font-size: var(--fs-cap);
+  font-weight: 800;
+  color: var(--primary-ink);
+  white-space: nowrap;
+  box-shadow: 0 4px 12px -6px rgba(110, 42, 60, 0.4);
+}
+.er-peek-more svg {
+  width: 15px;
+  height: 15px;
+}
+/* Takkekortet og poletten side om side */
+.er-duo {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 10px;
+}
+.er-duo .er-card {
+  padding: 10px 12px;
+  gap: 10px;
+  min-width: 0;
+}
+.er-duo .face,
+.er-duo .lv-chev {
+  display: none;
+}
+.er-duo b {
+  font-size: var(--fs-sm);
+  line-height: 1.2;
+}
+.er-duo small {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+.er-duo .er-env {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+.er-duo .polett {
+  width: 36px;
+  height: 36px;
+}
+/* Lave skjermer: kortere overgang, så salgstallet synes i forhåndsvisningen */
+@media (max-height: 700px) {
+  .er-peek::after {
+    height: 52px;
+  }
+  .er-peek-more {
+    bottom: 8px;
+    padding: 6px 12px;
+  }
+  .er.compact .er-poster {
+    padding-top: 12px;
+  }
+}
+@media (max-height: 700px) {
+  .er-peek .er-eyebrow,
+  .er-peek .er-time {
+    display: none;
+  }
+}

@@ -127,3 +127,44 @@
     animation: none;
   }
 }
+
+/* Historikk-fanen blinker etter 10 sekunder på sluttrapporten: «her er det mer å se» */
+.tab.nudge {
+  color: var(--primary-ink);
+}
+.tab.nudge::before {
+  content: '';
+  position: absolute;
+  inset: 4px 10px;
+  z-index: -1;
+  border-radius: 16px;
+  background: var(--primary-grad);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tab.nudge::before {
+    animation: tabNudge 1.6s ease-in-out infinite;
+  }
+  .tab.nudge svg {
+    animation: tabNudgeIcon 1.6s ease-in-out infinite;
+  }
+}
+@keyframes tabNudge {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes tabNudgeIcon {
+  0%,
+  100% {
+    transform: none;
+  }
+  50% {
+    transform: translateY(-2px) scale(1.08);
+  }
+}
