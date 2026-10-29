@@ -614,3 +614,27 @@
     display: none;
   }
 }
+/* Rett etter vakten: «Se hele rapporten» blinker i 5 sekunder */
+@media (prefers-reduced-motion: no-preference) {
+  .er-peek-more.pulse {
+    animation: peekPulse 1.25s ease-in-out infinite;
+  }
+}
+.er-peek-more.pulse {
+  background: var(--primary-grad);
+}
+@keyframes peekPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 4px 12px -6px rgba(110, 42, 60, 0.4),
+      0 0 0 0 rgba(240, 143, 176, 0.55);
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    box-shadow:
+      0 4px 12px -6px rgba(110, 42, 60, 0.4),
+      0 0 0 9px rgba(240, 143, 176, 0);
+    transform: translateX(-50%) scale(1.06);
+  }
+}

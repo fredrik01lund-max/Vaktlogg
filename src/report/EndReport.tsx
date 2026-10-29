@@ -293,6 +293,13 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
 
   // Kveldens rapport: plakaten som forhåndsvisning (trykk for å se hele), resten under uten scrolling
   const compact = isTonight
+  // Rett etter at vakten er avsluttet: «Se hele rapporten» blinker i 5 sekunder
+  const [pulse, setPulse] = useState(compact && animate)
+  useEffect(() => {
+    if (!pulse) return
+    const t = window.setTimeout(() => setPulse(false), 5000)
+    return () => window.clearTimeout(t)
+  }, [pulse])
   const poster = <ReportPoster summary={summary} data={data} show={{ sales: true, tips: true, steps: true, games: !quiet }} animate={animate} />
 
   return (
@@ -318,7 +325,7 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
           aria-label={L('Sluttrapporten. Trykk for å se hele', 'Shift report. Tap to see all of it')}
         >
           {poster}
-          <span className="er-peek-more" aria-hidden="true">
+          <span className={`er-peek-more ${pulse ? 'pulse' : ''}`} aria-hidden="true">
             <Icon name="expand" /> {L('Se hele rapporten', 'See the full report')}
           </span>
         </div>
