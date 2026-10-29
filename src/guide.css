@@ -186,6 +186,7 @@
   min-height: 42px;
 }
 .kg-alt {
+  white-space: nowrap;
   min-height: 38px;
   padding: 0 16px;
   border-radius: 13px;

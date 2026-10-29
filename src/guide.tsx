@@ -16,7 +16,8 @@ import './guide.css'
 
 // ── Liten felles tilstand: overlever at appen tegnes på nytt når språket byttes ──
 type Mode = 'welcome' | 'self' | 'tour' | 'kari' | 'done'
-type GuideState = { open: boolean; step: number; mode: Mode; bye?: number }
+/** `extra`: hvilken boble i en ekstra forklaring («Mer om XP») som vises. */
+type GuideState = { open: boolean; step: number; mode: Mode; bye?: number; extra?: number }
 let state: GuideState = { open: false, step: 0, mode: 'welcome' }
 let autoTried = false
 /** Karis beskjed vises én gang per besøk i prototypen. */
@@ -157,6 +158,9 @@ export function Domeo({ mood = 'wave', size = 84, talkKey = 0 }: { mood?: Mood; 
 // Hvor han står: midt på (stor eller vanlig), ved en knapp i demolinjen, over eller under noe i appen,
 // nede i hjørnet (detaljsider), som programleder i månedsoppsummeringen, eller under sluttrapporten.
 type Place = 'big' | 'center' | 'bar' | 'stack' | 'corner' | 'story' | 'report'
+/** Ekstra forklaring for de nysgjerrige: en knapp i boblen åpner noen bobler til, så tilbake til omvisningen. */
+type Extra = { at: string; aim?: string[]; mood: Mood; move: Action; text: () => string }
+type More = { label: () => string; title: () => string; steps: Extra[] }
 type TourStep = {
   ch: number
   route: string
@@ -177,6 +181,8 @@ type TourStep = {
   text: () => string
   /** «Neste» starter vakten (omvisningen går videre når den er i gang). */
   start?: boolean
+  /** «Mer om …»: en grundigere forklaring for den som vil vite mer. */
+  more?: More
   /** Månedsoppsummeringen: programlederen tar over, og omvisningen går videre når den lukkes. */
   story?: boolean
   last?: boolean
@@ -186,6 +192,89 @@ const chapters = () => [L('Velkommen', 'Welcome'), L('Før vakten', 'Before the 
 const tile = (t: string) => `.st-tile[data-topic=${t}]`
 const tab = (t: string) => `[data-tab='${t}']`
 const section = (n: number) => `.st-detail > section:nth-of-type(${n})`
+// XP: status som samler seg opp. Tallene står i profileXp i demoData.ts.
+const moreXp: More = {
+  label: () => L('Mer om XP', 'More about XP'),
+  title: () => L('Mer om XP', 'More about XP'),
+  steps: [
+    {
+      at: '.lv-card',
+      aim: ['.lv-card .lv-top'],
+      mood: 'point',
+      move: 'monocle',
+      text: () => L('XP er nivået ditt – status som samler seg opp og aldri brukes opp. Du får 1 XP for hver 100 kr du selger og for hver 10 kr i tips.', 'XP is your level – status that builds up and is never spent. You get 1 XP for every 100 kr you sell and every 10 kr in tips.'),
+    },
+    {
+      at: '.lv-card',
+      aim: ['.lv-card .lv-stat:nth-of-type(1)', '.lv-card .lv-stat:nth-of-type(2)'],
+      mood: 'point',
+      move: 'pick',
+      text: () => L('Medaljer får du for milepæler, som 100 vakter eller et maraton gått (250 XP). Hver nye personlige rekord gir et trofé (500 XP).', 'Medals come from milestones, like 100 shifts or a marathon walked (250 XP). Every new personal record gives a trophy (500 XP).'),
+    },
+    {
+      at: '.lv-card',
+      aim: ['.lv-card .lv-top'],
+      mood: 'wink',
+      move: 'tip',
+      text: () => L('Hvert nivå krever litt mer XP enn det forrige, så de første går fort. Trykk på kortet når som helst for å se hvor XP-en din kommer fra.', 'Each level takes a little more XP than the last, so the first ones go fast. Tap the card any time to see where your XP comes from.'),
+    },
+    {
+      at: '.pm-row',
+      aim: ['.pm-row'],
+      mood: 'wink',
+      move: 'stache',
+      text: () => L('Og nivået låser opp noe: på LVL 40 og 50 åpnes hemmelige retter i Personalmenyen.', 'And your level unlocks things: at LVL 40 and 50, secret dishes open up in the Staff menu.'),
+    },
+  ],
+}
+// Poletter: det du bestiller med. Reglene står i staffMenu i demoData.ts.
+const moreTokens: More = {
+  label: () => L('Mer om poletter', 'More about tokens'),
+  title: () => L('Mer om poletter', 'More about tokens'),
+  steps: [
+    {
+      at: '.pm-wallet',
+      aim: ['.pm-bal'],
+      mood: 'point',
+      move: 'monocle',
+      text: () => L('Poletter er det du bestiller med. Ulikt XP brukes de opp – og du tjener dem bare på det du styrer selv, aldri på salg, tips eller kudos.', 'Tokens are what you order with. Unlike XP they get spent – and you only earn them for things you control, never for sales, tips or kudos.'),
+    },
+    {
+      at: '.pm-wallet',
+      aim: ['.pm-two .pm-box:first-child'],
+      mood: 'point',
+      move: 'hop',
+      text: () =>
+        L(
+          'Hver 4. vakt fyller stempelkortet. Du får også poletter når laget når lagmålet, etter fem vakter på rad over ditt eget snitt, og når du tar en vakt for en kollega.',
+          'Every 4th shift fills the stamp card. You also earn tokens when the team hits its goal, after five shifts in a row above your own average, and when you cover a shift for a colleague.',
+        ),
+    },
+    {
+      at: '.pm-tabs',
+      aim: ['.pm-tabs'],
+      mood: 'point',
+      move: 'pick',
+      text: () =>
+        L(
+          'Menyen har fire faner: Tid (ønskefri og seksjon – rett i vaktplanen når Kari har godkjent), Smak, Gaver og Hemmelig, som låses opp av nivået ditt.',
+          'The menu has four tabs: Time (a day off or your section – straight into the rota once Kari approves), Taste, Gifts and Secret, which your level unlocks.',
+        ),
+    },
+    {
+      at: '.pm-wallet',
+      aim: ['.pm-two .pm-box:last-child'],
+      mood: 'wink',
+      move: 'tip',
+      text: () =>
+        L(
+          'Du kan også spare: 60 poletter blir et gavekort på 5 000 kr. Det er grensen for skattefrie gaver fra jobben, så appen sier fra hvis du er i ferd med å gå over.',
+          'You can also save up: 60 tokens become a 5,000 kr gift card. That’s the limit for tax-free gifts from work, so the app tells you if you’re about to go over.',
+        ),
+    },
+  ],
+}
+
 /** Det omvisningen trenger å vite om demoen: er klokka på, hvilket spill er valgt, og med hvem. */
 type TourCtx = { watchOn: boolean; game: string; mate: string }
 
@@ -393,6 +482,7 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
     at: '.pm-row',
     aim: ['.lv-card', '.pm-row'],
     tap: ['.pm-row'],
+    more: moreXp,
     mood: 'point',
     move: 'pick',
     text: () =>
@@ -407,6 +497,7 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
     place: 'corner',
     aim: ['.pm-wallet'],
     tap: [tab('vakt')],
+    more: moreTokens,
     mood: 'wink',
     move: 'stache',
     text: () => L('Her bruker du poletter: fri, mat, gaver – eller spar til et gavekort. Trykk på Vakt for å gå tilbake til vakten.', 'Here’s where you spend tokens: time off, food, gifts – or save up for a gift card. Tap Shift to go back to the shift.'),
@@ -670,6 +761,9 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     }
   } else if (ts && !ts.story) {
     const inCh = steps.filter((x) => x.ch === ts.ch)
+    const more = ts.more
+    const ex = more && g.extra !== undefined ? Math.min(g.extra, more.steps.length - 1) : -1
+    const back = () => setGuide({ open: true, step: g.step, mode: 'tour' })
     view = away
       ? {
           key: 'away',
@@ -682,6 +776,27 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
             { label: L('Fortsett', 'Continue'), kind: 'next', onClick: () => navigate(ts.route) },
           ],
         }
+      : more && ex >= 0
+        ? {
+            // Ekstra forklaring: «Neste» gjennom boblene, så tilbake til omvisningen.
+            // Trykker du videre i appen (f.eks. Personalmenyen), går omvisningen videre som vanlig.
+            key: `tour-${g.step}-mer-${ex}`,
+            place: 'stack',
+            at: more.steps[ex].at,
+            aim: more.steps[ex].aim,
+            tap: ts.tap,
+            ring: [],
+            mood: more.steps[ex].mood,
+            move: more.steps[ex].move,
+            eyebrow: L('{t} · {n} av {m}', '{t} · {n} of {m}', { t: more.title(), n: ex + 1, m: more.steps.length }),
+            text: more.steps[ex].text(),
+            buttons: [
+              { label: L('Tilbake til omvisningen', 'Back to the tour'), kind: 'skip', onClick: back },
+              ex + 1 < more.steps.length
+                ? { label: L('Neste', 'Next'), kind: 'next', onClick: () => setGuide({ ...state, extra: ex + 1 }) }
+                : { label: L('Skjønner!', 'Got it!'), kind: 'next', onClick: back },
+            ],
+          }
       : {
           key: `tour-${g.step}`,
           place: ts.place ?? (ts.at ? 'stack' : 'center'),
@@ -700,6 +815,8 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
             ? [{ label: L('Takk, Sir!', 'Thanks, Sir!'), kind: 'next', onClick: next }]
             : [
                 { label: L('Avslutt omvisning', 'End tour'), kind: 'skip', onClick: endTour },
+                // For de nysgjerrige: en grundigere forklaring
+                ...(more ? [{ label: more.label(), kind: 'alt' as const, onClick: () => setGuide({ open: true, step: g.step, mode: 'tour', extra: 0 }) }] : []),
                 ...(ts.tap ? [] : [{ label: L('Neste', 'Next'), kind: 'next' as const, onClick: next }]),
               ],
         }
@@ -722,13 +839,13 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
 
   // «Prøv selv»: en myk, pulserende ring rundt det han ber deg trykke på – trykket tar omvisningen videre
   useEffect(() => {
-    const ring = view?.tap ?? view?.ring
-    if (!ring?.length) return
-    const sel = ring.join(',')
+    const ring = view?.ring ?? view?.tap
+    if (!ring?.length && !view?.tap?.length) return
+    const sel = ring?.join(',')
     let marked: Element[] = []
     const mark = () => {
       marked.forEach((e) => e.classList.remove('kg-ring'))
-      marked = [...document.querySelectorAll(sel)]
+      marked = sel ? [...document.querySelectorAll(sel)] : []
       marked.forEach((e) => e.classList.add('kg-ring'))
     }
     mark()
