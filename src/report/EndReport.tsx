@@ -20,6 +20,7 @@ import { useShifts } from '../shifts.ts'
 import { useStore } from '../state.tsx'
 import { Confetti, CountUp, Icon, Sheet } from '../ui.tsx'
 import { PolettCard } from '../staffmenu.tsx'
+import { congratulate, dismissGuide } from '../guide.tsx'
 import { Envelope, Face, nameOf } from '../game-ui.tsx'
 import { L, td } from '../i18n.ts'
 import type { RecordDetail } from '../screens/Report.tsx'
@@ -300,6 +301,14 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
     const t = window.setTimeout(() => setPulse(false), 5000)
     return () => window.clearTimeout(t)
   }, [pulse])
+  // …og Sir Domeo kommer raskt, gratulerer og presenterer rapporten
+  useEffect(() => {
+    if (compact && animate) congratulate()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const openBig = () => {
+    setBig(true)
+    dismissGuide()
+  }
   const poster = <ReportPoster summary={summary} data={data} show={{ sales: true, tips: true, steps: true, games: !quiet }} animate={animate} />
 
   return (
@@ -320,8 +329,8 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
           className="er-peek"
           role="button"
           tabIndex={0}
-          onClick={() => setBig(true)}
-          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setBig(true)}
+          onClick={openBig}
+          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openBig()}
           aria-label={L('Sluttrapporten. Trykk for å se hele', 'Shift report. Tap to see all of it')}
         >
           {poster}

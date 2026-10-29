@@ -8,7 +8,7 @@ import { promptInstall, useCanInstall } from './lib/install.ts'
 import type { Toast } from './state.tsx'
 import { Icon } from './ui.tsx'
 import './toast.css'
-import { DemoGuide, Klappen, openGuide } from './guide.tsx'
+import { DemoGuide, Domeo, openGuide } from './guide.tsx'
 import { Goals } from './screens/Goals.tsx'
 import { History, HistoryDetail } from './screens/History.tsx'
 import { Me } from './screens/Me.tsx'
@@ -169,7 +169,7 @@ function RoleSwitch({ boss }: { boss: boolean }) {
   )
 }
 
-function DemoControl({ boss }: { boss: boolean }) {
+function DemoControl({ boss, onReport }: { boss: boolean; onReport: boolean }) {
   const { demo, settings, updateSettings, playing, advance, togglePlay, jumpToEnd, finishShift, startShift, reset } = useStore()
   const [menu, setMenu] = useState(false)
   const [hidden, setHidden] = useState(false)
@@ -269,7 +269,7 @@ function DemoControl({ boss }: { boss: boolean }) {
               openGuide()
             }}
           >
-            <Icon name="sparkle" /> {L('Vis Klappens guide', 'Show Clappy’s guide')}
+            <Icon name="sparkle" /> {L('Vis Sir Domeos guide', 'Show Sir Domeo’s guide')}
           </button>
           <button
             role="menuitem"
@@ -282,10 +282,10 @@ function DemoControl({ boss }: { boss: boolean }) {
           </button>
         </div>
       )}
-      <DemoGuide boss={boss} />
+      <DemoGuide boss={boss} onReport={onReport} />
       <div className="demo-ctl" aria-label={L('Demo-kontroll', 'Demo controls')}>
-        <button className="kg-mini" onClick={openGuide} aria-label={L('Klappens guide: slik styrer du prototypen', 'Clappy’s guide: how to run the prototype')}>
-          <Klappen mood="wink" size={30} />
+        <button className="kg-mini" onClick={openGuide} aria-label={L('Sir Domeos guide: slik styrer du prototypen', 'Sir Domeo’s guide: how to run the prototype')}>
+          <Domeo mood="wink" size={30} />
         </button>
         <RoleSwitch boss={boss} />
         {/* Før vakten sier «Start vakt» nok – klokka vises når vakten går */}
@@ -345,7 +345,9 @@ function Shell() {
   const boss = first === 'sjef'
   const tabs = tabList()
   const tab = overlayMonth ? 'historikk' : tabs.some((t) => t.id === first) ? first : 'vakt'
-  const nudge = useHistoryNudge(!boss && tab === 'vakt' && !second && demo.phase === 'done', demo.phase, tab)
+  // Sluttrapporten rett etter vakten: Historikk blinker etter en stund, og Sir Domeo gratulerer
+  const onReport = !boss && tab === 'vakt' && !second && demo.phase === 'done'
+  const nudge = useHistoryNudge(onReport, demo.phase, tab)
 
   let screen
   if (boss) screen = <Employer />
@@ -393,7 +395,7 @@ function Shell() {
           {!overlayMonth && <Toasts boss={boss} />}
         </div>
       </div>
-      <DemoControl boss={boss} />
+      <DemoControl boss={boss} onReport={onReport} />
       </div>
     </div>
   )

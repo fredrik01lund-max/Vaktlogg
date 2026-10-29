@@ -27,7 +27,7 @@ export interface Settings {
   introDismissed: boolean
   /** Språk i appen: norsk eller engelsk (for å vise prototypen til folk som ikke leser norsk). */
   lang: Lang
-  /** Klappens guide til demolinjen er vist (eller hoppet over). */
+  /** Sir Domeos guide til demolinjen er vist (eller hoppet over). */
   guideSeen: boolean
 }
 

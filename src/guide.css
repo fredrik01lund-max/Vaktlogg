@@ -1,6 +1,6 @@
-/* ══ Klappen – guiden til demolinjen ═════════════════════════════════════════════
-   Klappen svever fritt over skjermen: først midt på, så rett over knappen han forklarer.
-   En tegneserieboble følger ham, med halen ned mot ham. Ingen boks rundt figuren. */
+/* ══ Sir Domeo – guiden til demolinjen ═══════════════════════════════════════════
+   Han svever fritt over skjermen: først midt på, så rett over knappen han forklarer,
+   og etter vakten rett under sluttrapporten. En rund snakkeboble følger ham, med halen ned mot ham. */
 
 .kg-layer {
   position: absolute;
@@ -21,8 +21,8 @@
   visibility: visible;
 }
 .kg-float {
-  width: 150px;
-  height: 150px;
+  width: 170px;
+  height: 170px;
   transform-origin: center;
   pointer-events: none;
   filter: drop-shadow(0 12px 14px rgba(110, 42, 60, 0.22));
@@ -30,34 +30,51 @@
 .k3d,
 .k3d canvas {
   display: block;
-  width: 150px;
-  height: 150px;
+  width: 170px;
+  height: 170px;
 }
-.k3d .klappen {
-  margin: 22px auto 0;
+.k3d .domeo {
+  margin: 30px auto 0;
 }
-/* Snakkeboblen */
+/* Snakkeboblen: rund og blank, svakt fersken øverst og rosa nederst, med en buet hale */
 .kg-say {
   pointer-events: auto;
-  padding: 12px 14px 10px;
-  border-radius: 22px;
-  background: #fffdf9;
+  padding: 14px 18px 12px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, #fff7f1 0%, #ffeff2 100%);
   color: #33202a;
   box-shadow:
-    0 0 0 1.5px rgba(110, 42, 60, 0.12),
+    0 0 0 1.5px rgba(232, 140, 170, 0.32),
+    inset 0 2px 0 rgba(255, 255, 255, 0.9),
     0 16px 34px -12px rgba(60, 30, 25, 0.45);
 }
-.kg-say::after {
+/* Glansen oppe til venstre gjør den til en boble */
+.kg-say::before {
   content: '';
   position: absolute;
-  bottom: -8px;
-  left: calc(var(--tail, 50%) - 9px);
-  width: 18px;
-  height: 18px;
-  border-radius: 3px;
-  background: #fffdf9;
-  transform: rotate(45deg);
-  box-shadow: 1.5px 1.5px 0 0 rgba(110, 42, 60, 0.12);
+  top: 7px;
+  left: 18px;
+  width: 44px;
+  height: 7px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.95);
+  transform: rotate(-4deg);
+  pointer-events: none;
+}
+.kg-tail {
+  position: absolute;
+  top: calc(100% - 1px);
+  left: calc(var(--tail, 50%) - 13px);
+  overflow: visible;
+  pointer-events: none;
+}
+.kg-tail .f {
+  fill: #ffeff2;
+}
+.kg-tail .o {
+  fill: none;
+  stroke: rgba(232, 140, 170, 0.32);
+  stroke-width: 1.5;
 }
 .kg-text b {
   display: block;
@@ -76,7 +93,7 @@
   margin-top: 10px;
   padding: 3px;
   border-radius: 14px;
-  background: #f4ece6;
+  background: rgba(255, 255, 255, 0.7);
 }
 .kg-lang button {
   min-height: 34px;
@@ -141,43 +158,42 @@
   box-shadow: 0 0 0 3px #ffd6ae;
 }
 
-/* Lille Klappen i demolinjen: viser at linjen er regissørens, og henter guiden frem igjen */
+/* Lille Sir Domeo i demolinjen: viser at linjen er regissørens, og henter guiden frem igjen */
 .demo-ctl .kg-mini {
   min-width: 36px;
   padding: 0 2px;
 }
 .demo-ctl .kg-mini svg {
   width: 30px;
-  height: 33px;
+  height: 30px;
 }
 
-/* ── Figuren ── */
-.klappen {
+/* ── Figuren (flat) ── */
+.domeo {
   display: block;
   overflow: visible;
 }
-.k-stick {
-  transform-box: view-box;
-  transform-origin: 18px 37px;
-  transform: rotate(-16deg);
-}
 .k-arm-r {
   transform-box: view-box;
-  transform-origin: 83px 64px;
+  transform-origin: 89px 76px;
 }
 .mood-point .k-arm-r {
-  transform: rotate(78deg);
+  transform: rotate(40deg);
+}
+.k-lid {
+  transform-box: view-box;
+  transform-origin: 18px 73px;
 }
 .k-eyes {
   transform-box: view-box;
-  transform-origin: 50px 70px;
+  transform-origin: 50px 55px;
 }
 .k-spark {
   transform-box: fill-box;
   transform-origin: center;
 }
 
-/* ── Bevegelse: han flyr mellom stoppene, svever og klapper ── */
+/* ── Bevegelse: han flyr mellom stoppene, boblen spretter frem fra halen ── */
 @media (prefers-reduced-motion: no-preference) {
   .kg-float {
     transition:
@@ -195,7 +211,8 @@
     animation: kgPop 600ms var(--ease-pop) both;
   }
   .kg-layer.placed .kg-say {
-    animation: kgIn 320ms 200ms var(--ease-decel) both;
+    transform-origin: var(--tail, 50%) calc(100% + 16px);
+    animation: kgBubble 520ms 180ms var(--ease-pop) both;
   }
   .kg-text {
     animation: kgIn 280ms var(--ease-decel) both;
@@ -204,12 +221,9 @@
   .kg-layer.leaving .kg-float {
     animation: kgOut 320ms var(--ease-accel) forwards;
   }
-  /* Klapp! ved hvert nytt stopp */
-  .k-stick {
-    animation: kgClap 520ms 380ms var(--ease-standard) both;
-  }
-  .kg-layer.leaving .k-stick {
-    animation: kgClap 260ms var(--ease-standard) both;
+  /* Den flate figuren: lokket går opp og ned når han snakker */
+  .k-lid {
+    animation: kgTalk 260ms 350ms ease-in-out 6;
   }
   .mood-wave .k-arm-r {
     animation: kgWave 1.4s 500ms ease-in-out 2;
@@ -239,18 +253,22 @@
     transform: translateY(16px) scale(0.9);
   }
 }
-@keyframes kgClap {
+@keyframes kgBubble {
   0% {
-    transform: rotate(-16deg);
+    opacity: 0;
+    transform: scale(0.3);
   }
-  35% {
-    transform: rotate(0deg);
-  }
-  55% {
-    transform: rotate(-24deg);
+  60% {
+    opacity: 1;
+    transform: scale(1.04);
   }
   100% {
-    transform: rotate(-16deg);
+    transform: scale(1);
+  }
+}
+@keyframes kgTalk {
+  50% {
+    transform: translateY(-3px) rotate(-7deg);
   }
 }
 @keyframes kgWave {
@@ -282,9 +300,9 @@
   }
 }
 
-/* Den lille Klappen i demolinjen står stille (bare én ting går i løkke i appen) */
-.kg-mini .klappen *,
-.kg-mini .klappen {
+/* Den lille Sir Domeo i demolinjen står stille (bare én ting går i løkke i appen) */
+.kg-mini .domeo *,
+.kg-mini .domeo {
   animation: none !important;
 }
 
