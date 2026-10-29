@@ -310,7 +310,7 @@ const tourSteps = (watchOn: boolean): TourStep[] => [
     tap: ["[data-tab='historikk']"],
     mood: 'point',
     move: 'look',
-    text: () => L('Vakten går videre av seg selv. Alt du gjør, lagres – la oss se i Historikk.', 'The shift keeps going by itself. Everything you do is saved – let’s look in History.'),
+    text: () => L('Vakten går videre av seg selv. Alt du gjør, lagres – trykk på Historikk, så tar vi en titt.', 'The shift keeps going by itself. Everything you do is saved – tap History and let’s take a look.'),
   },
   {
     ch: 3,
@@ -320,7 +320,7 @@ const tourSteps = (watchOn: boolean): TourStep[] => [
     tap: ['.screen .card.dark'],
     mood: 'point',
     move: 'hop',
-    text: () => L('Her er alle vaktene dine – trykk på en stolpe for å se en vakt. Og se: september er klar!', 'Here are all your shifts – tap a bar to see one. And look: September is ready!'),
+    text: () => L('Her er alle vaktene dine. Og se: september er klar – trykk på kortet!', 'Here are all your shifts. And look: September is ready – tap the card!'),
   },
   { ch: 4, route: MONTH, story: true, mood: 'wave', move: 'tip', text: () => '' },
   {
@@ -637,11 +637,12 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
           move: ts.move,
           eyebrow: L('{ch} · {n} av {t}', '{ch} · {n} of {t}', { ch: chapters()[ts.ch], n: inCh.indexOf(ts) + 1, t: inCh.length }),
           text: ts.text(),
+          // «Prøv selv»: ingen «Neste» – omvisningen går videre når du trykker på riktig sted
           buttons: ts.last
             ? [{ label: L('Takk, Sir!', 'Thanks, Sir!'), kind: 'next', onClick: next }]
             : [
                 { label: L('Avslutt omvisning', 'End tour'), kind: 'skip', onClick: endTour },
-                { label: L('Neste', 'Next'), kind: 'next', onClick: next },
+                ...(ts.tap ? [] : [{ label: L('Neste', 'Next'), kind: 'next' as const, onClick: next }]),
               ],
         }
   } else if (g.open && g.mode === 'kari') {
