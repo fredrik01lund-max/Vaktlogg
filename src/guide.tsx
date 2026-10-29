@@ -35,6 +35,11 @@ export const openGuide = () => setGuide({ open: true, step: 0, mode: 'help' })
 export const dismissGuide = () => state.open && setGuide({ ...state, bye: (state.bye ?? 0) + 1 })
 /** Ikke i testene eller med ?manuell – ?guide viser ham alltid. */
 const gated = () => !new URLSearchParams(window.location.search).has('guide') && (MANUAL || navigator.webdriver)
+/** Demoen er startet på nytt: han dukker opp og spør om omvisning, akkurat som når appen åpnes. */
+export function welcome() {
+  if (gated()) return
+  window.setTimeout(() => setGuide({ open: true, step: 0, mode: 'welcome' }), 500)
+}
 /** Rett etter vakten: han kommer raskt, gratulerer og presenterer sluttrapporten. */
 export function congratulate() {
   if (gated()) return
@@ -687,14 +692,14 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     go(g.step + 1)
   }
 
-  // Første besøk: han spør om omvisning (ikke i testene eller med ?manuell). ?guide viser ham alltid.
+  // Hver gang appen åpnes, dukker han opp og spør om omvisning (ikke i testene eller med ?manuell; ?guide viser ham alltid).
+  // Åpnes appen på Karis telefon, kommer beskjeden derfra i stedet.
   useEffect(() => {
     if (autoTried) return
     autoTried = true
-    const force = new URLSearchParams(window.location.search).has('guide')
     // Tidtakeren avbrytes ikke: appen tegnes på nytt ved språkbytte, og han skal komme bare én gang
-    if (force || (settings.guide === 'unset' && !gated())) window.setTimeout(() => !state.open && setGuide({ open: true, step: 0, mode: 'welcome' }), 700)
-  }, [settings.guide])
+    if (!gated()) window.setTimeout(() => !state.open && setGuide({ open: true, step: 0, mode: 'welcome' }), 700)
+  }, [])
 
   // Karis telefon: han dukker opp og sier at siden er under arbeid (én gang per besøk)
   useEffect(() => {

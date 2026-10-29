@@ -6,7 +6,7 @@ I demo-kontrollen er **E** Emmas telefon (servitøren), og **K** er Karis telefo
 
 ---
 
-> Deler du lenken med folk som skal teste selv, spør Sir Domeo dem første gang om de vil ha en omvisning (3–4 minutter gjennom de viktigste delene av appen) eller utforske selv. Han gratulerer også Emma og presenterer sluttrapporten når vakten avsluttes. Skal du presentere selv, trykk «Nei takk, jeg utforsker selv» (eller åpne med `?manuell`).
+> Deler du lenken med folk som skal teste selv, spør Sir Domeo dem hver gang appen åpnes (og når demoen startes på nytt) om de vil ha en omvisning (3–4 minutter gjennom de viktigste delene av appen) eller utforske selv. Han gratulerer også Emma og presenterer sluttrapporten når vakten avsluttes. Skal du presentere selv, trykk «Nei takk, jeg utforsker selv» (eller åpne med `?manuell`).
 
 ### 1. Problemet (0:00–0:15) · *«Hei Emma»*
 

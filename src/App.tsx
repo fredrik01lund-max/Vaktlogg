@@ -8,7 +8,7 @@ import { promptInstall, useCanInstall } from './lib/install.ts'
 import type { Toast } from './state.tsx'
 import { Icon } from './ui.tsx'
 import './toast.css'
-import { DemoGuide, Domeo, openGuide } from './guide.tsx'
+import { DemoGuide, Domeo, openGuide, welcome } from './guide.tsx'
 import { Goals } from './screens/Goals.tsx'
 import { History, HistoryDetail } from './screens/History.tsx'
 import { Me } from './screens/Me.tsx'
@@ -258,6 +258,8 @@ function DemoControl({ boss, onReport }: { boss: boolean; onReport: boolean }) {
             onClick={() => {
               setMenu(false)
               reset()
+              // Sir Domeo dukker opp igjen og spør om omvisning
+              welcome()
             }}
           >
             <Icon name="reset" /> {L('Start demoen på nytt', 'Restart the demo')}
