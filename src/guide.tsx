@@ -169,6 +169,8 @@ type TourStep = {
   tap?: string[]
   /** Pulserende ring rundt noe han nevner, uten at det må trykkes. */
   ring?: string[]
+  /** Detaljsider: rull så dette ligger øverst, så boblen får plass under det han forklarer. */
+  scroll?: string
   mood: Mood
   move: Action
   text: () => string
@@ -229,18 +231,19 @@ const tourSteps = (watchOn: boolean): TourStep[] => [
   {
     ch: 2,
     route: '/vakt',
-    place: 'center',
+    at: tile('helse'),
     aim: [tile('helse')],
-    hand: 'palm',
-    mood: 'wink',
+    tap: [tile('helse')],
+    mood: 'point',
     move: 'dance',
-    text: () => L('Vakten er i gang! Boksene oppdaterer seg mens du jobber. La oss åpne Helse.', 'The shift is on! The boxes update while you work. Let’s open Health.'),
+    text: () => L('Vakten er i gang! Boksene oppdaterer seg mens du jobber. Trykk på Helse for å se mer.', 'The shift is on! The boxes update while you work. Tap Health to see more.'),
   },
   {
     ch: 2,
     route: '/vakt/helse',
     place: 'corner',
-    aim: ['.st-hero', '.st-strip'],
+    scroll: '.st-hero',
+    aim: ['.st-hero', '.st-detail > section:nth-of-type(2)'],
     mood: 'point',
     move: 'pick',
     text: () =>
@@ -254,12 +257,23 @@ const tourSteps = (watchOn: boolean): TourStep[] => [
     route: '/vakt',
     at: tile('konkurranse'),
     aim: [tile('konkurranse')],
+    tap: [tile('konkurranse')],
+    mood: 'point',
+    move: 'peek',
+    text: () => L('Så Konkurranse – trykk på boksen.', 'Next, Competition – tap the box.'),
+  },
+  {
+    ch: 2,
+    route: '/vakt/konkurranse',
+    place: 'corner',
+    scroll: '.st-feature',
+    aim: ['.st-feature', '.st-detail > section:nth-of-type(2)'],
     mood: 'point',
     move: 'monocle',
     text: () =>
       L(
-        'Her er spillene: laget mot forrige fredag på samme tid, og om du ligger foran Jonas i duellen. Vil du ha en rolig kveld, kan du skjule alt.',
-        'Here are the games: the team against last Friday at the same time, and whether you’re ahead of Jonas in the duel. Want a calm evening? You can hide all of it.',
+        'Her er spillene: duellen mot Jonas, og laget mot forrige fredag på samme tid. Vil du ha en rolig kveld, kan du skjule alt.',
+        'Here are the games: the duel with Jonas, and the team against last Friday at the same time. Want a calm evening? You can hide all of it.',
       ),
   },
   {
@@ -267,13 +281,21 @@ const tourSteps = (watchOn: boolean): TourStep[] => [
     route: '/vakt',
     at: tile('salg'),
     aim: [tile('salg')],
+    tap: [tile('salg')],
     mood: 'point',
     move: 'hop',
+    text: () => L('Og Salg – trykk på boksen.', 'And Sales – tap the box.'),
+  },
+  {
+    ch: 2,
+    route: '/vakt/salg',
+    place: 'corner',
+    scroll: '.st-hero',
+    aim: ['.st-hero', '.st-detail > section:nth-of-type(2)', '.st-detail > section:nth-of-type(3)'],
+    mood: 'point',
+    move: 'pick',
     text: () =>
-      L(
-        'Salg viser hva du har solgt, tipsen og hvor nær du er rekorden din. Inni boksen ser du salget per halvtime.',
-        'Sales shows what you’ve sold, your tips and how close you are to your record. Inside the box you’ll see sales per half hour.',
-      ),
+      L('Her ser du hva du har solgt, tipsen og hvor nær du er rekorden din – og salget per halvtime.', 'Here’s what you’ve sold, your tips and how close you are to your record – and sales per half hour.'),
   },
   {
     ch: 2,
@@ -281,7 +303,7 @@ const tourSteps = (watchOn: boolean): TourStep[] => [
     at: tile('gjester'),
     aim: [tile('gjester')],
     mood: 'point',
-    move: 'peek',
+    move: 'look',
     text: () => L('Gjester er bordkartet ditt: hvem som venter, allergier og hvem som kommer senere.', 'Guests is your table map: who’s waiting, allergies and who’s coming later.'),
   },
   {
@@ -411,6 +433,7 @@ type View = {
   hand?: Hand
   ring?: string[]
   tap?: string[]
+  scroll?: string
   mood: Mood
   move: Action
   eyebrow?: string
@@ -633,6 +656,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
           hand: ts.hand,
           tap: ts.tap,
           ring: ts.ring,
+          scroll: ts.scroll,
           mood: ts.mood,
           move: ts.move,
           eyebrow: L('{ch} · {n} av {t}', '{ch} · {n} of {t}', { ch: chapters()[ts.ch], n: inCh.indexOf(ts) + 1, t: inCh.length }),
@@ -705,6 +729,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     const v = view
     let tries = 0
     let retry = 0
+    let scrolled = false
     const place = () => {
       const bar = ref.current?.parentElement
       const app = document.querySelector<HTMLElement>('.app')
@@ -718,10 +743,28 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
       }
       const B = bar.getBoundingClientRect()
       const A = app.getBoundingClientRect()
+      // Detaljsider: rull så det han forklarer ligger øverst, så boblen får plass under det.
+      // Siden er kanskje ikke tegnet ennå rett etter sidebyttet – da prøver vi igjen straks.
+      if (v.scroll && !scrolled) {
+        const t = document.querySelector<HTMLElement>(v.scroll)
+        if (!t) {
+          if (tries++ < 12) retry = window.setTimeout(place, 120)
+          return
+        }
+        scrolled = true
+        let box = t.parentElement
+        while (box && box !== document.body && !(box.scrollHeight > box.clientHeight + 4 && /auto|scroll/.test(getComputedStyle(box).overflowY))) box = box.parentElement
+        const d = t.getBoundingClientRect().top - A.top - 6
+        if (box && box !== document.body && Math.abs(d) > 4) {
+          box.scrollBy({ top: d, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
+          // Mål på nytt når rullingen har landet
+          retry = window.setTimeout(place, 420)
+        }
+      }
       const tabs = document.querySelector('.tabbar')?.getBoundingClientRect()
       const floor = tabs && tabs.height ? tabs.top : A.bottom
       const kind = v.place
-      const scale = { big: 1.3, center: 1.05, bar: 0.9, stack: 0.85, corner: 0.8, story: 0.62, report: 1.05 }[kind]
+      const scale = { big: 1.3, center: 1.05, bar: 0.9, stack: 0.85, corner: 0.72, story: 0.62, report: 1.05 }[kind]
       const px = D3D_PX * scale
       const half = D3D_BODY.half * px
       const feet = D3D_BODY.feet * px
@@ -756,9 +799,12 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
           cy = r.bottom - B.top + 6 + head
         } else cy = r.top - B.top - 4 - feet
       } else if (kind === 'corner' || kind === 'story') {
-        // Nede til høyre, med boblen over seg – i månedsoppsummeringen litt over bildeteksten
+        // Nede til høyre, med boblen over seg – i månedsoppsummeringen litt over bildeteksten.
+        // Er det for trangt under det han forklarer (små skjermer), står han på fanelinjen i stedet.
+        const below = Math.max(A.top, ...(v.aim ?? []).map((sel) => document.querySelector(sel)?.getBoundingClientRect().bottom ?? A.top))
+        const ground = kind === 'corner' && floor - below < bh + 22 + head + feet + 12 ? A.bottom - 2 : floor - 8
         cx = A.right - B.left - half - 10
-        cy = (kind === 'story' ? A.bottom - 58 : floor - 8) - B.top - feet
+        cy = (kind === 'story' ? A.bottom - 58 : ground) - B.top - feet
         right = true
       }
       cx = clamp(cx, A.left - B.left + half + 4, A.right - B.left - half - 4)
@@ -779,10 +825,12 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     place()
     // Sidene glir inn – mål en gang til når de har landet
     const settle = window.setTimeout(place, 450)
+    const settle2 = window.setTimeout(place, 900)
     window.addEventListener('resize', place)
     return () => {
       window.clearTimeout(retry)
       window.clearTimeout(settle)
+      window.clearTimeout(settle2)
       window.removeEventListener('resize', place)
     }
   }, [vkey, path, settings.lang, demo.phase]) // eslint-disable-line react-hooks/exhaustive-deps
