@@ -269,7 +269,7 @@ function DemoControl({ boss, onReport }: { boss: boolean; onReport: boolean }) {
               openGuide()
             }}
           >
-            <Icon name="sparkle" /> {L('Vis Sir Domeos guide', 'Show Sir Domeo’s guide')}
+            <Icon name="sparkle" /> {L('Spør Sir Domeo om denne siden', 'Ask Sir Domeo about this page')}
           </button>
           <button
             role="menuitem"
@@ -284,7 +284,7 @@ function DemoControl({ boss, onReport }: { boss: boolean; onReport: boolean }) {
       )}
       <DemoGuide boss={boss} onReport={onReport} />
       <div className="demo-ctl" aria-label={L('Demo-kontroll', 'Demo controls')}>
-        <button className="kg-mini" onClick={openGuide} aria-label={L('Sir Domeos guide: slik styrer du prototypen', 'Sir Domeo’s guide: how to run the prototype')}>
+        <button className="kg-mini" onClick={openGuide} aria-label={L('Sir Domeo: hjelp på denne siden', 'Sir Domeo: help with this page')}>
           <Domeo mood="wink" size={30} />
         </button>
         <RoleSwitch boss={boss} />

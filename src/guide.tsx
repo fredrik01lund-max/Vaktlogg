@@ -15,25 +15,22 @@ import type { Action, Aim, Hand, Mood } from './domeo3d.tsx'
 import './guide.css'
 
 // ── Liten felles tilstand: overlever at appen tegnes på nytt når språket byttes ──
-type Mode = 'welcome' | 'self' | 'tour' | 'kari' | 'done'
+type Mode = 'welcome' | 'self' | 'tour' | 'kari' | 'done' | 'help'
 /** `extra`: hvilken boble i en ekstra forklaring («Mer om XP») som vises. */
 type GuideState = { open: boolean; step: number; mode: Mode; bye?: number; extra?: number }
 let state: GuideState = { open: false, step: 0, mode: 'welcome' }
 let autoTried = false
 /** Karis beskjed vises én gang per besøk i prototypen. */
 let kariShown = false
-/** Hvor langt omvisningen kom før den ble avbrutt – gir «Fortsett der vi slapp». */
-let resumeAt = -1
+/** Stoppet omvisningen kom fra – noen replikker henger sammen med det forrige stoppet. */
+let lastStep = -1
 const subs = new Set<() => void>()
 const setGuide = (next: GuideState) => {
   state = next
   subs.forEach((f) => f())
 }
-/** Hent ham frem (demolinjen og ⋯-menyen): han spør om omvisning. */
-export const openGuide = () => {
-  if (state.open && state.mode === 'tour') resumeAt = state.step
-  setGuide({ open: true, step: 0, mode: 'welcome' })
-}
+/** Hent ham frem (demolinjen og ⋯-menyen): han forklarer siden du er på, og kan vise deg rundt herfra. */
+export const openGuide = () => setGuide({ open: true, step: 0, mode: 'help' })
 /** Be ham gå (f.eks. når sluttrapporten åpnes i stort format). */
 export const dismissGuide = () => state.open && setGuide({ ...state, bye: (state.bye ?? 0) + 1 })
 /** Ikke i testene eller med ?manuell – ?guide viser ham alltid. */
@@ -179,6 +176,8 @@ type TourStep = {
   mood: Mood
   move: Action
   text: () => string
+  /** Hører til før eller under vakten – omvisningen følger vakten om den startes eller nullstilles utenom. */
+  phase?: 'pre' | 'live'
   /** «Neste» starter vakten (omvisningen går videre når den er i gang). */
   start?: boolean
   /** «Mer om …»: en grundigere forklaring for den som vil vite mer. */
@@ -276,13 +275,14 @@ const moreTokens: More = {
 }
 
 /** Det omvisningen trenger å vite om demoen: er klokka på, hvilket spill er valgt, og med hvem. */
-type TourCtx = { watchOn: boolean; game: string; mate: string }
+type TourCtx = { watchOn: boolean; game: string; mate: string; fromKudos: boolean; phase: string }
 
 // Der det går, trykker du selv på knappene – omvisningen går videre av seg selv når du gjør det.
 // «Neste» står bare der det ikke finnes noe å trykke på.
-const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
+const tourSteps = ({ watchOn, game, mate, fromKudos, phase }: TourCtx): TourStep[] => [
   {
     ch: 1,
+    phase: 'pre',
     route: '/vakt',
     at: '.game-pick',
     aim: ['.game-pick .game-card:nth-child(1)', '.game-pick .game-card:nth-child(2)'],
@@ -294,6 +294,7 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
   },
   {
     ch: 1,
+    phase: 'pre',
     route: '/vakt',
     at: '.invite',
     aim: ['.invite .inv-faces'],
@@ -308,6 +309,7 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
   },
   {
     ch: 1,
+    phase: 'pre',
     route: '/vakt',
     at: '.watch-toggle',
     aim: ['.watch-toggle'],
@@ -322,6 +324,7 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
   },
   {
     ch: 1,
+    phase: 'pre',
     route: '/vakt',
     at: '.screen .btn.block',
     aim: ['.screen .btn.block'],
@@ -333,6 +336,7 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
   },
   {
     ch: 2,
+    phase: 'live',
     route: '/vakt',
     at: tile('helse'),
     aim: [tile('helse')],
@@ -343,6 +347,7 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
   },
   {
     ch: 2,
+    phase: 'live',
     route: '/vakt/helse',
     place: 'corner',
     scroll: '.st-hero',
@@ -358,6 +363,7 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
   },
   {
     ch: 2,
+    phase: 'live',
     route: '/vakt',
     at: tile('konkurranse'),
     aim: [tile('konkurranse')],
@@ -368,6 +374,7 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
   },
   {
     ch: 2,
+    phase: 'live',
     route: '/vakt/konkurranse',
     place: 'corner',
     scroll: '.st-feature',
@@ -382,6 +389,7 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
   },
   {
     ch: 2,
+    phase: 'live',
     route: '/vakt',
     at: tile('salg'),
     aim: [tile('salg')],
@@ -392,6 +400,7 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
   },
   {
     ch: 2,
+    phase: 'live',
     route: '/vakt/salg',
     place: 'corner',
     scroll: '.st-hero',
@@ -407,6 +416,7 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
   },
   {
     ch: 2,
+    phase: 'live',
     route: '/vakt',
     at: tile('gjester'),
     aim: [tile('gjester')],
@@ -416,6 +426,7 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
   },
   {
     ch: 2,
+    phase: 'live',
     route: '/vakt',
     at: '.kd-row',
     aim: ['.kd-person'],
@@ -434,10 +445,9 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
     mood: 'cheer',
     move: 'twirl',
     text: () =>
-      L(
-        'Herlig! Når noen sender deg kudos, regner det over skjermen. Alt du gjør, lagres – trykk på Historikk.',
-        'Lovely! When someone sends you kudos, it rains across the screen. Everything you do is saved – tap History.',
-      ),
+      fromKudos
+        ? L('Herlig! Når noen sender deg kudos, regner det over skjermen. Alt du gjør, lagres – trykk på Historikk.', 'Lovely! When someone sends you kudos, it rains across the screen. Everything you do is saved – tap History.')
+        : L('Alt du gjør, lagres – trykk på Historikk.', 'Everything you do is saved – tap History.'),
   },
   {
     ch: 3,
@@ -505,22 +515,62 @@ const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
   {
     ch: 7,
     route: '/vakt',
+    // Avslutningen følger vakten: før, under eller etter
     place: 'bar',
-    at: "[data-guide='start']",
-    aim: ["[data-guide='start']"],
-    ring: ["[data-guide='start']"],
+    at: phase === 'done' ? '.kg-mini' : "[data-guide='start']",
+    aim: [phase === 'done' ? '.kg-mini' : "[data-guide='start']"],
+    ring: phase === 'done' ? [] : ["[data-guide='start']"],
     mood: 'wink',
     move: 'dance',
     last: true,
     text: () =>
-      L(
-        'Det var omvisningen! Vakten går fortsatt – trykk Avslutt vakt når du vil se sluttrapporten. Nede i linjen kan du også se sjefen Karis telefon, bytte språk og starte på nytt. Trenger du meg, trykk på meg. God vakt!',
-        'That’s the tour! The shift is still going – tap End shift whenever you want to see the shift report. Down in the bar you can also see Kari’s phone, switch language and start over. Need me? Tap me. Have a good shift!',
-      ),
+      phase === 'live'
+        ? L(
+            'Det var omvisningen! Vakten går fortsatt – trykk Avslutt vakt når du vil se sluttrapporten. Nede i linjen kan du også se sjefen Karis telefon, bytte språk og starte på nytt. Trenger du meg, trykk på meg. God vakt!',
+            'That’s the tour! The shift is still going – tap End shift whenever you want to see the shift report. Down in the bar you can also see Kari’s phone, switch language and start over. Need me? Tap me. Have a good shift!',
+          )
+        : phase === 'pre'
+          ? L(
+              'Det var omvisningen! Trykk Start vakt nede i linjen når du er klar. Der kan du også se sjefen Karis telefon, bytte språk og starte på nytt. Trenger du meg, trykk på meg.',
+              'That’s the tour! Tap Start shift down in the bar when you’re ready. There you can also see Kari’s phone, switch language and start over. Need me? Tap me.',
+            )
+          : L(
+              'Det var omvisningen! Trykk deg rundt som du vil. Nede i linjen kan du se sjefen Karis telefon, bytte språk og starte på nytt. Trenger du meg, trykk på meg.',
+              'That’s the tour! Tap around as you like. Down in the bar you can see Kari’s phone, switch language and start over. Need me? Tap me.',
+            ),
   },
 ]
-/** Steget der vakten startes. */
-const START = 3
+/** Stoppet i omvisningen som passer der du er nå (−1 = ingen), så han kan vise deg rundt herfra. */
+const stepFor = (steps: TourStep[], path: string, phase: string): number => {
+  const fits = (x: TourStep) => !x.phase || x.phase === phase
+  const exact = steps.findIndex((x) => !x.last && fits(x) && (x.story ? path.startsWith('/maned') : x.route === path))
+  if (exact >= 0) return exact
+  if (path === '/vakt/gjester') return steps.findIndex((x) => x.at === tile('gjester'))
+  if (path.startsWith('/historikk/')) return steps.findIndex((x) => x.route === '/historikk')
+  return -1
+}
+/** Kort om siden du er på – det han sier når du trykker på ham, eller har trykket deg bort fra omvisningen. */
+const helpText = (path: string, phase: string): string => {
+  if (path === '/vakt')
+    return phase === 'pre'
+      ? L('Her gjør du klar vakten: velg kveldens spill og hvem du spiller med, koble til klokka, og trykk Start vakt.', 'Here you get ready for the shift: pick tonight’s game and who you play with, connect your watch, and tap Start shift.')
+      : phase === 'live'
+        ? L('Vakten pågår. Boksene viser helse, salg, konkurranse og gjester – trykk på en for å se mer. Nederst sender du kudos til kollegene.', 'The shift is on. The boxes show health, sales, competition and guests – tap one to see more. At the bottom you send kudos to your colleagues.')
+        : L('Dette er sluttrapporten fra kvelden. Trykk på den for å se hele.', 'This is tonight’s shift report. Tap it to see all of it.')
+  if (path === '/vakt/helse') return L('Helse viser pulsen din nå, stresset kvarter for kvarter og skrittene dine – alt fra klokka.', 'Health shows your heart rate right now, stress quarter by quarter and your steps – all from the watch.')
+  if (path === '/vakt/konkurranse') return L('Konkurranse viser kveldens spill og laget mot forrige fredag. Vil du ha en rolig kveld, kan du skjule alt nederst på siden.', 'Competition shows tonight’s game and the team against last Friday. Want a calm evening? You can hide all of it at the bottom of the page.')
+  if (path === '/vakt/salg') return L('Salg viser hva du har solgt, tipsen, rekorden din og salget per halvtime – og hvert bord lenger ned.', 'Sales shows what you’ve sold, your tips, your record and sales per half hour – and each table further down.')
+  if (path === '/vakt/gjester') return L('Gjester er bordkartet ditt: hvem som venter, allergier og hvem som kommer senere.', 'Guests is your table map: who’s waiting, allergies and who’s coming later.')
+  if (path === '/historikk') return L('Historikk har alle vaktene dine. Trykk på en vakt for å se den, og øverst ligger månedsoppsummeringen.', 'History has all your shifts. Tap a shift to see it, and the monthly summary is at the top.')
+  if (path.startsWith('/historikk/')) return L('Dette er en tidligere vakt, med rapporten slik den var den kvelden.', 'This is an earlier shift, with the report as it was that evening.')
+  if (path.startsWith('/maned')) return L('Dette er månedsoppsummeringen. Trykk til høyre for neste side og til venstre for forrige, og lukk med krysset.', 'This is the monthly summary. Tap the right side for the next page and the left for the previous one, and close with the cross.')
+  if (path === '/mal') return L('Goals er det dere jobber mot: årets lagmål, premier dere kan vinne sammen, og rekordene dine.', 'Goals is what you work toward: this year’s team goal, prizes you can win together, and your records.')
+  if (path === '/meg') return L('Dette er deg: nivået og XP fra vaktene, poletter i Personalmenyen, og innstillinger som rolig modus og klokka.', 'This is you: your level and XP from your shifts, tokens in the Staff menu, and settings like calm mode and the watch.')
+  if (path === '/meg/meny') return L('Personalmenyen: her bruker du poletter på fri, mat og gaver – eller sparer til et gavekort.', 'The Staff menu: here you spend tokens on time off, food and gifts – or save up for a gift card.')
+  if (path.startsWith('/sjef')) return L('Dette er sjefen Karis telefon. Den delen er under arbeid – trykk på Emma nederst for å gå tilbake.', 'This is the manager Kari’s phone. That part is a work in progress – tap Emma at the bottom to go back.')
+  return L('Trykk deg rundt som du vil. Den mørke linjen nederst styrer demoen.', 'Tap around as you like. The dark bar at the bottom runs the demo.')
+}
+
 
 // Programlederen i månedsoppsummeringen: én kort replikk per side
 const storyLines = (touring: boolean): Record<string, { text: string; move: Action; mood: Mood }> => ({
@@ -591,14 +641,19 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   const prevCx = useRef<number | null>(null)
   const held = useRef(false)
   const storyOpened = useRef(false)
-  const steps = tourSteps({ watchOn: settings.watch, game: demo.game, mate: colleagueName(demo.invites[demo.game === 'makker' ? 'makker' : 'duell']) })
+  const steps = tourSteps({ watchOn: settings.watch, game: demo.game, mate: colleagueName(demo.invites[demo.game === 'makker' ? 'makker' : 'duell']), fromKudos: lastStep === 11, phase: demo.phase })
+  // Stoppet som passer der du er nå
+  const here = stepFor(steps, path, demo.phase)
   const touring = g.open && g.mode === 'tour'
   const ts = touring ? steps[Math.min(g.step, steps.length - 1)] : null
   // Programleder i månedsoppsummeringen – men ikke for den som valgte å utforske selv
   const hostOn = settings.guide !== 'self' && !gated()
   const onStory = route[0] === 'maned' && !!st.id && hostOn && (!g.open || touring)
 
-  const go = (step: number) => setGuide({ open: true, step, mode: 'tour' })
+  const go = (step: number) => {
+    lastStep = state.open && state.mode === 'tour' ? state.step : -1
+    setGuide({ open: true, step, mode: 'tour' })
+  }
   function close() {
     if (!state.open) return
     setLeaving(true)
@@ -612,30 +667,25 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   const startTour = () => {
     // Klokka står av når omvisningen starter – du skrur den på selv
     updateSettings({ guide: 'tour', guideSeen: true, watch: false })
-    resumeAt = -1
     if (demo.phase !== 'pre') reset()
     go(0)
   }
+  // «Vis meg rundt herfra»: omvisningen begynner der du er, ikke fra start
+  const startHere = () => {
+    updateSettings({ guide: 'tour', guideSeen: true })
+    go(here)
+  }
   const chooseSelf = () => {
     updateSettings({ guide: 'self', guideSeen: true })
-    resumeAt = -1
     setGuide({ open: true, step: 0, mode: 'self' })
   }
-  const endTour = () => {
-    resumeAt = g.step
-    close()
-  }
+  const endTour = () => close()
   const next = () => {
     if (!ts) return
-    if (ts.last) {
-      resumeAt = -1
-      return close()
-    }
+    if (ts.last) return close()
     if (ts.start && demo.phase === 'pre') return startShift()
     go(g.step + 1)
   }
-  // «Fortsett der vi slapp» passer bare om vakten er i samme fase som da han slapp
-  const canResume = resumeAt > 0 && (resumeAt <= START ? demo.phase === 'pre' : demo.phase === 'live')
 
   // Første besøk: han spør om omvisning (ikke i testene eller med ?manuell). ?guide viser ham alltid.
   useEffect(() => {
@@ -643,7 +693,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     autoTried = true
     const force = new URLSearchParams(window.location.search).has('guide')
     // Tidtakeren avbrytes ikke: appen tegnes på nytt ved språkbytte, og han skal komme bare én gang
-    if (force || (settings.guide === 'unset' && !gated())) window.setTimeout(() => !state.open && openGuide(), 700)
+    if (force || (settings.guide === 'unset' && !gated())) window.setTimeout(() => !state.open && setGuide({ open: true, step: 0, mode: 'welcome' }), 700)
   }, [settings.guide])
 
   // Karis telefon: han dukker opp og sier at siden er under arbeid (én gang per besøk)
@@ -671,12 +721,15 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     if (ts.story ? !path.startsWith('/maned') : path !== ts.route) navigate(ts.route)
   }, [g.open, g.mode, g.step]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Vakten startet (knappen eller «Neste») → videre. Starter demoen på nytt midt i, slutter omvisningen.
+  // Omvisningen følger vakten: startes vakten (også før han ber om det) eller nullstilles demoen,
+  // hopper han til stoppet som passer – aldri en ring rundt «Avslutt vakt» når han mente «Start vakt».
   useEffect(() => {
-    if (!ts) return
-    if (ts.start && demo.phase === 'live') go(g.step + 1)
-    else if (g.step > START && demo.phase === 'pre') close()
-  }, [demo.phase]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (!ts?.phase || ts.phase === demo.phase || demo.phase === 'done') return
+    const m = stepFor(steps, '/vakt', demo.phase)
+    // Startet vakten før han rakk klokka, kobler han den til – så Helse har noe å vise
+    if (demo.phase === 'live' && !settings.watch) updateSettings({ watch: true })
+    if (m >= 0) go(m)
+  }, [demo.phase, g.step, touring]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Under omvisningen står klokka i ro rundt halv ni, så boksene har noe å vise. Etterpå går den videre.
   useEffect(() => {
@@ -743,10 +796,26 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
       lang: true,
       choices: true,
       buttons: [
-        ...(canResume ? [{ label: L('Fortsett der vi slapp', 'Continue where we left off'), kind: 'next' as const, onClick: () => go(resumeAt) }] : []),
-        { label: L('Ja, vis meg rundt', 'Yes, show me around'), kind: canResume ? 'alt' : 'next', onClick: startTour },
+        { label: L('Ja, vis meg rundt', 'Yes, show me around'), kind: 'next', onClick: startTour },
         { label: L('Nei takk, jeg utforsker selv', 'No thanks, I’ll explore myself'), kind: 'skip', onClick: chooseSelf },
       ],
+    }
+  } else if (g.open && g.mode === 'help') {
+    view = {
+      key: `help-${path}-${demo.phase}`,
+      place: 'corner',
+      mood: 'wave',
+      move: 'tip',
+      eyebrow: L('Her er du', 'You are here'),
+      text: helpText(path, demo.phase),
+      choices: here >= 0,
+      buttons:
+        here >= 0
+          ? [
+              { label: L('Vis meg rundt herfra', 'Show me around from here'), kind: 'next', onClick: startHere },
+              { label: L('Takk, Sir!', 'Thanks, Sir!'), kind: 'skip', onClick: close },
+            ]
+          : [{ label: L('Skjønner!', 'Got it!'), kind: 'next', onClick: close }],
     }
   } else if (g.open && g.mode === 'self') {
     view = {
@@ -766,14 +835,17 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     const back = () => setGuide({ open: true, step: g.step, mode: 'tour' })
     view = away
       ? {
-          key: 'away',
-          place: 'center',
+          key: `away-${path}`,
+          place: 'corner',
           mood: 'wave',
           move: 'look',
-          text: L('Skal vi fortsette omvisningen?', 'Shall we continue the tour?'),
+          eyebrow: L('Her er du', 'You are here'),
+          text: helpText(path, demo.phase),
+          choices: true,
           buttons: [
+            ...(here >= 0 ? [{ label: L('Fortsett omvisningen herfra', 'Continue the tour from here'), kind: 'next' as const, onClick: () => go(here) }] : []),
+            { label: L('Tilbake dit vi var', 'Back to where we were'), kind: here >= 0 ? 'alt' : 'next', onClick: () => navigate(ts.route) },
             { label: L('Avslutt omvisning', 'End tour'), kind: 'skip', onClick: endTour },
-            { label: L('Fortsett', 'Continue'), kind: 'next', onClick: () => navigate(ts.route) },
           ],
         }
       : more && ex >= 0
