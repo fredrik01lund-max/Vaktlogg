@@ -282,7 +282,7 @@ function DemoControl({ boss }: { boss: boolean }) {
           </button>
         </div>
       )}
-      <DemoGuide />
+      <DemoGuide boss={boss} />
       <div className="demo-ctl" aria-label={L('Demo-kontroll', 'Demo controls')}>
         <button className="kg-mini" onClick={openGuide} aria-label={L('Klappens guide: slik styrer du prototypen', 'Clappy’s guide: how to run the prototype')}>
           <Klappen mood="wink" size={30} />

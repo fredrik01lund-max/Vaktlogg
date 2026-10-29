@@ -1,24 +1,28 @@
 // Klappen: regissøren som forklarer demolinjen – den mørke linjen under appen som styrer «filmen».
 // Han svever i 3D over skjermen: først midt på (historien og språket), så over knappene han forklarer.
 // Vises første gang prototypen åpnes, kan hoppes over, og hentes frem igjen fra demolinjen.
+// På Karis telefon dukker han opp én gang per besøk og sier at lederens side er under arbeid.
 // Den flate Klappen (SVG) brukes i demolinjen og som reserve uten WebGL.
 
 import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { L } from './i18n.ts'
 import { MANUAL, useStore } from './state.tsx'
 import { K3D_SIZE, Klappen3D } from './klappen3d.tsx'
+import type { Move } from './klappen3d.tsx'
 import './guide.css'
 
 // ── Liten felles tilstand: overlever at appen tegnes på nytt når språket byttes ──
-type GuideState = { open: boolean; step: number }
-let state: GuideState = { open: false, step: 0 }
+type GuideState = { open: boolean; step: number; mode: 'tour' | 'kari' }
+let state: GuideState = { open: false, step: 0, mode: 'tour' }
 let autoTried = false
+/** Karis beskjed vises én gang per besøk i prototypen. */
+let kariShown = false
 const subs = new Set<() => void>()
 const setGuide = (next: GuideState) => {
   state = next
   subs.forEach((f) => f())
 }
-export const openGuide = () => setGuide({ open: true, step: 0 })
+export const openGuide = () => setGuide({ open: true, step: 0, mode: 'tour' })
 export function useGuide(): GuideState {
   return useSyncExternalStore(
     (f) => {
@@ -94,10 +98,12 @@ export function Klappen({ mood = 'wave', size = 84, clapKey = 0 }: { mood?: Mood
 }
 
 // Fem stopp: midt på skjermen (hvem du er, språket), så over knappene han forklarer.
-const steps = (): { target: string | null; mood: Mood; text: string; title?: string; lang?: boolean }[] => [
+type Step = { target: string | null; mood: Mood; move: Move; text: string; title?: string; lang?: boolean }
+const steps = (): Step[] => [
   {
     target: null,
     mood: 'wave',
+    move: 'hop',
     title: L('Hei! Jeg er Klappen.', 'Hi! I’m Clappy.'),
     text: L('Du er Emma, servitør på en fredagsvakt. Trykk deg rundt i appen akkurat som hun ville gjort.', 'You’re Emma, a server on a Friday shift. Tap around the app just like she would.'),
     lang: true,
@@ -105,38 +111,54 @@ const steps = (): { target: string | null; mood: Mood; text: string; title?: str
   {
     target: 'start',
     mood: 'point',
+    move: 'flip',
     text: L('Start vakten her. Kvelden går av seg selv på to minutter – trykk på det du vil se mens den pågår.', 'Start the shift here. The evening runs by itself in two minutes – tap whatever you want to see while it’s on.'),
   },
   {
     target: 'start',
     mood: 'wink',
+    move: 'twirl',
     text: L('Ferdig? Trykk «Avslutt vakt» her og få sluttrapporten. Historikk, Goals og Meg kan du se når som helst.', 'Done? Tap “End shift” here to get the shift report. History, Goals and Me are there any time.'),
   },
   {
     target: 'roles',
     mood: 'point',
+    move: 'look',
     text: L('Her bytter du mellom Emmas telefon og sjefen Karis.', 'Switch between Emma’s phone and her manager Kari’s here.'),
   },
   {
     target: 'more',
     mood: 'wink',
+    move: 'dance',
     text: L('Her bytter du språk og starter alt på nytt. Den mørke linjen styrer bare demoen.', 'Switch language and start over here. The dark bar just runs the demo.'),
+  },
+]
+
+// Karis telefon: lederens side er ikke ferdig – vi vil ha innspill
+const kariSteps = (): Step[] => [
+  {
+    target: null,
+    mood: 'wave',
+    move: 'shrug',
+    title: L('Lederens side er under arbeid', 'The manager’s side is a work in progress'),
+    text: L('Denne delen er ikke ferdig utviklet ennå. Vi vil gjerne ha innspill: hva bør Kari se og gjøre her?', 'This part isn’t finished yet. We’d love your input: what should Kari see and do here?'),
   },
 ]
 
 const SIZE = K3D_SIZE
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
-type Pos = { cx: number; cy: number; scale: number; bx: number; by: number; bw: number; tail: number }
+type Pos = { cx: number; cy: number; scale: number; bx: number; by: number; bw: number; tail: number; dir: number }
 
 /** Klappen svever over skjermen dit han forklarer noe, med en snakkeboble som følger ham. */
-export function DemoGuide() {
+export function DemoGuide({ boss }: { boss: boolean }) {
   const { settings, updateSettings } = useStore()
   const g = useGuide()
   const ref = useRef<HTMLDivElement>(null)
   const sayRef = useRef<HTMLDivElement>(null)
   const [pos, setPos] = useState<Pos | null>(null)
   const [leaving, setLeaving] = useState(false)
-  const list = steps()
+  const prevCx = useRef<number | null>(null)
+  const list = g.mode === 'kari' ? kariSteps() : steps()
   const s = list[Math.min(g.step, list.length - 1)]
 
   // Første besøk: Klappen dukker opp av seg selv (ikke i testene eller med ?manuell). ?guide viser ham alltid.
@@ -145,8 +167,20 @@ export function DemoGuide() {
     autoTried = true
     const force = new URLSearchParams(window.location.search).has('guide')
     // Tidtakeren avbrytes ikke: appen tegnes på nytt ved språkbytte, og Klappen skal komme bare én gang
-    if (force || (!settings.guideSeen && !MANUAL && !navigator.webdriver)) window.setTimeout(openGuide, 700)
+    if (force || (!settings.guideSeen && !MANUAL && !navigator.webdriver)) window.setTimeout(() => !state.open && openGuide(), 700)
   }, [settings.guideSeen])
+
+  // Karis telefon: Klappen dukker opp og sier at siden er under arbeid (én gang per besøk)
+  useEffect(() => {
+    if (!boss) {
+      if (state.open && state.mode === 'kari') setGuide({ open: false, step: 0, mode: 'tour' })
+      return
+    }
+    const force = new URLSearchParams(window.location.search).has('guide')
+    if (kariShown || state.open || (!force && (MANUAL || navigator.webdriver))) return
+    kariShown = true
+    window.setTimeout(() => setGuide({ open: true, step: 0, mode: 'kari' }), 600)
+  }, [boss])
 
   // Plasser Klappen: midt på skjermen, eller rett over knappen han forklarer. Boblen over ham, innenfor appen.
   useLayoutEffect(() => {
@@ -179,12 +213,15 @@ export function DemoGuide() {
       const bh = say.offsetHeight
       const bx = clamp(cx - bw / 2, A.left - B.left + 12, A.right - B.left - 12 - bw)
       const by = Math.max(A.top - B.top + 12, cy - h * 0.46 - 6 - bh)
-      setPos({ cx, cy, scale, bx, by, bw, tail: clamp(cx - bx, 26, bw - 26) })
+      // Retningen han flyr, så han kan lene seg inn i svingen
+      const dir = prevCx.current === null ? 0 : Math.sign(Math.round(cx - prevCx.current))
+      prevCx.current = cx
+      setPos({ cx, cy, scale, bx, by, bw, tail: clamp(cx - bx, 26, bw - 26), dir })
     }
     place()
     window.addEventListener('resize', place)
     return () => window.removeEventListener('resize', place)
-  }, [g.open, g.step, s.target, settings.lang])
+  }, [g.open, g.step, g.mode, s.target, settings.lang])
 
   // Knappen han forklarer, får en myk ring i demolinjen
   useEffect(() => {
@@ -202,8 +239,10 @@ export function DemoGuide() {
     window.setTimeout(() => {
       setLeaving(false)
       setPos(null)
-      setGuide({ open: false, step: 0 })
-      if (!settings.guideSeen) updateSettings({ guideSeen: true })
+      prevCx.current = null
+      const wasTour = state.mode === 'tour'
+      setGuide({ open: false, step: 0, mode: 'tour' })
+      if (wasTour && !settings.guideSeen) updateSettings({ guideSeen: true })
     }, 320)
   }
 
@@ -216,7 +255,7 @@ export function DemoGuide() {
         style={pos ? { left: pos.cx - SIZE / 2, top: pos.cy - SIZE / 2, transform: `scale(${pos.scale})` } : undefined}
       >
         <div className="kg-bob">
-          <Klappen3D mood={leaving && last ? 'clap' : s.mood} spinKey={g.step} leaving={leaving} fallback={<Klappen mood={s.mood} clapKey={g.step} size={100} />} />
+          <Klappen3D mood={leaving && last ? 'clap' : s.mood} move={leaving ? 'twirl' : s.move} actionKey={g.step + (g.mode === 'kari' ? 100 : 0) + (leaving ? 1000 : 0)} dir={pos?.dir ?? 0} leaving={leaving} fallback={<Klappen mood={s.mood} clapKey={g.step} size={100} />} />
         </div>
       </div>
       <div className="kg-say" ref={sayRef} style={pos ? { left: pos.bx, top: pos.by, width: pos.bw, ['--tail' as string]: `${pos.tail}px` } : undefined}>
@@ -234,18 +273,16 @@ export function DemoGuide() {
           )}
         </div>
         <div className="kg-foot">
-          <span className="kg-dots" aria-label={L('{n} av {t}', '{n} of {t}', { n: g.step + 1, t: list.length })}>
-            {list.map((_, i) => (
-              <i key={i} className={i === g.step ? 'on' : ''} />
-            ))}
+          <span className="kg-dots" aria-label={list.length > 1 ? L('{n} av {t}', '{n} of {t}', { n: g.step + 1, t: list.length }) : undefined}>
+            {list.length > 1 && list.map((_, i) => <i key={i} className={i === g.step ? 'on' : ''} />)}
           </span>
           {!last && (
             <button className="kg-skip" onClick={close}>
               {L('Hopp over', 'Skip')}
             </button>
           )}
-          <button className="kg-next" onClick={() => (last ? close() : setGuide({ open: true, step: g.step + 1 }))}>
-            {last ? L('Action!', 'Action!') : L('Neste', 'Next')}
+          <button className="kg-next" onClick={() => (last ? close() : setGuide({ open: true, step: g.step + 1, mode: g.mode }))}>
+            {g.mode === 'kari' ? L('Skjønner!', 'Got it!') : last ? L('Action!', 'Action!') : L('Neste', 'Next')}
           </button>
         </div>
       </div>
