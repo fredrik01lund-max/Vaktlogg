@@ -3,6 +3,8 @@
 // Lokket er munnen – det åpner seg på stavelsene i det han sier, og løftes som en hatt når han presenterer noe («Voilà!»).
 // Når han forklarer en knapp, står han ved siden av og peker på den (armene styres med enkel to-ledds IK).
 // Han lener seg inn i farten når han flyr, ser dit du trykker, og fniser hvis du trykker på ham.
+// Hjemme i demolinjen røyker han en cubansk sigar hvert halve minutt: tar den ut av lokket, lukter, klipper tuppen med lokket,
+// tenner den med fyrstikk, røyker (røyken siger ut over vakt-knappen) og legger den tilbake i lokket.
 // Three.js lastes når appen åpnes (egen bit av bygget), og scenen bygges én gang. Uten WebGL vises den flate Sir Domeo.
 
 import { useEffect, useRef, useState } from 'react'
@@ -178,11 +180,11 @@ export const HOME_PX = 32
 const HOME: View = { w: 66, h: 48, px: HOME_PX, y: 0.04, home: true }
 
 // ── Scenen bygges én gang og gjenbrukes hver gang han dukker opp: ingen ny WebGL-kontekst og ingen ny shader-kompilering ──
-type Stage = { run: (L: Live, host: HTMLElement, view: View) => () => void }
+type Stage = { run: (L: Live, host: HTMLElement, view: View, smoke?: HTMLCanvasElement | null) => () => void }
 let stage: Promise<Stage> | null = null
 let stopActive = () => {}
 // Han bor i demolinjen (DomeoHome) når han ikke er ute og viser deg rundt (Domeo3D). Det finnes bare ett lerret.
-let home: { L: Live; host: HTMLElement; here: (on: boolean) => void } | null = null
+let home: { L: Live; host: HTMLElement; here: (on: boolean) => void; smoke: HTMLCanvasElement | null } | null = null
 let guiding = 0
 // Har han vært hjemme før? Da spretter han ikke frem igjen når demolinjen tegnes på nytt (språkbytte)
 let homeSeen = false
@@ -198,7 +200,7 @@ const backHome = (land: boolean) =>
         L.action = 'land'
         L.actionAt = performance.now()
       }
-      st.run(L, home.host, HOME)
+      st.run(L, home.host, HOME, home.smoke)
       home.here(true)
     })
     .catch(() => {})
@@ -729,6 +731,202 @@ async function build(): Promise<Stage> {
     return { m, vx: Math.sin(a) * 1.1, vy: 1.55 + (i % 3) * 0.28, vz: 0.35, delay: (i % 4) * 0.05 }
   })
 
+  // ── Sigarstunden (hjemme i demolinjen): han tar en cubansk sigar ut av lokket, lukter på den, klipper tuppen
+  //    med lokket (giljotinen hans), tenner den med fyrstikk, røyker – og legger den tilbake i lokket ──
+  const glowTex = radial([
+    [0, 'rgba(255,220,150,1)'],
+    [0.3, 'rgba(255,150,60,0.55)'],
+    [1, 'rgba(255,120,40,0)'],
+  ])
+  const glowSprite = (size: number) => {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, transparent: true, depthWrite: false, toneMapped: false }))
+    sp.scale.setScalar(size)
+    return sp
+  }
+  const CIG = 0.4
+  const CIG_R = 0.042
+  const leaf = phys({ color: '#6E4024', roughness: 0.72, sheen: 0.5, sheenColor: new THREE.Color('#B07A45'), bumpMap: hairTex, bumpScale: 0.5 })
+  const cigar = new THREE.Group()
+  root.add(cigar)
+  /** En sylinder langs sigaren (fra hodet i x = 0 mot gloen). */
+  const along = (m: T.Mesh, x: number) => {
+    m.rotation.z = -Math.PI / 2
+    m.position.x = x
+    cigar.add(m)
+    return m
+  }
+  along(new THREE.Mesh(new THREE.CylinderGeometry(CIG_R * 0.94, CIG_R, CIG, 20), leaf), CIG / 2)
+  // Hodet – tuppen som klippes av – er rundt
+  const cigCap = new THREE.Mesh(new THREE.SphereGeometry(CIG_R, 16, 10), leaf)
+  cigCap.scale.x = 0.7
+  cigar.add(cigCap)
+  // Bandet: rødt med gullkanter, nær hodet
+  along(new THREE.Mesh(new THREE.CylinderGeometry(CIG_R * 1.06, CIG_R * 1.06, 0.075, 20), gold), 0.1)
+  along(new THREE.Mesh(new THREE.CylinderGeometry(CIG_R * 1.09, CIG_R * 1.09, 0.045, 20), phys({ color: '#B3122E', roughness: 0.35, clearcoat: 0.6 })), 0.1)
+  // Asken og gloen i enden
+  const ash = along(new THREE.Mesh(new THREE.CylinderGeometry(CIG_R * 0.9, CIG_R * 0.95, 1, 16), phys({ color: '#A8A39C', roughness: 0.95 })), CIG)
+  const emberMat = new THREE.MeshBasicMaterial({ color: '#3A2214', toneMapped: false })
+  const ember = new THREE.Mesh(new THREE.CircleGeometry(CIG_R * 0.92, 18), emberMat)
+  ember.rotation.y = Math.PI / 2
+  const emberGlow = glowSprite(0.22)
+  cigar.add(ember, emberGlow)
+  // Tuppen som faller ut av munnen når han klipper
+  const capBit = new THREE.Mesh(new THREE.CylinderGeometry(CIG_R, CIG_R, 0.035, 14), leaf)
+  root.add(capBit)
+  // Fyrstikken: lys pinne, rødt hode, og en flamme som alltid står rett opp
+  const match = new THREE.Group()
+  root.add(match)
+  const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.19, 8), phys({ color: '#E8D2A8', roughness: 0.8 }))
+  stick.position.y = 0.095
+  const headMat = phys({ color: '#B3261E', roughness: 0.6 })
+  const matchHead = new THREE.Mesh(new THREE.SphereGeometry(0.026, 12, 8), headMat)
+  matchHead.scale.y = 1.3
+  matchHead.position.y = 0.19
+  const flame = new THREE.Group()
+  flame.position.y = 0.2
+  const flameOuter = new THREE.Mesh(new THREE.ConeGeometry(0.034, 0.11, 12), new THREE.MeshBasicMaterial({ color: '#FFB238', toneMapped: false }))
+  flameOuter.position.y = 0.055
+  const flameCore = new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.06, 10), new THREE.MeshBasicMaterial({ color: '#FFF6C8', toneMapped: false }))
+  flameCore.position.y = 0.035
+  const flameGlow = glowSprite(0.34)
+  flameGlow.position.y = 0.05
+  flame.add(flameOuter, flameCore, flameGlow)
+  match.add(stick, matchHead, flame)
+  const hideProps = () => {
+    cigar.visible = capBit.visible = match.visible = false
+  }
+  hideProps()
+  const RED_HEAD = new THREE.Color('#B3261E')
+  const BURNT = new THREE.Color('#2B1A14')
+  const COLD = new THREE.Color('#3A2214')
+  const HOT = new THREE.Color('#FF7A26')
+
+  // Tidslinjen (sekunder). Armene når ikke hverandre, så høyre hånd gjør alt – og lokket er giljotinen.
+  const RIT = 15
+  const P = (x: number, y: number, z: number) => new THREE.Vector3(x, PY + y, z)
+  const D = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z).normalize()
+  type Key = [number, T.Vector3]
+  /** Myk bevegelse gjennom nøkkelpunkter. */
+  const keyed = (keys: Key[], r: number, out: T.Vector3) => {
+    if (r <= keys[0][0]) return out.copy(keys[0][1])
+    for (let i = 1; i < keys.length; i++) {
+      if (r > keys[i][0]) continue
+      const [ta, a] = keys[i - 1]
+      const [tb, b] = keys[i]
+      const k = (r - ta) / (tb - ta || 1)
+      return out.lerpVectors(a, b, k * k * (3 - 2 * k))
+    }
+    return out.copy(keys[keys.length - 1][1])
+  }
+  /** Mykt vindu: 1 mellom a og b, med glidende kanter. */
+  const win = (r: number, a: number, b: number, f = 0.15) => clamp((r - a + f) / f, 0, 1) * clamp((b + f - r) / f, 0, 1)
+  const MOUTH = P(0.22, 0.03, 0.66) // munnviken til høyre, der sigaren sitter
+  const DIR_M = D(0.82, 0.12, 0.56)
+  const HOLD_AT = 0.26 // hvor langt fra hodet han holder den
+  const MG = MOUTH.clone().addScaledVector(DIR_M, HOLD_AT)
+  const FOOT_M = MOUTH.clone().addScaledVector(DIR_M, CIG)
+  const HAND_OFF = new THREE.Vector3(0, 0.035, 0.012) // hånden ligger litt over sigaren
+  const MGH = MG.clone().add(HAND_OFF)
+  const REST_R = P(0.84, -0.24, 0.52)
+  const LIGHT_DIR = D(-0.4, 0.85, -0.15)
+  const LIGHT_HAND = FOOT_M.clone().addScaledVector(DIR_M, 0.035).addScaledVector(LIGHT_DIR, -0.21)
+  // Sigaren i hånden: hvor han holder den, og hvilken vei den peker (fra hodet mot gloen)
+  const cigGrip: Key[] = [
+    [0.55, P(0.4, 0.07, 0.66)],
+    [0.95, P(0.5, 0.1, 0.8)],
+    [1.3, P(0.5, 0.16, 0.82)],
+    [1.6, P(0.4, 0.07, 0.84)],
+    [2.0, P(0.3, 0.07, 0.84)],
+    [2.35, P(0.4, 0.07, 0.84)],
+    [2.75, MG],
+    [3.15, MG],
+    [3.45, MG.clone().add(new THREE.Vector3(0.05, 0, 0.07))],
+    [3.75, MG],
+    [9.2, MG],
+    [9.6, P(0.66, 0, 0.7)],
+    [10.0, P(0.66, 0.02, 0.7)],
+    [10.4, MG],
+    [12.5, MG],
+    [12.9, P(0.5, 0.2, 0.8)],
+    [13.3, P(0.4, 0.12, 0.7)],
+    [13.55, P(0.34, 0.1, 0.6)],
+  ]
+  const cigDir: Key[] = [
+    [0.55, D(0.55, 0, 0.83)],
+    [0.95, D(0.7, 0.1, 0.7)],
+    [1.3, D(1, 0.12, 0.08)],
+    [1.6, D(1, 0, -0.05)],
+    [2.35, D(1, 0, -0.05)],
+    [2.75, DIR_M],
+    [9.2, DIR_M],
+    [9.6, D(0.85, 0.45, 0.25)],
+    [10.0, D(0.85, 0.45, 0.25)],
+    [10.4, DIR_M],
+    [12.5, DIR_M],
+    [12.9, D(0.6, 0.2, 0.75)],
+    [13.3, D(0.55, 0.1, 0.83)],
+  ]
+  // Høyre hånd når den ikke holder sigaren: inn i lokket, stryker fyrstikken mot fatkanten, tenner, rister den ut og kaster den
+  const handKeys: Key[] = [
+    [0, REST_R],
+    [0.5, P(0.42, 0.11, 0.68)],
+    [0.55, P(0.4, 0.105, 0.672)],
+    [4.0, MGH],
+    [4.35, P(0.92, 0.04, 0.2)],
+    [4.45, P(0.92, 0.04, 0.2)],
+    [4.62, P(0.92, 0.04, 0.52)],
+    [5.0, LIGHT_HAND],
+    [6.45, LIGHT_HAND],
+    [6.55, P(0.8, -0.04, 0.74)],
+    [6.95, P(0.8, -0.04, 0.74)],
+    [7.05, P(0.97, 0.1, 0.5)],
+    [7.6, REST_R],
+    [9.0, REST_R],
+    [9.2, MGH],
+    [10.4, MGH],
+    [10.8, REST_R],
+    [12.25, REST_R],
+    [12.5, MGH],
+    [13.55, P(0.36, 0.13, 0.62)],
+    [14.3, REST_R],
+  ]
+  const matchDir: Key[] = [
+    [4.1, D(-0.3, -0.8, 0.2)],
+    [4.35, D(-0.55, -0.45, 0.25)],
+    [4.62, D(-0.55, -0.45, 0.25)],
+    [5.0, LIGHT_DIR],
+    [6.45, LIGHT_DIR],
+    [6.55, D(-0.1, 1, 0)],
+    [7.05, D(0.3, 0.9, 0.2)],
+  ]
+  /** Hvor sigaren er: 0 borte (i lokket), 1 i hånden, 2 i munnviken. */
+  const cigState = (r: number) => (r < 0.55 || r >= 13.55 ? 0 : r < 4 || (r >= 9.2 && r < 10.4) || r >= 12.5 ? 1 : 2)
+  /** Gloen: tennes, og blir sterkere når han drar inn. */
+  const heatAt = (r: number) =>
+    r < 5.4 || r >= 13.55 ? 0 : clamp((r - 5.4) / 0.9, 0, 1) * (0.5 + 0.5 * Math.min(1, win(r, 7.8, 8.3, 0.2) + win(r, 11, 11.5, 0.2) + 0.6 * win(r, 5.6, 6.4, 0.2)))
+  const ashAt = (r: number) => (r < 6.5 ? 0 : 0.075 * clamp((r - 6.5) / 6, 0, 1))
+  /** Han puster ut: én gang med sigaren i munnen, én med den i hånden, og én til. */
+  const exhaleAt = (r: number) => win(r, 8.35, 8.85, 0.12) + win(r, 9.75, 10.15, 0.12) + win(r, 11.55, 12.05, 0.12)
+  const UP = new THREE.Vector3(0, 1, 0)
+  const XAX = new THREE.Vector3(1, 0, 0)
+  const tmpA = new THREE.Vector3()
+  const tmpB = new THREE.Vector3()
+  const handPos = new THREE.Vector3()
+  const EXHALE_AT = P(0.06, 0.04, 0.72)
+  const LID_AT = P(0, 0.05, 0.74)
+  // Røyken tegnes på et eget lerret i demolinjen (2D): myke dotter som siger ut over vakt-knappen
+  const puffImg = document.createElement('canvas')
+  puffImg.width = puffImg.height = 64
+  {
+    const g = puffImg.getContext('2d')!
+    const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32)
+    gr.addColorStop(0, 'rgba(240,234,228,1)')
+    gr.addColorStop(0.5, 'rgba(232,226,220,0.45)')
+    gr.addColorStop(1, 'rgba(230,224,218,0)')
+    g.fillStyle = gr
+    g.fillRect(0, 0, 64, 64)
+  }
+
   // ── Løsning for armene: skulder og albue som når frem til et punkt, med albuen mot en «stang» ──
   const DOWN = new THREE.Vector3(0, -1, 0)
   const v1 = new THREE.Vector3()
@@ -785,7 +983,7 @@ async function build(): Promise<Stage> {
     stage = null
   })
 
-  const run = (L: Live, host: HTMLElement, view: View) => {
+  const run = (L: Live, host: HTMLElement, view: View, smoke: HTMLCanvasElement | null = null) => {
     stopActive()
     // Lerretet tilpasses: samme kameraavstand, så han ser lik ut hjemme og ute – bare mindre
     renderer.setSize(view.w, view.h)
@@ -795,6 +993,68 @@ async function build(): Promise<Stage> {
     camera.updateProjectionMatrix()
     host.appendChild(renderer.domElement)
     let drawn = false
+    hideProps()
+    // Sigarstunden: 5 s etter at han kom hjem, og så hvert 30. sekund (15 s med sigar, 15 s pause)
+    const ritFrom = performance.now() + 5000
+    let propsOn = false
+    // Røyken: myke dotter på et 2D-lerret som dekker demolinjen fra ham og ut til vakt-knappen
+    type Puff = { x: number; y: number; vx: number; vmin: number; vy: number; r: number; grow: number; age: number; life: number; a: number; seed: number }
+    const sctx = view.home ? (smoke?.getContext('2d') ?? null) : null
+    const puffs: Puff[] = []
+    const acc: Record<string, number> = {}
+    const sdpr = Math.min(window.devicePixelRatio || 1, 2)
+    let sw = 0
+    let sh = 0
+    let sTop = 0
+    let fitAt = 0
+    let smokeDirty = false
+    const fitSmoke = () => {
+      const ctl = host.closest('.demo-ctl')
+      if (!smoke || !ctl) return
+      const H = host.getBoundingClientRect()
+      const C = ctl.getBoundingClientRect()
+      // Røyken går ut over vakt-knappen, og ikke lenger (etter vakten: ut over Emma og Kari)
+      const end = (ctl.querySelector("[data-guide='start']") ?? ctl.querySelector('.role-switch'))?.getBoundingClientRect()
+      const w = Math.max(view.w, Math.round((end ? end.right : H.right) - H.left))
+      const h = Math.max(view.h, Math.round(C.height))
+      sTop = Math.round(C.top - H.top)
+      if (w !== sw || h !== sh) {
+        sw = w
+        sh = h
+        smoke.width = w * sdpr
+        smoke.height = h * sdpr
+        smoke.style.width = `${w}px`
+        smoke.style.height = `${h}px`
+      }
+      smoke.style.top = `${sTop}px`
+    }
+    type PuffKind = { r: number; grow: number; vx: number; vmin: number; vy: number; life: number; a: number; spread?: number }
+    /** Ny røykdott fra et punkt i scenen (verdenskoordinater). */
+    const emit = (world: T.Vector3, o: PuffKind) => {
+      if (!sctx || puffs.length > 90) return
+      world.project(camera)
+      const j = o.spread ?? 0.3
+      puffs.push({
+        x: ((world.x + 1) / 2) * view.w,
+        y: ((1 - world.y) / 2) * view.h - sTop,
+        vx: o.vx * (1 + (Math.random() - 0.5) * j),
+        vmin: o.vmin,
+        vy: o.vy + (Math.random() - 0.5) * 6 * j,
+        r: o.r,
+        grow: o.grow * (1 + (Math.random() - 0.5) * j),
+        age: 0,
+        life: o.life,
+        a: o.a,
+        seed: Math.random() * 6,
+      })
+      smokeDirty = true
+    }
+    const every = (key: string, sec: number, dt: number) => {
+      acc[key] = (acc[key] ?? 0) + dt
+      if (acc[key] < sec) return false
+      acc[key] -= sec
+      return true
+    }
     const still = reduced()
     const t0 = performance.now()
     let last = t0
@@ -854,15 +1114,19 @@ async function build(): Promise<Stage> {
       last = now
       const t = (now - t0) / 1000
       const talking = !still && !L.leaving && now >= L.talkFrom && now < L.talkTo
+      // Sigarstunden (bare hjemme i demolinjen) – vanene venter så lenge
+      const rc = now - ritFrom
+      const rit = view.home && !still && !L.leaving && rc >= 0 && rc % 30000 < RIT * 1000 ? (rc % 30000) / 1000 : -1
+      if (rit >= 0) L.nextIdle = Math.max(L.nextIdle, now + 2500)
       // Små vaner når han venter: snurrer barten, retter på monokkelen, pusser klokka, titter, vipper, klaprer
-      if (!still && now > L.nextIdle && !L.leaving && !talking) {
+      if (!still && now > L.nextIdle && !L.leaving && !talking && rit < 0) {
         const list = view.home ? homeHabits : habits
         L.action = list[Math.floor(Math.random() * list.length)]
         L.actionAt = now
         L.nextIdle = now + DURATION[L.action] * 1000 + (view.home ? 6000 + Math.random() * 6000 : 4500 + Math.random() * 4000)
       }
       const p = still ? 1 : Math.min(1, (now - L.actionAt) / 1000 / DURATION[L.action])
-      const acting = p < 1
+      const acting = p < 1 && rit < 0
       const tp = (now - L.pointFrom) / 1000
       // Peking: først pekefinger (med to små prikk), så en rolig flat hånd mot knappen, så hvile.
       // Minner han deg på hvor du skal trykke, peker han dit – alltid med pekefingeren.
@@ -1146,6 +1410,70 @@ async function build(): Promise<Stage> {
         }
       }
 
+      // Sigarstunden: lokket, ansiktet og hendene følger tidslinjen
+      if (rit >= 0) {
+        const r = rit
+        const st = cigState(r)
+        // Lokket: titter i lokket, klipper (vidt opp og smekk igjen), holder sigaren, puster ut, og legger den tilbake
+        let ro = 0.2 * win(r, 0.35, 0.85, 0.3)
+        let rl = 0.14 * win(r, 0.35, 0.85, 0.3)
+        if (r > 2.55 && r < 3.6) ro = r < 3.05 ? 0.42 * ease((r - 2.55) / 0.5) : r < 3.13 ? 0.42 * (1 - (r - 3.05) / 0.08) : 0.03
+        else if (r >= 3.6 && r < 4) ro = 0.09
+        if (st === 2) ro = 0.05
+        if (r > 5.3 && r < 6.4) ro += 0.03 * Math.abs(Math.sin(r * 14))
+        const ex = exhaleAt(r)
+        open = Math.max(ro, 0.11 * ex, 0.26 * win(r, 12.95, 13.6, 0.3))
+        lift = Math.max(rl, 0.02 * ex, 0.2 * win(r, 12.95, 13.6, 0.3), 0.035 * win(r, 14.2, 14.35, 0.1))
+        // Blikket: på lokket, sigaren, munnviken, fyrstikken og gloen
+        if (r < 0.9) {
+          gx = 0.3
+          gy = 0.3
+        } else if (r < 1.55) {
+          gx = 0.25
+          gy = 0.38
+        } else if (r >= 2.5 && r < 3.6) {
+          gx = 0.2
+          gy = 0.5
+        } else if (r >= 3.6 && r < 4.7) {
+          gx = 0.45
+          gy = 0.45
+        } else if (r >= 4.7 && r < 6.5) {
+          gx = 0.35
+          gy = 0.28
+        } else if (r >= 9.4 && r < 10.2) {
+          gx = 0.45
+          gy = 0.05
+        } else if (r >= 12.8 && r < 13.6) {
+          gx = 0.25
+          gy = -0.25
+        }
+        // Øynene: lukket når han lukter, store når lokket smeller, halvlukket og fornøyd når han røyker
+        const sniff = win(r, 1.65, 2.45)
+        const content = Math.min(1, win(r, 7.2, 9.1, 0.3) + win(r, 10.5, 12.4, 0.3))
+        const drag = Math.min(1, win(r, 7.8, 8.3) + win(r, 11, 11.5))
+        const wide = win(r, 3.13, 3.5, 0.05)
+        up[0] = up[1] = mix(mix(mix(0.64, 0.25, content), -0.55, Math.max(sniff, drag * 0.7)), 0.95, wide)
+        smile = Math.max(sniff, content * 0.6, win(r, 14.1, 15, 0.2))
+        happy = happy || ex > 0.5 || win(r, 14.1, 15, 0.2) > 0.5
+        browUp = Math.max(browUp, 0.02 * win(r, 0.3, 1.5, 0.2), 0.03 * wide, 0.015 * sniff)
+        pitch -= 0.05 * content
+        squashY -= 0.05 * bell((r - 3.13) / 0.22)
+        // Venstre hånd: «Ahh» med flat hånd når han puster ut første gang
+        const fl = win(r, 8.3, 9, 0.25)
+        if (fl > 0) pose(0, mix(0.84, 1.02, fl), mix(-0.24, 0.05, fl), mix(0.52, 0.5, fl), fl > 0.4 ? PALM : RELAX, 0, [1, -0.8, -0.3])
+        // Høyre hånd: tar, holder, klipper, tenner og legger tilbake
+        const w = want[1]
+        if (st === 1) keyed(cigGrip, r, w.target).add(HAND_OFF)
+        else {
+          keyed(handKeys, r, w.target)
+          if (r > 6.55 && r < 6.95) w.target.x += Math.sin((r - 6.55) * 70) * 0.05
+          if (r > 5.2 && r < 6.45) w.target.y += Math.sin(r * 9) * 0.006
+        }
+        w.pole.set(1, -0.6, -0.45)
+        w.grip = st === 1 || (r >= 4.1 && r < 7.05) ? GRIP : RELAX
+        w.wrist = 0
+      }
+
       // I farten: han lener seg inn i svingen og ser dit han skal, strekker seg litt, og armene henger etter
       roll += -fx * 0.38
       pitch += fy * 0.14
@@ -1234,6 +1562,68 @@ async function build(): Promise<Stage> {
         arm.hand.rotation.set(0, arm.grip.twist * arm.s, w.wrist)
       }
 
+      // Sigaren og fyrstikken følger hånden – eller sigaren sitter i munnviken
+      if (rit >= 0) {
+        const r = rit
+        propsOn = true
+        const st = cigState(r)
+        arms[1].hand.updateWorldMatrix(true, false)
+        root.worldToLocal(arms[1].hand.localToWorld(handPos.set(0, -0.07, 0)))
+        cigar.visible = st > 0
+        if (st > 0) {
+          if (st === 1) {
+            keyed(cigDir, r, tmpA).normalize()
+            tmpB.copy(handPos).sub(HAND_OFF).addScaledVector(tmpA, -HOLD_AT)
+          } else {
+            tmpA.copy(DIR_M)
+            tmpB.copy(MOUTH)
+          }
+          cigar.position.copy(tmpB)
+          cigar.quaternion.setFromUnitVectors(XAX, tmpA)
+          cigCap.visible = r < 3.15
+          const heat = heatAt(r)
+          const ashLen = ashAt(r)
+          ash.visible = ashLen > 0.004
+          ash.scale.y = Math.max(0.001, ashLen)
+          ash.position.x = CIG + ashLen / 2
+          ember.position.x = emberGlow.position.x = CIG + ashLen + 0.003
+          emberMat.color.copy(COLD).lerp(HOT, heat)
+          emberGlow.visible = heat > 0.02
+          emberGlow.scale.setScalar(0.1 + 0.2 * heat * (1 + 0.08 * Math.sin(now * 0.02)))
+        }
+        // Tuppen faller ut av munnen
+        capBit.visible = r >= 3.15 && r < 3.8
+        if (capBit.visible) {
+          const k = r - 3.15
+          capBit.position.set(MOUTH.x + 0.06 * k, MOUTH.y - 2.2 * k * k, MOUTH.z + 0.1 * k)
+          capBit.rotation.set(k * 9, 0, Math.PI / 2 + k * 6)
+        }
+        match.visible = r >= 4.1 && r < 7.7
+        if (match.visible) {
+          keyed(matchDir, Math.min(r, 7.05), tmpA).normalize()
+          if (r < 7.05) match.position.copy(handPos).add(tmpB.set(0, -0.01, 0.025))
+          else {
+            // Kastet: den faller og snurrer
+            const k = r - 7.05
+            keyed(handKeys, 7.05, match.position).add(tmpB.set(0.25 * k, 0.35 * k - 2.6 * k * k, 0))
+            tmpA.applyAxisAngle(XAX, k * 10).normalize()
+          }
+          match.quaternion.setFromUnitVectors(UP, tmpA)
+          const burning = r >= 4.62 && r < 6.75
+          flame.visible = burning
+          headMat.color.copy(r >= 4.62 ? BURNT : RED_HEAD)
+          if (burning) {
+            const flare = r < 4.87 ? 1 + 0.8 * (1 - (r - 4.62) / 0.25) : 1
+            flame.scale.setScalar(flare * (1 + 0.12 * Math.sin(now * 0.031) + 0.08 * Math.sin(now * 0.017)))
+            // Flammen står rett opp, uansett hvordan fyrstikken holdes
+            flame.quaternion.copy(match.quaternion).invert()
+          }
+        }
+      } else if (propsOn) {
+        propsOn = false
+        hideProps()
+      }
+
       // Beina: knærne bøyer seg når han klemmes sammen, og sparker litt når han hopper.
       // I farten henger de etter, og på vei ned trekker han dem opp.
       const crouch = clamp((1 - squashY) * 4, 0, 1)
@@ -1305,6 +1695,50 @@ async function build(): Promise<Stage> {
         sp.m.scale.setScalar(Math.max(0.01, 1.3 * (1 - k)))
         sp.m.rotation.set(k * 6, k * 4, 0)
       }
+      // Røyken: fra gloen, fra munnen når han puster ut, fra fyrstikken og under lokket – siger ut over vakt-knappen og blekner der
+      if (sctx) {
+        if (now > fitAt) {
+          fitSmoke()
+          fitAt = now + 1000
+        }
+        if (rit >= 0) {
+          const r = rit
+          cigar.updateMatrixWorld(true)
+          match.updateMatrixWorld(true)
+          if (cigar.visible && heatAt(r) > 0.05) {
+            const lighting = r < 6.4
+            if (every(lighting ? 'tenn' : 'glo', lighting ? 0.2 : 0.16, dt))
+              emit(cigar.localToWorld(tmpB.set(CIG + ashAt(r) + 0.01, 0, 0)), lighting ? { r: 1.6, grow: 4.5, vx: 22, vmin: 16, vy: -6, life: 4, a: 0.22 } : { r: 1.2, grow: 3.2, vx: 20, vmin: 18, vy: -4, life: 7, a: 0.11 })
+          }
+          if (exhaleAt(r) > 0.5 && every('pust', 0.07, dt)) emit(root.localToWorld(tmpB.copy(EXHALE_AT)), { r: 2.2, grow: 5, vx: 80, vmin: 28, vy: -3, life: 7, a: 0.17, spread: 0.6 })
+          if (r > 6.75 && r < 7 && every('fyrstikk', 0.08, dt)) emit(match.localToWorld(tmpB.set(0, 0.22, 0)), { r: 1, grow: 3, vx: 12, vmin: 10, vy: -8, life: 3, a: 0.25 })
+          if (r > 14.22 && r < 14.45 && every('lokk', 0.06, dt)) emit(root.localToWorld(tmpB.copy(LID_AT)), { r: 2, grow: 5, vx: 34, vmin: 22, vy: -3, life: 5, a: 0.16 })
+        }
+        if (puffs.length || smokeDirty) {
+          sctx.setTransform(sdpr, 0, 0, sdpr, 0, 0)
+          sctx.clearRect(0, 0, sw, sh)
+          for (let i = puffs.length - 1; i >= 0; i--) {
+            const q = puffs[i]
+            q.age += dt
+            if (q.age >= q.life) {
+              puffs.splice(i, 1)
+              continue
+            }
+            q.vx = q.vmin + (q.vx - q.vmin) * Math.exp(-1.4 * dt)
+            q.x += (q.vx + Math.sin(q.age * 1.7 + q.seed) * 5) * dt
+            q.y += (q.vy + Math.cos(q.age * 1.3 + q.seed) * 3) * dt
+            q.vy *= Math.exp(-0.5 * dt)
+            q.r += q.grow * dt
+            // Blekner med alderen, og helt ut før høyre kant av vakt-knappen (og øverst i linjen)
+            const a = q.a * Math.min(1, q.age / 0.35) * (1 - q.age / q.life) ** 1.3 * clamp((sw - q.x - q.r * 0.3) / 36, 0, 1) * clamp((q.y + q.r * 0.5) / 12, 0, 1)
+            if (a <= 0.003) continue
+            sctx.globalAlpha = a
+            sctx.drawImage(puffImg, q.x - q.r, q.y - q.r, q.r * 2, q.r * 2)
+          }
+          sctx.globalAlpha = 1
+          smokeDirty = puffs.length > 0
+        }
+      }
       renderer.render(scene, camera)
       drawn = true
     }
@@ -1313,6 +1747,10 @@ async function build(): Promise<Stage> {
       cancelAnimationFrame(raf)
       window.removeEventListener('pointerdown', onDown, true)
       renderer.domElement.remove()
+      if (sctx && smoke) {
+        sctx.setTransform(1, 0, 0, 1, 0, 0)
+        sctx.clearRect(0, 0, smoke.width, smoke.height)
+      }
       if (stopActive === stop) stopActive = () => {}
     }
     stopActive = stop
@@ -1429,6 +1867,7 @@ export function Domeo3D({
 /** Sir Domeo hjemme i demolinjen: liten, rolig og levende. Når han er ute og viser deg rundt, står plassen hans tom. */
 export function DomeoHome({ fallback }: { fallback: ReactNode }) {
   const host = useRef<HTMLSpanElement>(null)
+  const smoke = useRef<HTMLCanvasElement>(null)
   const [here, setHere] = useState(false)
   const [flat, setFlat] = useState(false)
   const [L] = useState(() => {
@@ -1438,7 +1877,7 @@ export function DomeoHome({ fallback }: { fallback: ReactNode }) {
   })
   useEffect(() => {
     if (!host.current) return
-    const me = { L, host: host.current, here: setHere }
+    const me = { L, host: host.current, here: setHere, smoke: smoke.current }
     home = me
     preloadDomeo()
       .then(() => backHome(false))
@@ -1451,6 +1890,8 @@ export function DomeoHome({ fallback }: { fallback: ReactNode }) {
   }, [L])
   return (
     <span className={`kg-home ${here || flat ? '' : 'out'}`} ref={host} aria-hidden="true">
+      {/* Sigarrøyken siger ut over vakt-knappen */}
+      <canvas className="kg-smoke" ref={smoke} />
       {flat && fallback}
     </span>
   )

@@ -259,6 +259,16 @@
 .kg-home canvas {
   display: block;
 }
+/* Sigarrøyken: et lerret fra ham og ut over vakt-knappen, over knappene, uten å ta trykk */
+.kg-home .kg-smoke {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: 3;
+  pointer-events: none;
+}
 .demo-ctl .kg-home svg {
   width: 40px;
   height: 40px;
