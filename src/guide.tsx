@@ -327,6 +327,8 @@ const tourSteps = (watchOn: boolean): TourStep[] => [
     ch: 5,
     route: '/mal',
     at: '.gl-records',
+    // Nede i hjørnet: boblen skal ikke dekke lagmålet han forteller om
+    place: 'corner',
     aim: ['.yg.tile', '.gl-others', '.gl-records'],
     mood: 'point',
     move: 'pick',
