@@ -6,7 +6,7 @@
 // Lokket er munnen hans: det går opp og ned mens han snakker. Den flate Sir Domeo (SVG) brukes i demolinjen og uten WebGL.
 
 import { useEffect, useId, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
-import { config } from './config.ts'
+import { colleagueName, config } from './config.ts'
 import { L } from './i18n.ts'
 import { navigate, useRoute } from './router.ts'
 import { MANUAL, useStore } from './state.tsx'
@@ -165,8 +165,9 @@ type TourStep = {
   place?: Place
   aim?: string[]
   hand?: Hand
-  /** «Prøv selv»: et trykk her tar omvisningen videre. */
+  /** «Prøv selv»: et trykk her tar omvisningen videre (etter `tapDelay` ms, så trykket rekker å vise seg). */
   tap?: string[]
+  tapDelay?: number
   /** Pulserende ring rundt noe han nevner, uten at det må trykkes. */
   ring?: string[]
   /** Detaljsider: rull så dette ligger øverst, så boblen får plass under det han forklarer. */
@@ -182,27 +183,39 @@ type TourStep = {
 }
 const MONTH = '/maned/2026-09'
 const chapters = () => [L('Velkommen', 'Welcome'), L('Før vakten', 'Before the shift'), L('Under vakten', 'During the shift'), L('Historikk', 'History'), L('Måneden din', 'Your month'), 'Goals', L('Meg', 'Me'), L('Ferdig', 'Done')]
-const games = [1, 2, 3, 4].map((n) => `.game-pick .game-card:nth-child(${n})`)
 const tile = (t: string) => `.st-tile[data-topic=${t}]`
+const tab = (t: string) => `[data-tab='${t}']`
+const section = (n: number) => `.st-detail > section:nth-of-type(${n})`
+/** Det omvisningen trenger å vite om demoen: er klokka på, hvilket spill er valgt, og med hvem. */
+type TourCtx = { watchOn: boolean; game: string; mate: string }
 
-const tourSteps = (watchOn: boolean): TourStep[] => [
+// Der det går, trykker du selv på knappene – omvisningen går videre av seg selv når du gjør det.
+// «Neste» står bare der det ikke finnes noe å trykke på.
+const tourSteps = ({ watchOn, game, mate }: TourCtx): TourStep[] => [
   {
     ch: 1,
     route: '/vakt',
     at: '.game-pick',
-    aim: games,
+    aim: ['.game-pick .game-card:nth-child(1)', '.game-pick .game-card:nth-child(2)'],
+    tap: ['.game-pick .game-card:nth-child(1)', '.game-pick .game-card:nth-child(2)'],
+    tapDelay: 700,
     mood: 'point',
     move: 'pick',
-    text: () => L('Du er Emma, og det er fredag på Brasserie Fjordgata. Før vakten velger du kveldens spill.', 'You’re Emma, and it’s Friday at Brasserie Fjordgata. Before the shift, you pick tonight’s game.'),
+    text: () => L('Du er Emma, og det er fredag på Brasserie Fjordgata. Før vakten velger du kveldens spill – trykk på Duell eller Makker.', 'You’re Emma, and it’s Friday at Brasserie Fjordgata. Before the shift, you pick tonight’s game – tap Duel or Buddy.'),
   },
   {
     ch: 1,
     route: '/vakt',
     at: '.invite',
-    aim: ['.invite'],
+    aim: ['.invite .inv-faces'],
+    tap: ['.invite .inv-face'],
+    tapDelay: 1400,
     mood: 'point',
     move: 'hop',
-    text: () => L('Spill er morsommere sammen. Velg hvem du vil invitere – Jonas har allerede sagt ja til en duell.', 'Games are more fun together. Choose who to invite – Jonas has already said yes to a duel.'),
+    text: () =>
+      game === 'makker'
+        ? L('Spill er morsommere sammen. Trykk på kollegaen du vil være makker med.', 'Games are more fun together. Tap the colleague you want as your buddy.')
+        : L('Spill er morsommere sammen. Trykk på kollegaen du vil utfordre.', 'Games are more fun together. Tap the colleague you want to challenge.'),
   },
   {
     ch: 1,
@@ -210,6 +223,7 @@ const tourSteps = (watchOn: boolean): TourStep[] => [
     at: '.watch-toggle',
     aim: ['.watch-toggle'],
     tap: watchOn ? undefined : ['.watch-toggle'],
+    tapDelay: 900,
     mood: 'point',
     move: 'watch',
     text: () =>
@@ -243,13 +257,14 @@ const tourSteps = (watchOn: boolean): TourStep[] => [
     route: '/vakt/helse',
     place: 'corner',
     scroll: '.st-hero',
-    aim: ['.st-hero', '.st-detail > section:nth-of-type(2)'],
+    aim: ['.st-hero', section(2)],
+    tap: [tab('vakt')],
     mood: 'point',
     move: 'pick',
     text: () =>
       L(
-        'Her ser du pulsen din nå, stresset kvarter for kvarter – lav, middels eller høy – og skrittene dine. Alt kommer fra klokka.',
-        'Here’s your heart rate right now, stress quarter by quarter – low, medium or high – and your steps. It all comes from the watch.',
+        'Her ser du pulsen din nå, stresset kvarter for kvarter og skrittene dine – alt fra klokka. Trykk på Vakt nederst for å gå tilbake.',
+        'Here’s your heart rate right now, stress quarter by quarter and your steps – all from the watch. Tap Shift at the bottom to go back.',
       ),
   },
   {
@@ -267,14 +282,14 @@ const tourSteps = (watchOn: boolean): TourStep[] => [
     route: '/vakt/konkurranse',
     place: 'corner',
     scroll: '.st-feature',
-    aim: ['.st-feature', '.st-detail > section:nth-of-type(2)'],
+    aim: ['.st-feature', section(2)],
+    tap: [tab('vakt')],
     mood: 'point',
     move: 'monocle',
     text: () =>
-      L(
-        'Her er spillene: duellen mot Jonas, og laget mot forrige fredag på samme tid. Vil du ha en rolig kveld, kan du skjule alt.',
-        'Here are the games: the duel with Jonas, and the team against last Friday at the same time. Want a calm evening? You can hide all of it.',
-      ),
+      game === 'makker'
+        ? L('Her er spillene: makkermålet med {name}, og laget mot forrige fredag på samme tid. Trykk på Vakt for å gå tilbake.', 'Here are the games: your buddy goal with {name}, and the team against last Friday at the same time. Tap Shift to go back.', { name: mate })
+        : L('Her er spillene: duellen mot {name}, og laget mot forrige fredag på samme tid. Trykk på Vakt for å gå tilbake.', 'Here are the games: the duel with {name}, and the team against last Friday at the same time. Tap Shift to go back.', { name: mate }),
   },
   {
     ch: 2,
@@ -291,11 +306,15 @@ const tourSteps = (watchOn: boolean): TourStep[] => [
     route: '/vakt/salg',
     place: 'corner',
     scroll: '.st-hero',
-    aim: ['.st-hero', '.st-detail > section:nth-of-type(2)', '.st-detail > section:nth-of-type(3)'],
+    aim: ['.st-hero', section(2), section(3)],
+    tap: [tab('vakt')],
     mood: 'point',
     move: 'pick',
     text: () =>
-      L('Her ser du hva du har solgt, tipsen og hvor nær du er rekorden din – og salget per halvtime.', 'Here’s what you’ve sold, your tips and how close you are to your record – and sales per half hour.'),
+      L(
+        'Her ser du hva du har solgt, tipsen, rekorden din og salget per halvtime. Trykk på Vakt for å gå tilbake.',
+        'Here’s what you’ve sold, your tips, your record and sales per half hour. Tap Shift to go back.',
+      ),
   },
   {
     ch: 2,
@@ -312,27 +331,24 @@ const tourSteps = (watchOn: boolean): TourStep[] => [
     at: '.kd-row',
     aim: ['.kd-person'],
     tap: ['.kd-person'],
+    tapDelay: 1300,
     mood: 'point',
     move: 'dance',
     text: () => L('Og nå det beste: kudos! Trykk på en kollega for å sende ros – så mange ganger du vil.', 'And now the best part: kudos! Tap a colleague to send praise – as many times as you like.'),
   },
   {
-    ch: 2,
-    route: '/vakt',
-    at: '.kd-row',
-    mood: 'cheer',
-    move: 'twirl',
-    text: () => L('Herlig! Når noen sender deg kudos, regner det over skjermen. Alt samles i månedsoppsummeringen din.', 'Lovely! When someone sends you kudos, it rains across the screen. It all adds up in your monthly summary.'),
-  },
-  {
     ch: 3,
     route: '/vakt',
-    at: "[data-tab='historikk']",
-    aim: ["[data-tab='historikk']"],
-    tap: ["[data-tab='historikk']"],
-    mood: 'point',
-    move: 'look',
-    text: () => L('Vakten går videre av seg selv. Alt du gjør, lagres – trykk på Historikk, så tar vi en titt.', 'The shift keeps going by itself. Everything you do is saved – tap History and let’s take a look.'),
+    at: tab('historikk'),
+    aim: [tab('historikk')],
+    tap: [tab('historikk')],
+    mood: 'cheer',
+    move: 'twirl',
+    text: () =>
+      L(
+        'Herlig! Når noen sender deg kudos, regner det over skjermen. Alt du gjør, lagres – trykk på Historikk.',
+        'Lovely! When someone sends you kudos, it rains across the screen. Everything you do is saved – tap History.',
+      ),
   },
   {
     ch: 3,
@@ -347,40 +363,53 @@ const tourSteps = (watchOn: boolean): TourStep[] => [
   { ch: 4, route: MONTH, story: true, mood: 'wave', move: 'tip', text: () => '' },
   {
     ch: 5,
+    route: '/historikk',
+    at: tab('mal'),
+    aim: [tab('mal')],
+    tap: [tab('mal')],
+    mood: 'point',
+    move: 'look',
+    text: () => L('Så Goals – trykk på fanen.', 'Next, Goals – tap the tab.'),
+  },
+  {
+    ch: 5,
     route: '/mal',
     at: '.gl-records',
     // Nede i hjørnet: boblen skal ikke dekke lagmålet han forteller om
     place: 'corner',
     aim: ['.yg.tile', '.gl-others', '.gl-records'],
+    tap: [tab('meg')],
     mood: 'point',
     move: 'pick',
     text: () =>
       L(
-        'Goals er det dere jobber mot: årets lagmål – en tur til Frankrike for hele laget – premier dere kan vinne sammen, og rekordene dine.',
-        'Goals is what you work toward together: this year’s team goal – a trip to France for the whole team – prizes you can win together, and your records.',
+        'Goals er det dere jobber mot: årets lagmål – en tur til Frankrike for hele laget – premier dere kan vinne sammen, og rekordene dine. Trykk på Meg.',
+        'Goals is what you work toward together: this year’s team goal – a trip to France for the whole team – prizes you can win together, and your records. Tap Me.',
       ),
-  },
-  {
-    ch: 6,
-    route: '/meg',
-    at: '.lv-card',
-    aim: ['.lv-card'],
-    mood: 'point',
-    move: 'tip',
-    text: () => L('Dette er deg: nivået ditt og XP fra vaktene, pluss innstillinger som rolig modus.', 'This is you: your level and XP from your shifts, plus settings like calm mode.'),
   },
   {
     ch: 6,
     route: '/meg',
     at: '.pm-row',
-    aim: ['.pm-row'],
+    aim: ['.lv-card', '.pm-row'],
+    tap: ['.pm-row'],
     mood: 'point',
-    move: 'hop',
+    move: 'pick',
     text: () =>
       L(
-        'Og poletter! Du får dem for innsats – hver fjerde vakt, når laget når målet, eller når du tar en ekstra vakt. Bruk dem i Personalmenyen på fri, mat eller et gavekort.',
-        'And tokens! You earn them for effort – every fourth shift, when the team hits its goal, or when you take an extra shift. Spend them in the Staff menu on time off, food or a gift card.',
+        'Dette er deg: nivået ditt og XP fra vaktene. Poletter får du for innsats – hver fjerde vakt, når laget når målet, eller når du tar en ekstra vakt. Trykk på Personalmenyen.',
+        'This is you: your level and XP from your shifts. Tokens you earn for effort – every fourth shift, when the team hits its goal, or when you take an extra shift. Tap the Staff menu.',
       ),
+  },
+  {
+    ch: 6,
+    route: '/meg/meny',
+    place: 'corner',
+    aim: ['.pm-wallet'],
+    tap: [tab('vakt')],
+    mood: 'wink',
+    move: 'stache',
+    text: () => L('Her bruker du poletter: fri, mat, gaver – eller spar til et gavekort. Trykk på Vakt for å gå tilbake til vakten.', 'Here’s where you spend tokens: time off, food, gifts – or save up for a gift card. Tap Shift to go back to the shift.'),
   },
   {
     ch: 7,
@@ -403,14 +432,16 @@ const tourSteps = (watchOn: boolean): TourStep[] => [
 const START = 3
 
 // Programlederen i månedsoppsummeringen: én kort replikk per side
-const storyLines = (): Record<string, { text: string; move: Action; mood: Mood }> => ({
+const storyLines = (touring: boolean): Record<string, { text: string; move: Action; mood: Mood }> => ({
   apning: { text: L('God kveld, og velkommen til september! Her er måneden din.', 'Good evening, and welcome to September! Here’s your month.'), move: 'tip', mood: 'wave' },
   gjester: { text: L('Så mange gjester – du kunne fylt restauranten flere ganger!', 'So many guests – you could have filled the restaurant several times!'), move: 'look', mood: 'point' },
   gjett: { text: L('Endelig noe jeg kan: lokk! Gjett hva du bar ut mest.', 'Finally something I know about: lids! Guess what you carried out most.'), move: 'monocle', mood: 'point' },
   gikk: { text: L('Og alt sammen til fots – i arbeidssko!', 'And all of it on foot – in work shoes!'), move: 'hop', mood: 'wink' },
   ros: { text: L('Kollegene dine takket deg igjen og igjen. Det kassen ikke kan måle, teller her.', 'Your colleagues thanked you again and again. What the till can’t measure counts here.'), move: 'stache', mood: 'wink' },
   type: { text: L('Og her er typen din – trommevirvel, takk!', 'And here’s your type – drumroll, please!'), move: 'dance', mood: 'cheer' },
-  del: { text: L('Vil du, kan du dele et kort med vaktlaget. Du velger selv hva som vises.', 'If you like, share a card with the team. You choose what it shows.'), move: 'present', mood: 'point' },
+  del: touring
+    ? { text: L('Vil du, kan du dele et kort med vaktlaget. Trykk på krysset når du er ferdig.', 'If you like, share a card with the team. Tap the cross when you’re done.'), move: 'present', mood: 'point' }
+    : { text: L('Vil du, kan du dele et kort med vaktlaget. Du velger selv hva som vises.', 'If you like, share a card with the team. You choose what it shows.'), move: 'present', mood: 'point' },
 })
 
 // Karis telefon: lederens side er ikke ferdig – vi vil ha innspill
@@ -469,7 +500,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   const prevCx = useRef<number | null>(null)
   const held = useRef(false)
   const storyOpened = useRef(false)
-  const steps = tourSteps(settings.watch)
+  const steps = tourSteps({ watchOn: settings.watch, game: demo.game, mate: colleagueName(demo.invites[demo.game === 'makker' ? 'makker' : 'duell']) })
   const touring = g.open && g.mode === 'tour'
   const ts = touring ? steps[Math.min(g.step, steps.length - 1)] : null
   // Programleder i månedsoppsummeringen – men ikke for den som valgte å utforske selv
@@ -488,7 +519,8 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     }, 320)
   }
   const startTour = () => {
-    updateSettings({ guide: 'tour', guideSeen: true })
+    // Klokka står av når omvisningen starter – du skrur den på selv
+    updateSettings({ guide: 'tour', guideSeen: true, watch: false })
     resumeAt = -1
     if (demo.phase !== 'pre') reset()
     go(0)
@@ -590,7 +622,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   // ── Hva han sier og gjør akkurat nå ──
   let view: View | null = null
   if (onStory && st.id) {
-    const line = storyLines()[st.id]
+    const line = storyLines(touring)[st.id]
     if (line) {
       const reveal = st.id === 'gjett' && st.reveal
       view = {
@@ -600,7 +632,9 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
         move: reveal ? 'present' : line.move,
         text: reveal ? 'Voilà!' : line.text,
         host: true,
-        buttons: touring && st.id === 'del' ? [{ label: L('Videre til Goals', 'On to Goals'), kind: 'next', onClick: () => go(g.step + 1) }] : [],
+        // I omvisningen: ringen viser krysset som lukker – da går omvisningen videre
+        ring: touring && st.id === 'del' ? ['.wrapped .w-bar .w-iconbtn:last-child'] : undefined,
+        buttons: [],
       }
     }
   } else if (g.open && g.mode === 'welcome') {
@@ -705,7 +739,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
       if (!tap || !(e.target as Element | null)?.closest?.(tap)) return
       // Vakten starter av seg selv når knappen trykkes; ellers går vi videre litt etter at trykket har vist seg
       if (ts?.start) return
-      window.setTimeout(() => state.open && state.mode === 'tour' && state.step === step && go(step + 1), ts?.tap?.includes('.kd-person') ? 1300 : 0)
+      window.setTimeout(() => state.open && state.mode === 'tour' && state.step === step && go(step + 1), ts?.tapDelay ?? 0)
     }
     document.addEventListener('click', onClick, true)
     return () => {
@@ -718,7 +752,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   // Programlederens boble blekner når han har snakket ferdig, så siden synes
   useEffect(() => {
     setFaded(false)
-    if (!view?.host || view.buttons.length) return
+    if (!view?.host || view.buttons.length || view.ring) return
     const t = window.setTimeout(() => setFaded(true), talkFor(view) + 1700)
     return () => window.clearTimeout(t)
   }, [vkey]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -803,12 +837,14 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
         // Er det for trangt under det han forklarer (små skjermer), står han på fanelinjen i stedet.
         const below = Math.max(A.top, ...(v.aim ?? []).map((sel) => document.querySelector(sel)?.getBoundingClientRect().bottom ?? A.top))
         const ground = kind === 'corner' && floor - below < bh + 22 + head + feet + 12 ? A.bottom - 2 : floor - 8
-        cx = A.right - B.left - half - 10
+        // Står det han ber deg trykke på nede til høyre (f.eks. Meg-fanen), stiller han seg til venstre
+        const target = v.tap?.length ? document.querySelector(v.tap.join(','))?.getBoundingClientRect() : undefined
+        right = !target || target.left + target.width / 2 < A.left + A.width / 2
+        cx = right ? A.right - B.left - half - 10 : A.left - B.left + half + 10
         cy = (kind === 'story' ? A.bottom - 58 : ground) - B.top - feet
-        right = true
       }
       cx = clamp(cx, A.left - B.left + half + 4, A.right - B.left - half - 4)
-      const bx = right ? A.right - B.left - 12 - bw : clamp(cx - bw / 2, A.left - B.left + 12, A.right - B.left - 12 - bw)
+      const bx = kind === 'corner' || kind === 'story' ? (right ? A.right - B.left - 12 - bw : A.left - B.left + 12) : clamp(cx - bw / 2, A.left - B.left + 12, A.right - B.left - 12 - bw)
       const by = clamp(up ? cy + feet + 20 : cy - head - 22 - bh, A.top - B.top + 12, A.bottom - B.top - 8 - bh)
       // Det han peker på: midten av elementet, målt fra midten av lerretet hans (før skalering)
       const aims = (v.aim ?? []).flatMap((sel) => {
