@@ -9,6 +9,7 @@ import type { Toast } from './state.tsx'
 import { Icon } from './ui.tsx'
 import './toast.css'
 import { DemoGuide, Domeo, openGuide, welcome } from './guide.tsx'
+import { DomeoHome } from './domeo3d.tsx'
 import { Goals } from './screens/Goals.tsx'
 import { History, HistoryDetail } from './screens/History.tsx'
 import { Me } from './screens/Me.tsx'
@@ -255,6 +256,7 @@ function DemoControl({ boss, onReport }: { boss: boolean; onReport: boolean }) {
           )}
           <button
             role="menuitem"
+            className="demo-restart"
             onClick={() => {
               setMenu(false)
               reset()
@@ -287,7 +289,8 @@ function DemoControl({ boss, onReport }: { boss: boolean; onReport: boolean }) {
       <DemoGuide boss={boss} onReport={onReport} />
       <div className="demo-ctl" aria-label={L('Demo-kontroll', 'Demo controls')}>
         <button className="kg-mini" onClick={openGuide} aria-label={L('Sir Domeo: hjelp på denne siden', 'Sir Domeo: help with this page')}>
-          <Domeo mood="wink" size={30} />
+          {/* Han bor her: liten og levende i 3D når han ikke er ute og viser deg rundt */}
+          <DomeoHome fallback={<Domeo mood="wink" size={40} />} />
         </button>
         <RoleSwitch boss={boss} />
         {/* Før vakten sier «Start vakt» nok – klokka vises når vakten går */}

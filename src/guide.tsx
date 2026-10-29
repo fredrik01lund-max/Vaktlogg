@@ -10,8 +10,9 @@ import { colleagueName, config } from './config.ts'
 import { L } from './i18n.ts'
 import { navigate, useRoute } from './router.ts'
 import { MANUAL, useStore } from './state.tsx'
-import { D3D_BODY, D3D_PX, D3D_SIZE, Domeo3D, onBody, preloadDomeo } from './domeo3d.tsx'
-import type { Action, Aim, Hand, Mood } from './domeo3d.tsx'
+import { D3D_BODY, D3D_PX, D3D_SIZE, Domeo3D, HOME_PX, onBody, preloadDomeo } from './domeo3d.tsx'
+import type { Action, Aim, Hand, Leaving, Mood } from './domeo3d.tsx'
+import { reduced } from './lib/motion.ts'
 import './guide.css'
 
 // ── Liten felles tilstand: overlever at appen tegnes på nytt når språket byttes ──
@@ -628,7 +629,10 @@ type View = {
 const SIZE = D3D_SIZE
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
 const hash = (s: string) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7)
-type Pos = { cx: number; cy: number; scale: number; bx: number; by: number; bw: number; tail: number; up: boolean; aims: Aim[] }
+/** Et sted for ham: midten (piksler i demolinjen) og skalaen. */
+type Spot = { cx: number; cy: number; scale: number }
+/** `from`: han starter hjemme i demolinjen og flyr ut. `back`: han flyr hjem. `home`: denne gangen kom han fra demolinjen. */
+type Pos = Spot & { bx: number; by: number; bw: number; tail: number; up: boolean; aims: Aim[]; from?: Spot; back?: Spot; home: boolean }
 
 /** Sir Domeo svever over skjermen dit han forklarer noe, med en snakkeboble som følger ham. */
 export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean }) {
@@ -640,7 +644,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   const ref = useRef<HTMLDivElement>(null)
   const sayRef = useRef<HTMLDivElement>(null)
   const [pos, setPos] = useState<Pos | null>(null)
-  const [leaving, setLeaving] = useState(false)
+  const [leaving, setLeaving] = useState<Leaving>(false)
   const [away, setAway] = useState(false)
   const [faded, setFaded] = useState(false)
   const held = useRef(false)
@@ -658,14 +662,28 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     lastStep = state.open && state.mode === 'tour' ? state.step : -1
     setGuide({ open: true, step, mode: 'tour' })
   }
+  /** Plassen hans i demolinjen, der han bor – eller ingenting (skjult linje, eller redusert bevegelse). */
+  const homeSpot = (): Spot | undefined => {
+    const bar = ref.current?.parentElement
+    const h = bar?.querySelector('.kg-home')?.getBoundingClientRect()
+    if (!bar || !h?.width || reduced()) return undefined
+    const B = bar.getBoundingClientRect()
+    return { cx: h.left + h.width / 2 - B.left, cy: h.top + h.height / 2 - B.top, scale: HOME_PX / D3D_PX }
+  }
   function close() {
     if (!state.open) return
-    setLeaving(true)
-    window.setTimeout(() => {
-      setLeaving(false)
-      setPos(null)
-      setGuide({ open: false, step: 0, mode: 'welcome' })
-    }, 400)
+    // Han flyr hjem til demolinjen (eller krymper bort der den ikke syns)
+    const back = pos ? homeSpot() : undefined
+    setLeaving(back ? 'home' : 'away')
+    if (back) setPos((p) => p && { ...p, back })
+    window.setTimeout(
+      () => {
+        setLeaving(false)
+        setPos(null)
+        setGuide({ open: false, step: 0, mode: 'welcome' })
+      },
+      back ? 480 : 400,
+    )
   }
   const startTour = () => {
     // Klokka står av når omvisningen starter – du skrur den på selv
@@ -1004,6 +1022,17 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     return () => window.removeEventListener('keydown', onKey)
   }, [g.open, g.mode]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Han står hjemme i demolinjen ett bilde, så flyr han ut
+  useEffect(() => {
+    if (!pos?.from) return
+    let r2 = 0
+    const r1 = requestAnimationFrame(() => (r2 = requestAnimationFrame(() => setPos((p) => p && { ...p, from: undefined }))))
+    return () => {
+      cancelAnimationFrame(r1)
+      cancelAnimationFrame(r2)
+    }
+  }, [pos?.from])
+
   // Programlederens boble blekner når han har snakket ferdig, så siden synes
   useEffect(() => {
     setFaded(false)
@@ -1108,7 +1137,13 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
         const r = t.getBoundingClientRect()
         return [{ x: (r.left + r.width / 2 - (B.left + cx)) / scale, y: (r.top + r.height / 2 - (B.top + cy)) / scale }]
       })
-      setPos({ cx, cy, scale, bx, by, bw, tail: clamp(cx - bx, 30, bw - 30), up, aims })
+      const next = { cx, cy, scale, bx, by, bw, tail: clamp(cx - bx, 30, bw - 30), up, aims }
+      // Første gang: han starter hjemme i demolinjen og flyr ut dit han skal
+      setPos((p) => {
+        if (p) return { ...next, home: p.home, back: p.back }
+        const from = homeSpot()
+        return { ...next, from, home: !!from }
+      })
     }
     place()
     // Sidene glir inn – mål en gang til når de har landet
@@ -1125,18 +1160,20 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
 
   if (!view) return null
   const talk = talkFor(view)
+  // Hvor han er akkurat nå: hjemme (rett før han flyr ut), på vei hjem, eller der han forklarer noe
+  const f = pos && (pos.back ?? pos.from ?? pos)
   const key = hash(vkey)
   const cls = ['kg-say', pos?.up ? 'up' : '', view.host ? 'host' : '', view.host && !view.buttons.length ? 'quiet' : '', faded ? 'faded' : ''].filter(Boolean).join(' ')
   return (
-    <div className={`kg-layer ${leaving ? 'leaving' : ''} ${pos ? 'placed' : ''}`} ref={ref} role="dialog" aria-label={L('Sir Domeos guide til prototypen', 'Sir Domeo’s guide to the prototype')}>
+    <div className={`kg-layer ${leaving ? `leaving ${leaving}` : ''} ${pos ? 'placed' : ''} ${pos?.home ? 'from-home' : ''}`} ref={ref} role="dialog" aria-label={L('Sir Domeos guide til prototypen', 'Sir Domeo’s guide to the prototype')}>
       <div
         className="kg-float"
-        style={pos ? { left: pos.cx - SIZE / 2, top: pos.cy - SIZE / 2, transform: `scale(${pos.scale})` } : undefined}
+        style={f ? { left: f.cx - SIZE / 2, top: f.cy - SIZE / 2, transform: `scale(${f.scale})`, transition: pos.from ? 'none' : undefined } : undefined}
       >
         <div className="kg-bob">
           <Domeo3D
-            mood={leaving && view.buttons.some((b) => b.kind === 'next') && g.mode !== 'kari' ? 'cheer' : view.mood}
-            move={leaving ? 'tip' : view.move}
+            mood={leaving === 'home' ? 'point' : leaving && view.buttons.some((b) => b.kind === 'next') && g.mode !== 'kari' ? 'cheer' : view.mood}
+            move={leaving === 'home' ? 'chatter' : leaving ? 'tip' : view.move}
             actionKey={key + (leaving ? 1000 : 0)}
             say={leaving ? '' : [view.title, view.text].filter(Boolean).join(' ')}
             talk={leaving ? 0 : talk}
@@ -1144,6 +1181,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
             hand={view.hand}
             remind={remind}
             leaving={leaving}
+            entrance={pos?.home ? 'fly' : 'pop'}
             fallback={<Domeo mood={view.mood} talkKey={key} size={100} />}
           />
         </div>

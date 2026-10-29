@@ -243,14 +243,45 @@
   }
 }
 
-/* Lille Sir Domeo i demolinjen: viser at linjen er regissørens, og henter guiden frem igjen */
+/* Sir Domeo bor i demolinjen: liten og levende i 3D, og henter guiden frem når du trykker på ham.
+   Han er litt høyere enn knappen, men holder seg innenfor linjen. */
 .demo-ctl .kg-mini {
-  min-width: 36px;
-  padding: 0 2px;
+  min-width: 66px;
+  padding: 0;
 }
-.demo-ctl .kg-mini svg {
-  width: 30px;
-  height: 30px;
+.kg-home {
+  position: relative;
+  display: block;
+  width: 66px;
+  height: 48px;
+  margin: -4px 0;
+}
+.kg-home canvas {
+  display: block;
+}
+.demo-ctl .kg-home svg {
+  width: 40px;
+  height: 40px;
+  margin: 4px auto 0;
+}
+/* Når han er ute og viser deg rundt, står fatet hans igjen */
+.kg-home.out::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  width: 34px;
+  height: 7px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+/* Smale skjermer: klokka står allerede øverst i appen, så demolinjen får plass til ham */
+@media (max-width: 420px) {
+  .demo-ctl .count {
+    display: none;
+  }
 }
 
 /* ── Figuren (flat) ── */
@@ -311,6 +342,18 @@
   /* Han letter på lokket og spretter opp og bort (selve sprettet tegnes i 3D) */
   .kg-layer.leaving .kg-float {
     animation: kgAway 280ms 120ms var(--ease-accel) forwards;
+  }
+  /* Han flyr ut fra demolinjen der han bor (i stedet for å sprette frem) … */
+  .kg-layer.from-home.placed .kg-float > .kg-bob {
+    animation: none;
+  }
+  /* … og hjem igjen når han er ferdig */
+  .kg-layer.leaving.home .kg-float {
+    animation: none;
+    transition:
+      left 460ms cubic-bezier(0.5, 0, 0.3, 1),
+      top 460ms cubic-bezier(0.5, 0, 0.3, 1),
+      transform 460ms cubic-bezier(0.5, 0, 0.3, 1);
   }
   /* Den flate figuren: lokket går opp og ned når han snakker */
   .k-lid {
@@ -396,10 +439,25 @@
   }
 }
 
-/* Den lille Sir Domeo i demolinjen står stille (bare én ting går i løkke i appen) */
+/* Den flate Sir Domeo i demolinjen (uten WebGL) står stille */
 .kg-mini .domeo *,
 .kg-mini .domeo {
   animation: none !important;
+}
+/* «Start demoen på nytt» er det presentatøren trenger oftest – litt tydeligere enn resten */
+.demo-menu .demo-restart {
+  margin: 4px 0;
+  background: rgba(255, 190, 160, 0.16);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 190, 160, 0.5);
+  color: #ffdcc8;
+  font-weight: 750;
+}
+.demo-menu .demo-restart svg {
+  opacity: 1;
+  color: #ffb894;
+}
+.demo-menu .demo-restart:active {
+  background: rgba(255, 190, 160, 0.26);
 }
 
 /* ⋯-menyen: språk øverst som to knapper */

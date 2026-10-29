@@ -27,8 +27,8 @@ export const D3D_BODY = { feet: 0.6, head: 0.68, half: 0.9 }
 /** Treffer et trykk ham selv (klokka og brettet)? x og y i piksler fra midten av lerretet, før skalering. */
 export const onBody = (x: number, y: number) => Math.abs(x) < 0.78 * D3D_PX && y > -0.62 * D3D_PX && y < 0.2 * D3D_PX
 
-// Små vaner han har når han venter (og fnisingen når du trykker på ham)
-type Habit = 'peek' | 'tilt' | 'chatter' | 'stache' | 'monocle' | 'polish' | 'giggle'
+// Små vaner han har når han venter (og fnisingen når du trykker på ham, og landingen når han kommer hjem til demolinjen)
+type Habit = 'peek' | 'tilt' | 'chatter' | 'stache' | 'monocle' | 'polish' | 'giggle' | 'land'
 /** En bevegelse eller en av vanene hans – alle kan brukes når han kommer til et nytt stopp. */
 export type Action = Move | Habit
 // Hvor lenge hver bevegelse varer (sekunder)
@@ -51,17 +51,22 @@ const DURATION: Record<Action, number> = {
   monocle: 1.8,
   polish: 2.4,
   giggle: 0.9,
+  land: 0.5,
 }
 // Når armen begynner å peke (sekunder etter at han kom frem) – noen bevegelser skal bli ferdige først
 const POINT_AT: Partial<Record<Action, number>> = { hop: 0.95, dance: 1.45, present: 1.45, flip: 0.9, nudge: 0.2 }
 
 /** En stavelse: når den begynner og hvor lenge den varer (sekunder), og hvor mye lokket åpner seg. */
 type Syl = { at: number; d: number; a: number }
+/** Avskjeden: hjem til demolinjen (flyr dit), eller bort (krymper og blekner) der demolinjen ikke syns. */
+export type Leaving = false | 'home' | 'away'
 type Live = {
   mood: Mood
-  leaving: boolean
+  leaving: Leaving
   /** Når han begynte å gå (avskjeden). */
   leaveAt: number
+  /** Spretter frem fra ingenting, eller kommer flygende (fra demolinjen) og trenger ikke sprette. */
+  entrance: 'pop' | 'fly'
   action: Action
   actionAt: number
   /** Når han kom til stoppet, og bevegelsen han kom med – humøret (vinking, jubel, blunk) varer en stund etter det. */
@@ -80,6 +85,29 @@ type Live = {
   /** Han kaster et blikk dit du trykket (piksler fra midten av lerretet). */
   glance: { x: number; y: number; until: number }
   blinkNow: boolean
+}
+const newLive = (mood: Mood, move: Action, aims: Aim[] = [], hand: Hand = 'point'): Live => {
+  const now = performance.now()
+  return {
+    mood,
+    leaving: false,
+    leaveAt: 0,
+    entrance: 'pop',
+    action: move,
+    actionAt: now,
+    arriveAt: now,
+    arriveMove: move,
+    nextIdle: now + 4000,
+    talkFrom: 0,
+    talkTo: 0,
+    speech: [],
+    aims,
+    remind: null,
+    hand,
+    pointFrom: now,
+    glance: { x: 0, y: 0, until: 0 },
+    blinkNow: false,
+  }
 }
 
 /** Stavelsene i en replikk: lokket åpner seg på vokalene, lukker seg mellom ordene, og han tar pauser ved komma og punktum. */
@@ -141,10 +169,36 @@ class Spring {
   }
 }
 
+/** Lerretet: størrelse (CSS-piksler), piksler per enhet og hvilken høyde i scenen som er midt i bildet. */
+type View = { w: number; h: number; px: number; y: number; home?: boolean }
+const GUIDE: View = { w: D3D_SIZE, h: D3D_SIZE, px: D3D_PX, y: 0.02 }
+/** Piksler per enhet hjemme i demolinjen – guiden bruker det når han flyr ut og hjem igjen. */
+export const HOME_PX = 32
+// Hjemme er han liten og rolig: ingen hopp, og tegnes 30 ganger i sekundet
+const HOME: View = { w: 66, h: 48, px: HOME_PX, y: 0.04, home: true }
+
 // ── Scenen bygges én gang og gjenbrukes hver gang han dukker opp: ingen ny WebGL-kontekst og ingen ny shader-kompilering ──
-type Stage = { run: (L: Live, host: HTMLElement) => () => void }
+type Stage = { run: (L: Live, host: HTMLElement, view: View) => () => void }
 let stage: Promise<Stage> | null = null
 let stopActive = () => {}
+// Han bor i demolinjen (DomeoHome) når han ikke er ute og viser deg rundt (Domeo3D). Det finnes bare ett lerret.
+let home: { L: Live; host: HTMLElement; here: (on: boolean) => void } | null = null
+let guiding = 0
+/** Hjem til demolinjen – med en liten landing når han kommer flygende fra guiden. */
+const backHome = (land: boolean) =>
+  preloadDomeo()
+    .then((st) => {
+      if (!home || guiding) return
+      const L = home.L
+      L.entrance = land ? 'fly' : 'pop'
+      if (land) {
+        L.action = 'land'
+        L.actionAt = performance.now()
+      }
+      st.run(L, home.host, HOME)
+      home.here(true)
+    })
+    .catch(() => {})
 /** Begynn å bygge Sir Domeo i forkant (når appen åpnes), så han er klar når han skal frem. */
 export function preloadDomeo() {
   if (!stage) {
@@ -177,7 +231,6 @@ async function build(): Promise<Stage> {
   const dist = D3D_SIZE / D3D_PX / 2 / Math.tan((15 * Math.PI) / 180)
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50)
   camera.position.set(0, dist * Math.sin(0.14), dist * Math.cos(0.14))
-  camera.lookAt(0, 0.02, 0)
   scene.add(new THREE.HemisphereLight(0xffffff, 0xf0d9de, 0.8))
   const sun = new THREE.DirectionalLight(0xffffff, 1.5)
   sun.position.set(-2.5, 3, 4)
@@ -703,6 +756,8 @@ async function build(): Promise<Stage> {
   const bell = (x: number) => Math.sin(Math.PI * clamp(x, 0, 1))
   const mix = (a: number, b: number, k: number) => a + (b - a) * k
   const habits: Habit[] = ['stache', 'monocle', 'polish', 'peek', 'tilt', 'chatter']
+  // Hjemme i demolinjen: de rolige vanene (ingen prat)
+  const homeHabits: Habit[] = ['stache', 'monocle', 'polish', 'peek', 'tilt']
   // Ønsket mål for hendene denne rammen (i root-rommet)
   const want = arms.map(() => ({ target: new THREE.Vector3(), pole: new THREE.Vector3(), grip: RELAX, wrist: 0 }))
   const aimPoint = new THREE.Vector3()
@@ -727,9 +782,16 @@ async function build(): Promise<Stage> {
     stage = null
   })
 
-  const run = (L: Live, host: HTMLElement) => {
+  const run = (L: Live, host: HTMLElement, view: View) => {
     stopActive()
+    // Lerretet tilpasses: samme kameraavstand, så han ser lik ut hjemme og ute – bare mindre
+    renderer.setSize(view.w, view.h)
+    camera.fov = (2 * Math.atan(view.h / view.px / 2 / dist) * 180) / Math.PI
+    camera.aspect = view.w / view.h
+    camera.lookAt(0, view.y, 0)
+    camera.updateProjectionMatrix()
     host.appendChild(renderer.domElement)
+    let drawn = false
     const still = reduced()
     const t0 = performance.now()
     let last = t0
@@ -765,7 +827,7 @@ async function build(): Promise<Stage> {
     const onDown = (e: PointerEvent) => {
       if (still || L.leaving) return
       const r = host.getBoundingClientRect()
-      const s = r.width / D3D_SIZE || 1
+      const s = (r.width / view.w) * (view.px / D3D_PX) || 1
       const x = (e.clientX - (r.left + r.width / 2)) / s
       const y = (e.clientY - (r.top + r.height / 2)) / s
       const now = performance.now()
@@ -773,7 +835,7 @@ async function build(): Promise<Stage> {
         L.glance = { x, y, until: now + 1200 }
         return
       }
-      if (now - pokedAt < 1000) return
+      if (view.home || now - pokedAt < 1000) return
       pokedAt = now
       L.action = 'giggle'
       L.actionAt = now
@@ -783,15 +845,18 @@ async function build(): Promise<Stage> {
 
     const frame = (now: number) => {
       raf = requestAnimationFrame(frame)
+      // Hjemme holder 30 bilder i sekundet, og står han stille (redusert bevegelse), holder ett
+      if (view.home && (now - last < 30 || (still && drawn))) return
       const dt = Math.min(0.05, (now - last) / 1000) || 0.016
       last = now
       const t = (now - t0) / 1000
       const talking = !still && !L.leaving && now >= L.talkFrom && now < L.talkTo
       // Små vaner når han venter: snurrer barten, retter på monokkelen, pusser klokka, titter, vipper, klaprer
       if (!still && now > L.nextIdle && !L.leaving && !talking) {
-        L.action = habits[Math.floor(Math.random() * habits.length)]
+        const list = view.home ? homeHabits : habits
+        L.action = list[Math.floor(Math.random() * list.length)]
         L.actionAt = now
-        L.nextIdle = now + DURATION[L.action] * 1000 + 4500 + Math.random() * 4000
+        L.nextIdle = now + DURATION[L.action] * 1000 + (view.home ? 6000 + Math.random() * 6000 : 4500 + Math.random() * 4000)
       }
       const p = still ? 1 : Math.min(1, (now - L.actionAt) / 1000 / DURATION[L.action])
       const acting = p < 1
@@ -1055,6 +1120,13 @@ async function build(): Promise<Stage> {
             open = Math.max(open, k * 0.12)
             break
           }
+          case 'land': {
+            // Hjemme igjen: lander med et lite dump i knærne
+            const k = bell(p)
+            squashY = 1 - k * 0.14
+            y -= k * 0.03
+            break
+          }
           case 'giggle': {
             // Kilt! Han fniser: rister litt, myser fornøyd, lokket klaprer og hendene går mot magen
             const k = bell(p)
@@ -1081,11 +1153,12 @@ async function build(): Promise<Stage> {
         w.target.y += fy * 0.14
       }
 
-      // Inn: spretter opp fra ingenting. Ut: letter på lokket, spretter opp og krymper bort.
-      const pop = still ? 1 : Math.min(1, (now - t0) / 500)
-      const lp = L.leaving ? clamp((now - L.leaveAt) / 400, 0, 1) : 0
-      const sc = L.leaving ? 1 + 0.08 * bell(lp * 2) - 0.5 * ease(lp) : 0.2 + 0.8 * (1 - Math.pow(1 - pop, 3) * Math.cos(pop * 6))
-      if (L.leaving && !still) {
+      // Inn: spretter opp fra ingenting (eller kommer flygende). Ut: flyr hjem (guiden flytter ham),
+      // eller letter på lokket, spretter opp og krymper bort.
+      const pop = still || L.entrance === 'fly' ? 1 : Math.min(1, (now - t0) / 500)
+      const lp = L.leaving === 'away' ? clamp((now - L.leaveAt) / 400, 0, 1) : 0
+      const sc = L.leaving === 'away' ? 1 + 0.08 * bell(lp * 2) - 0.5 * ease(lp) : 0.2 + 0.8 * (1 - Math.pow(1 - pop, 3) * Math.cos(pop * 6))
+      if (L.leaving === 'away' && !still) {
         y += ease(lp) * 0.3
         lift = Math.max(lift, bell(lp) * 0.12)
       }
@@ -1230,6 +1303,7 @@ async function build(): Promise<Stage> {
         sp.m.rotation.set(k * 6, k * 4, 0)
       }
       renderer.render(scene, camera)
+      drawn = true
     }
     raf = requestAnimationFrame(frame)
     const stop = () => {
@@ -1254,6 +1328,7 @@ export function Domeo3D({
   hand = 'point',
   remind,
   leaving,
+  entrance = 'pop',
   fallback,
 }: {
   mood: Mood
@@ -1267,38 +1342,18 @@ export function Domeo3D({
   hand?: Hand
   /** Påminnelse: `n` øker hver gang han skal minne deg på hvor du skal trykke, og han peker på `at`. */
   remind?: { n: number; at: Aim[] }
-  leaving: boolean
+  leaving: Leaving
+  /** «fly»: han kommer flygende fra demolinjen, så han spretter ikke frem. */
+  entrance?: 'pop' | 'fly'
   fallback: ReactNode
 }) {
   const host = useRef<HTMLDivElement>(null)
-  const [live] = useState<{ current: Live }>(() => {
-    const now = performance.now()
-    return {
-      current: {
-        mood,
-        leaving,
-        leaveAt: 0,
-        action: move,
-        actionAt: now,
-        arriveAt: now,
-        arriveMove: move,
-        nextIdle: now + 4000,
-        talkFrom: 0,
-        talkTo: 0,
-        speech: [],
-        aims,
-        remind: null,
-        hand,
-        pointFrom: now,
-        glance: { x: 0, y: 0, until: 0 },
-        blinkNow: false,
-      },
-    }
-  })
+  const [live] = useState(() => ({ current: newLive(mood, move, aims, hand) }))
   const [flat, setFlat] = useState(false)
   if (leaving && !live.current.leaving) live.current.leaveAt = performance.now()
   live.current.mood = mood
   live.current.leaving = leaving
+  live.current.entrance = entrance
   live.current.aims = aims
   live.current.hand = hand
 
@@ -1335,13 +1390,19 @@ export function Domeo3D({
     L.nextIdle = Math.max(L.nextIdle, L.pointFrom + 4500 + 2500)
   }, [remind?.n]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Scenen hentes (eller bygges) og kjøres så lenge han vises. Uten WebGL vises den flate Sir Domeo.
+  // Scenen hentes (eller bygges) og kjøres så lenge han vises – han går ut av demolinjen, og hjem igjen etterpå.
+  // Uten WebGL vises den flate Sir Domeo.
   useEffect(() => {
     let stop = false
     let end = () => {}
+    guiding++
+    if (home) {
+      stopActive()
+      home.here(false)
+    }
     preloadDomeo()
       .then((s) => {
-        if (!stop && host.current) end = s.run(live.current, host.current)
+        if (!stop && host.current) end = s.run(live.current, host.current, GUIDE)
       })
       .catch((err) => {
         console.warn('Sir Domeo 3D:', err)
@@ -1350,6 +1411,8 @@ export function Domeo3D({
     return () => {
       stop = true
       end()
+      guiding--
+      backHome(true)
     }
   }, [])
 
@@ -1357,5 +1420,35 @@ export function Domeo3D({
     <div className="k3d" ref={host}>
       {flat && fallback}
     </div>
+  )
+}
+
+/** Sir Domeo hjemme i demolinjen: liten, rolig og levende. Når han er ute og viser deg rundt, står plassen hans tom. */
+export function DomeoHome({ fallback }: { fallback: ReactNode }) {
+  const host = useRef<HTMLSpanElement>(null)
+  const [here, setHere] = useState(false)
+  const [flat, setFlat] = useState(false)
+  const [L] = useState(() => {
+    const L = newLive('point', 'land')
+    L.actionAt -= 10000
+    return L
+  })
+  useEffect(() => {
+    if (!host.current) return
+    const me = { L, host: host.current, here: setHere }
+    home = me
+    preloadDomeo()
+      .then(() => backHome(false))
+      .catch(() => setFlat(true))
+    return () => {
+      if (home !== me) return
+      home = null
+      if (!guiding) stopActive()
+    }
+  }, [L])
+  return (
+    <span className={`kg-home ${here || flat ? '' : 'out'}`} ref={host} aria-hidden="true">
+      {flat && fallback}
+    </span>
   )
 }
