@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { employer, gameNight } from './data/demoData.ts'
+import { config } from './config.ts'
+import { employer, gameNight, staffMenu, team } from './data/demoData.ts'
 import type { GameId, KudosCategory } from './data/demoData.ts'
 import { lastStepIndex, liveAt, setInvites } from './lib/calc.ts'
 import type { Invites, SentCard } from './lib/calc.ts'
@@ -99,8 +100,9 @@ function load(): { settings: Settings; demo: Demo } {
     demo.sentCards = demo.sentCards.filter((c) => c && typeof c === 'object' && typeof c.to === 'string')
     if (demo.step > lastStepIndex) demo.step = lastStepIndex
     demo.invites = { ...defaultDemo.invites, ...parsed.demo?.invites }
+    for (const k of ['duell', 'makker'] as const) if (!(demo.invites[k] in team.colleagues)) demo.invites[k] = defaultDemo.invites[k]
     if (!Array.isArray(demo.orders)) demo.orders = []
-    demo.orders = demo.orders.filter((o) => o && typeof o === 'object' && typeof o.item === 'string')
+    demo.orders = demo.orders.filter((o) => o && typeof o === 'object' && typeof o.item === 'string' && staffMenu.items.some((i) => i.id === o.item))
     return {
       settings: { ...defaultSettings, ...parsed.settings, privacy: { ...defaultSettings.privacy, ...parsed.settings?.privacy } },
       demo,
@@ -201,11 +203,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const pushToasts = useCallback((msgs: ToastMsg[]) => {
     // Varsler hører til én telefon: Emmas varsler vises ikke mens Karis telefon er åpen, og omvendt.
     const boss = window.location.hash.startsWith('#/sjef')
-    msgs = msgs.filter((m) => !!m.boss === boss)
-    if (!msgs.length) return
+    const mine = msgs.filter((m) => !!m.boss === boss)
+    if (!mine.length) {
+      // Det har skjedd noe nytt på den andre telefonen: det gamle varselet derfra skal ikke dukke opp igjen når du bytter tilbake
+      if (msgs.length) setToasts((t) => t.filter((x) => !!x.boss === boss))
+      return
+    }
     // Nye varsler erstatter gamle, så de aldri henger etter det som skjer på vakten.
-    setToasts(msgs.map((m) => ({ ...m, id: toastId.current++ })))
+    setToasts(mine.map((m) => ({ ...m, id: toastId.current++ })))
   }, [])
+  // Varsler som kommer litt senere (feiringen, startvarselet i en ny runde). De avbrytes når demoen startes på nytt,
+  // vakten avsluttes eller noe nyere skjer – så et gammelt varsel aldri dukker opp etter et nytt.
+  const later = useRef<number[]>([])
+  const cancelLater = () => {
+    later.current.forEach((t) => window.clearTimeout(t))
+    later.current = []
+  }
+  const pushLater = (msgs: ToastMsg[], ms: number) => later.current.push(window.setTimeout(() => pushToasts(msgs), ms))
   const dismissToast = useCallback((id: number) => setToasts((t) => t.filter((x) => x.id !== id)), [])
 
   const isQuiet = (s: Settings, d: Demo) => s.calm || d.game === 'rolig'
@@ -225,12 +239,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     clockRef.current = startMin
     // Tiden begynner å gå med en gang – ingen play-knapp
     if (!MANUAL) setPlaying(true)
+    cancelLater()
     pushToasts(startNotifications(notifyOpts()))
     goToShift()
   }, [pushToasts])
 
   const finishShift = useCallback(() => {
     setPlaying(false)
+    cancelLater()
     const d = ref.current.demo
     setDemo({ ...d, phase: 'done', step: lastStepIndex, quietShift: isQuiet(ref.current.settings, d) })
     goToShift()
@@ -247,8 +263,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const next = d.step + 1
       setDemo({ ...d, step: next })
       const msgs = notificationsFor(d.step, next, notifyOpts())
-      // Et feirende varsel kommer like etter at ringen har feiret, så øyet ser ringen først.
-      if (msgs.some((m) => m.celebrate)) window.setTimeout(() => pushToasts(msgs), 1100)
+      // Et feirende varsel kommer like etter at ringen har feiret, så øyet ser ringen først. Noe nyere avbryter det som venter.
+      if (msgs.length) cancelLater()
+      if (msgs.some((m) => m.celebrate)) pushLater(msgs, 1100)
       else pushToasts(msgs)
       if (nav) goToShift()
     },
@@ -312,7 +329,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           setClock(startMin)
           setDemo((x) => ({ ...x, step: -1 }))
           setLoop((n) => n + 1)
-          window.setTimeout(() => pushToasts(startNotifications(notifyOpts())), 500)
+          pushLater(startNotifications(notifyOpts()), 500)
         }
       }
     }, TICK_MS)
@@ -322,10 +339,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const reset = useCallback(() => {
     clearSeen()
     setPlaying(false)
+    cancelLater()
     clockRef.current = startMin
     setToasts([])
     setDemo(defaultDemo)
-    setSettings((s) => ({ ...s, calm: false, campaign: 'ubesvart', introDismissed: false }))
+    // Klokka er koblet til igjen (omvisningen skrur den av, så du kan skru den på selv)
+    setSettings((s) => ({ ...s, calm: false, campaign: 'ubesvart', introDismissed: false, watch: true }))
     setMode('emma')
     navigate('/vakt')
   }, [])
@@ -376,7 +395,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setInvite: (game, id) => setDemo((d) => ({ ...d, invites: { ...d.invites, [game]: id } })),
     loop,
     setTeamGift: (teamGiftId) => setDemo((d) => ({ ...d, teamGiftId })),
-    sendCard: (card) => setDemo((d) => ({ ...d, sentCards: [...d.sentCards, card] })),
+    sendCard: (card) => setDemo((d) => ({ ...d, sentCards: [...d.sentCards, card], cardOpened: card.to === config.persona.id ? false : d.cardOpened })),
     openCard: () => setDemo((d) => ({ ...d, cardOpened: true })),
     giveKudos: (to, category) => setDemo((d) => ({ ...d, givenKudos: [...d.givenKudos, { to, category }] })),
     pushToasts,

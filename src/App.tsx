@@ -8,7 +8,7 @@ import { promptInstall, useCanInstall } from './lib/install.ts'
 import type { Toast } from './state.tsx'
 import { Icon } from './ui.tsx'
 import './toast.css'
-import { DemoGuide, Domeo, openGuide, welcome } from './guide.tsx'
+import { DemoGuide, Domeo, endGuide, openGuide, welcome } from './guide.tsx'
 import { DomeoHome } from './domeo3d.tsx'
 import { Goals } from './screens/Goals.tsx'
 import { History, HistoryDetail } from './screens/History.tsx'
@@ -280,6 +280,8 @@ function DemoControl({ boss, onReport }: { boss: boolean; onReport: boolean }) {
             onClick={() => {
               setMenu(false)
               setHidden(true)
+              // Sir Domeo går også (omvisningen avsluttes), så vakten ikke står stille bak en usynlig guide
+              endGuide()
             }}
           >
             <Icon name="eyeOff" /> {L('Skjul demo-knappen', 'Hide the demo button')}
@@ -381,7 +383,7 @@ function Shell() {
       <div className="device">
         <div className="notch" />
         <div className="app">
-          <main className={`screen ${boss ? 'boss-screen' : ''} ${!boss && tab === 'vakt' && demo.phase === 'live' ? 'live' : ''}`} key={route.join('/') + (tab === 'vakt' || boss ? demo.phase + loop : '')}>
+          <main className={`screen ${boss ? 'boss-screen' : ''} ${!boss && tab === 'vakt' && demo.phase === 'live' ? 'live' : ''}`} key={route.join('/') + (tab === 'vakt' && !boss ? demo.phase + loop : boss ? demo.phase : '')}>
             <div className="fade-in">{screen}</div>
           </main>
           {!boss && (

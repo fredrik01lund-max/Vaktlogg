@@ -59,10 +59,12 @@ const setStory = (next: StoryState) => {
 export const storyHost = (id: string | null) => {
   if (story.id !== id) setStory({ id, reveal: false })
 }
-/** Svaret på «Gjett!» er vist: «Voilà!» */
-export const storyReveal = () => {
-  if (story.id && !story.reveal) setStory({ ...story, reveal: true })
+/** Svaret på «Gjett!» er vist: «Voilà!» Kortet sier selv hvilket det er – det kan komme før historien har sagt fra om kortet. */
+export const storyReveal = (id: string) => {
+  if (story.id !== id || !story.reveal) setStory({ id, reveal: true })
 }
+/** Demolinjen skjules: han går uten avskjed (og omvisningen avsluttes). */
+export const endGuide = () => state.open && setGuide({ open: false, step: 0, mode: 'welcome' })
 const useExternal = <T,>(set: Set<() => void>, get: () => T): T =>
   useSyncExternalStore(
     (f) => {
@@ -298,21 +300,35 @@ const tourSteps = ({ watchOn, game, mate, fromKudos, phase }: TourCtx): TourStep
     move: 'pick',
     text: () => L('Du er Emma, og det er fredag på Brasserie Fjordgata. Før vakten velger du kveldens spill – trykk på Duell eller Makker.', 'You’re Emma, and it’s Friday at Brasserie Fjordgata. Before the shift, you pick tonight’s game – tap Duel or Buddy.'),
   },
-  {
-    ch: 1,
-    phase: 'pre',
-    route: '/vakt',
-    at: '.invite',
-    aim: ['.invite .inv-faces'],
-    tap: ['.invite .inv-face'],
-    tapDelay: 1400,
-    mood: 'point',
-    move: 'hop',
-    text: () =>
-      game === 'makker'
-        ? L('Spill er morsommere sammen. Trykk på kollegaen du vil være makker med.', 'Games are more fun together. Tap the colleague you want as your buddy.')
-        : L('Spill er morsommere sammen. Trykk på kollegaen du vil utfordre.', 'Games are more fun together. Tap the colleague you want to challenge.'),
-  },
+  game === 'duell' || game === 'makker'
+    ? {
+        ch: 1,
+        phase: 'pre',
+        route: '/vakt',
+        at: '.invite',
+        aim: ['.invite .inv-faces'],
+        tap: ['.invite .inv-face'],
+        tapDelay: 1400,
+        mood: 'point',
+        move: 'hop',
+        text: () =>
+          game === 'makker'
+            ? L('Spill er morsommere sammen. Trykk på kollegaen du vil være makker med.', 'Games are more fun together. Tap the colleague you want as your buddy.')
+            : L('Spill er morsommere sammen. Trykk på kollegaen du vil utfordre.', 'Games are more fun together. Tap the colleague you want to challenge.'),
+      }
+    : {
+        ch: 1,
+        phase: 'pre',
+        route: '/vakt',
+        at: '.game-pick',
+        aim: ['.game-pick'],
+        mood: 'point',
+        move: 'look',
+        text: () =>
+          game === 'laget'
+            ? L('Laget spiller sammen mot forrige fredag – da trenger du ingen invitasjon.', 'The team plays together against last Friday – no invitation needed.')
+            : L('Rolig er en kveld uten konkurranse – da trenger du ingen invitasjon.', 'Calm is an evening without competition – no invitation needed.'),
+      },
   {
     ch: 1,
     phase: 'pre',
@@ -633,6 +649,8 @@ const hash = (s: string) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) |
 type Spot = { cx: number; cy: number; scale: number }
 /** `from`: han starter hjemme i demolinjen og flyr ut. `back`: han flyr hjem. `home`: denne gangen kom han fra demolinjen. */
 type Pos = Spot & { bx: number; by: number; bw: number; tail: number; up: boolean; aims: Aim[]; from?: Spot; back?: Spot; home: boolean }
+/** Der han står nå. Appen tegnes på nytt når språket byttes – da skal han bli stående, ikke fly ut av demolinjen igjen. */
+let lastSpot: Spot | null = null
 
 /** Sir Domeo svever over skjermen dit han forklarer noe, med en snakkeboble som følger ham. */
 export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean }) {
@@ -647,6 +665,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   const [leaving, setLeaving] = useState<Leaving>(false)
   const [away, setAway] = useState(false)
   const [faded, setFaded] = useState(false)
+  const [tapGone, setTapGone] = useState(false)
   const held = useRef(false)
   const storyOpened = useRef(false)
   const steps = tourSteps({ watchOn: settings.watch, game: demo.game, mate: colleagueName(demo.invites[demo.game === 'makker' ? 'makker' : 'duell']), fromKudos: lastStep === 11, phase: demo.phase })
@@ -654,6 +673,8 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   const here = stepFor(steps, path, demo.phase)
   const touring = g.open && g.mode === 'tour'
   const ts = touring ? steps[Math.min(g.step, steps.length - 1)] : null
+  // Har siden et eget stopp i omvisningen (ikke bare et i nærheten, som en tidligere vakt eller Gjester)?
+  const hereOwn = !!ts && here >= 0 && here !== g.step && (steps[here].story ? path.startsWith('/maned') : steps[here].route === path)
   // Programleder i månedsoppsummeringen – men ikke for den som valgte å utforske selv
   const hostOn = settings.guide !== 'self' && !gated()
   const onStory = route[0] === 'maned' && !!st.id && hostOn && (!g.open || touring)
@@ -670,14 +691,21 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     const B = bar.getBoundingClientRect()
     return { cx: h.left + h.width / 2 - B.left, cy: h.top + h.height / 2 - B.top, scale: HOME_PX / D3D_PX }
   }
+  // Avskjeden: han flyr hjem til demolinjen (eller krymper bort der den ikke syns), og så lukkes guiden –
+  // med mindre noe nytt åpnet seg imens (f.eks. «Start demoen på nytt», eller du trykket på ham igjen)
+  const closingFrom = useRef<GuideState | null>(null)
   function close() {
-    if (!state.open) return
-    // Han flyr hjem til demolinjen (eller krymper bort der den ikke syns)
+    if (!state.open || closingFrom.current === state) return
+    const at = state
+    closingFrom.current = at
     const back = pos ? homeSpot() : undefined
     setLeaving(back ? 'home' : 'away')
     if (back) setPos((p) => p && { ...p, back })
     window.setTimeout(
       () => {
+        if (closingFrom.current !== at) return
+        closingFrom.current = null
+        lastSpot = null
         setLeaving(false)
         setPos(null)
         setGuide({ open: false, step: 0, mode: 'welcome' })
@@ -685,10 +713,19 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
       back ? 480 : 400,
     )
   }
+  const closeRef = useRef(close)
+  closeRef.current = close
+  // Åpnet noe seg mens han gikk, blir han: avskjeden avbrytes, og han flyr dit han skal i stedet for hjem
+  useEffect(() => {
+    if (!closingFrom.current || closingFrom.current === g) return
+    closingFrom.current = null
+    setLeaving(false)
+    setPos((p) => p && { ...p, back: undefined })
+  }, [g])
   const startTour = () => {
     // Klokka står av når omvisningen starter – du skrur den på selv
-    updateSettings({ guide: 'tour', guideSeen: true, watch: false })
     if (demo.phase !== 'pre') reset()
+    updateSettings({ guide: 'tour', guideSeen: true, watch: false })
     go(0)
   }
   // «Vis meg rundt herfra»: omvisningen begynner der du er, ikke fra start
@@ -727,13 +764,21 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     }
     if (kariShown || (state.open && state.mode !== 'done') || gated()) return
     kariShown = true
-    window.setTimeout(() => setGuide({ open: true, step: 0, mode: 'kari' }), 600)
+    let shown = false
+    const t = window.setTimeout(() => {
+      shown = true
+      setGuide({ open: true, step: 0, mode: 'kari' })
+    }, 600)
+    return () => {
+      window.clearTimeout(t)
+      if (!shown) kariShown = false
+    }
   }, [boss])
 
   // Etter vakten: han går når Emma forlater sluttrapporten, eller åpner den i stort format
   useEffect(() => {
-    if (!onReport && state.open && state.mode === 'done') close()
-  }, [onReport]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (!onReport && g.open && g.mode === 'done') close()
+  }, [onReport, g.open, g.mode]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (g.bye) close()
   }, [g.bye]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -755,16 +800,25 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   }, [demo.phase, g.step, touring]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Under omvisningen står klokka i ro rundt halv ni, så boksene har noe å vise. Etterpå går den videre.
+  // Startes vakten senere i omvisningen (f.eks. på siste stopp), går den fra start som vanlig.
   useEffect(() => {
-    if (ts && ts.ch >= 2 && demo.phase === 'live' && !held.current) {
+    if (ts && ts.ch === 2 && demo.phase === 'live' && !held.current) {
       held.current = true
       holdShift(true)
     }
-    if (!touring && held.current) {
+    if ((!touring || ts?.last) && held.current) {
       held.current = false
       holdShift(false)
     }
   }, [touring, g.step, demo.phase]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(
+    () => () => {
+      if (!held.current) return
+      held.current = false
+      holdShift(false)
+    },
+    [], // eslint-disable-line react-hooks/exhaustive-deps
+  )
 
   // Månedsoppsummeringen: omvisningen går videre når den lukkes
   useEffect(() => {
@@ -841,14 +895,20 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
           : [{ label: L('Skjønner!', 'Got it!'), kind: 'next', onClick: close }],
     }
   } else if (g.open && g.mode === 'self') {
+    const target = demo.phase === 'done' ? "[data-guide='more']" : "[data-guide='start']"
     view = {
-      key: 'self',
+      key: `self-${demo.phase}`,
       place: 'bar',
-      at: "[data-guide='start']",
-      aim: ["[data-guide='start']"],
+      at: target,
+      aim: [target],
       mood: 'wink',
       move: 'tip',
-      text: L('Som du vil! Den mørke linjen nederst styrer demoen – start vakten der. Trenger du meg, trykk på meg nederst.', 'As you wish! The dark bar at the bottom runs the demo – start the shift there. Need me? Tap me down there.'),
+      text:
+        demo.phase === 'pre'
+          ? L('Som du vil! Den mørke linjen nederst styrer demoen – start vakten der. Trenger du meg, trykk på meg nederst.', 'As you wish! The dark bar at the bottom runs the demo – start the shift there. Need me? Tap me down there.')
+          : demo.phase === 'live'
+            ? L('Som du vil! Den mørke linjen nederst styrer demoen – der avslutter du vakten når du vil. Trenger du meg, trykk på meg nederst.', 'As you wish! The dark bar at the bottom runs the demo – end the shift there whenever you like. Need me? Tap me down there.')
+            : L('Som du vil! Den mørke linjen nederst styrer demoen – under ⋯ kan du starte på nytt. Trenger du meg, trykk på meg nederst.', 'As you wish! The dark bar at the bottom runs the demo – under ⋯ you can start over. Need me? Tap me down there.'),
       buttons: [{ label: L('Skjønner!', 'Got it!'), kind: 'next', onClick: close }],
     }
   } else if (ts && !ts.story) {
@@ -866,8 +926,8 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
           text: helpText(path, demo.phase),
           choices: true,
           buttons: [
-            ...(here >= 0 ? [{ label: L('Fortsett omvisningen herfra', 'Continue the tour from here'), kind: 'next' as const, onClick: () => go(here) }] : []),
-            { label: L('Tilbake dit vi var', 'Back to where we were'), kind: here >= 0 ? 'alt' : 'next', onClick: () => navigate(ts.route) },
+            ...(hereOwn ? [{ label: L('Fortsett omvisningen herfra', 'Continue the tour from here'), kind: 'next' as const, onClick: () => go(here) }] : []),
+            { label: L('Tilbake dit vi var', 'Back to where we were'), kind: hereOwn ? 'alt' : 'next', onClick: () => navigate(ts.route) },
             { label: L('Avslutt omvisning', 'End tour'), kind: 'skip', onClick: endTour },
           ],
         }
@@ -912,7 +972,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
                 { label: L('Avslutt omvisning', 'End tour'), kind: 'skip', onClick: endTour },
                 // For de nysgjerrige: en grundigere forklaring
                 ...(more ? [{ label: more.label(), kind: 'alt' as const, onClick: () => setGuide({ open: true, step: g.step, mode: 'tour', extra: 0 }) }] : []),
-                ...(ts.tap ? [] : [{ label: L('Neste', 'Next'), kind: 'next' as const, onClick: next }]),
+                ...(ts.tap && !tapGone ? [] : [{ label: L('Neste', 'Next'), kind: 'next' as const, onClick: next }]),
               ],
         }
   } else if (g.open && g.mode === 'kari') {
@@ -1017,10 +1077,25 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   // Esc lukker hjelpen og beskjedene hans (omvisningen avsluttes med knappen i boblen)
   useEffect(() => {
     if (!g.open || !['help', 'self', 'kari', 'done'].includes(g.mode)) return
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close()
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      e.stopPropagation()
+      closeRef.current()
+    }
+    window.addEventListener('keydown', onKey, true)
+    return () => window.removeEventListener('keydown', onKey, true)
   }, [g.open, g.mode]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Husk hvor han står (til språkbyttet), og glem det når han er borte
+  useEffect(() => {
+    if (pos && !pos.back) lastSpot = { cx: pos.cx, cy: pos.cy, scale: pos.scale }
+  }, [pos])
+  // Forsvinner han uten avskjed (f.eks. når månedshistorien lukkes), starter han hjemme neste gang
+  useEffect(() => {
+    if (vkey) return
+    lastSpot = null
+    setPos(null)
+  }, [vkey])
 
   // Han står hjemme i demolinjen ett bilde, så flyr han ut
   useEffect(() => {
@@ -1046,19 +1121,20 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     if (!view) return
     const v = view
     let tries = 0
-    let retry = 0
+    let dead = false
+    const timers: number[] = []
+    const later = (ms: number) => timers.push(window.setTimeout(place, ms))
     let scrolled = false
-    const place = () => {
+    function place() {
+      if (dead) return
       const bar = ref.current?.parentElement
       const app = document.querySelector<HTMLElement>('.app')
       const say = sayRef.current
       if (!bar || !app || !say) return
       const el = v.at ? document.querySelector<HTMLElement>(v.at) : null
-      // Siden er ikke tegnet ennå (rett etter et sidebytte): prøv igjen straks
-      if (v.at && !el) {
-        if (tries++ < 12) retry = window.setTimeout(place, 120)
-        return
-      }
+      // Siden er ikke tegnet ennå (rett etter et sidebytte): prøv igjen straks. Kommer den aldri, står han midt på.
+      if (v.at && !el && tries++ < 12) return void later(120)
+      setTapGone(!!v.tap?.length && !document.querySelector(v.tap.join(',')))
       const B = bar.getBoundingClientRect()
       const A = app.getBoundingClientRect()
       // Detaljsider: rull så det han forklarer ligger øverst, så boblen får plass under det.
@@ -1066,7 +1142,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
       if (v.scroll && !scrolled) {
         const t = document.querySelector<HTMLElement>(v.scroll)
         if (!t) {
-          if (tries++ < 12) retry = window.setTimeout(place, 120)
+          if (tries++ < 12) later(120)
           return
         }
         scrolled = true
@@ -1076,7 +1152,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
         if (box && box !== document.body && Math.abs(d) > 4) {
           box.scrollBy({ top: d, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })
           // Mål på nytt når rullingen har landet
-          retry = window.setTimeout(place, 420)
+          later(420)
         }
       }
       const tabs = document.querySelector('.tabbar')?.getBoundingClientRect()
@@ -1141,19 +1217,18 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
       // Første gang: han starter hjemme i demolinjen og flyr ut dit han skal
       setPos((p) => {
         if (p) return { ...next, home: p.home, back: p.back }
-        const from = homeSpot()
+        const from = lastSpot ?? homeSpot()
         return { ...next, from, home: !!from }
       })
     }
     place()
     // Sidene glir inn – mål en gang til når de har landet
-    const settle = window.setTimeout(place, 450)
-    const settle2 = window.setTimeout(place, 900)
+    later(450)
+    later(900)
     window.addEventListener('resize', place)
     return () => {
-      window.clearTimeout(retry)
-      window.clearTimeout(settle)
-      window.clearTimeout(settle2)
+      dead = true
+      timers.forEach((t) => window.clearTimeout(t))
       window.removeEventListener('resize', place)
     }
   }, [vkey, path, settings.lang, demo.phase]) // eslint-disable-line react-hooks/exhaustive-deps

@@ -377,7 +377,7 @@ export const tonight = {
       ],
     },
     {
-      time: '20:10', kind: 'quiet', title: 'Stille periode – bord 15 og 11 betalt',
+      time: '20:10', kind: 'quiet', title: 'Stille periode – bord 15, 11 og 13 betalt',
       pay: [{ party: 'D', tip: 640 }, { party: 'H', tip: 410 }, { party: 'S', tip: 50 }],
     },
     {

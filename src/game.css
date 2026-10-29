@@ -2654,11 +2654,14 @@ details[open] .hl-peak {
   justify-content: space-between;
   gap: 4px;
 }
+/* Hvem og når («Laget · oktober») får gå over to linjer heller enn å kuttes – også på engelsk og smale skjermer */
 .gl-meta > small {
   min-width: 0;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.25;
 }
 .gl-text b {
   -webkit-line-clamp: 3;

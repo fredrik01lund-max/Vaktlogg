@@ -123,7 +123,7 @@ export const dataEn: Record<string, string> = {
   'Status i dessertduellen': 'Dessert duel update',
   'Bord 12 er satt igjen – fem gjester': 'Table 12 seated again – five guests',
   'Bord 14 satt – fire gjester': 'Table 14 seated – four guests',
-  'Stille periode – bord 15 og 11 betalt': 'Quiet spell – tables 15 and 11 paid',
+  'Stille periode – bord 15, 11 og 13 betalt': 'Quiet spell – tables 15, 11 and 13 paid',
   'Bord 13 satt igjen – to gjester': 'Table 13 seated again – two guests',
   'Bord 17 bestiller Meursault og Barolo': 'Table 17 orders Meursault and Barolo',
   'Bord 16 satt igjen – fire gjester': 'Table 16 seated again – four guests',

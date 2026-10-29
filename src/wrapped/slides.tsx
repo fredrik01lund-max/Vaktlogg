@@ -135,7 +135,7 @@ function Gjester({ s, mode }: BodyProps) {
 function Gjett({ s, mode, seen, active, onResume }: BodyProps) {
   const [revealed, setRevealed] = useState(false)
   useEffect(() => {
-    if (revealed && active) storyReveal()
+    if (revealed && active) storyReveal('gjett')
   }, [revealed, active])
   const [guess, setGuess] = useState<string | null>(null)
   const items = quizItems(s)

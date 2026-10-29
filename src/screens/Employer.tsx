@@ -206,11 +206,12 @@ export function Employer() {
         <CardComposer
           moments={happened}
           full={cardsFull}
+          done={done}
           onClose={() => setSheet(null)}
           onSend={(card) => {
             sendCard(card)
             setSheet(null)
-            pushToasts([{ kind: 'kudos', icon: 'envelope', title: L('Takkekort til {name}', 'Thank-you card to {name}', { name: nameOf(card.to) }), body: L('Kommer etter vakten.', 'Arrives after the shift.'), faces: [card.to], boss: true }])
+            pushToasts([{ kind: 'kudos', icon: 'envelope', title: L('Takkekort til {name}', 'Thank-you card to {name}', { name: nameOf(card.to) }), body: done ? L('Ligger i sluttrapporten nå.', 'It’s in the shift report now.') : L('Kommer etter vakten.', 'Arrives after the shift.'), faces: [card.to], boss: true }])
           }}
         />
       )}
@@ -243,7 +244,7 @@ export function Employer() {
   )
 }
 
-function CardComposer({ moments, full, onClose, onSend }: { moments: CardMoment[]; full: boolean; onClose: () => void; onSend: (card: { to: string; moment: CardMoment | null; giftId: string | null }) => void }) {
+function CardComposer({ moments, full, done, onClose, onSend }: { moments: CardMoment[]; full: boolean; done: boolean; onClose: () => void; onSend: (card: { to: string; moment: CardMoment | null; giftId: string | null }) => void }) {
   const [to, setTo] = useState<string | null>(null)
   const [moment, setMoment] = useState<number | null>(null)
   // Øyeblikkene kommer fra Emmas bord i kveld; for de andre har demoen ingen bordliste.
@@ -281,7 +282,7 @@ function CardComposer({ moments, full, onClose, onSend }: { moments: CardMoment[
         </div>
       )}
       <button className="btn block mt16" disabled={!ready} onClick={() => to && onSend({ to, moment: moment !== null ? list[moment] : null, giftId: null })}>
-        <Icon name="envelope" /> {full ? L('Ukas kort er brukt', 'This week’s cards are used up') : L('Send etter vakten', 'Send after the shift')}
+        <Icon name="envelope" /> {full ? L('Ukas kort er brukt', 'This week’s cards are used up') : done ? L('Send kortet', 'Send the card') : L('Send etter vakten', 'Send after the shift')}
       </button>
     </Sheet>
   )

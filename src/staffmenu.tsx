@@ -351,14 +351,15 @@ function EarnSheet({ onClose }: { onClose: () => void }) {
 
 // ── Sluttrapporten ─────────────────────────────────────────────────────────
 
-export function PolettCard() {
+/** Polettene etter vakten. I en rolig vakt nevnes ikke lagmålet (spillene er skjult). */
+export function PolettCard({ quiet = false }: { quiet?: boolean }) {
   const w = useWallet()
   return (
     <button className="er-card er-polett" onClick={() => navigate('/meg/meny')}>
       <Polett size={42} />
       <span className="grow">
         <b>{w.tonight > 0 ? L('+{n} i kveld', '+{n} tonight', { n: polletter(w.tonight) }) : L('Personalmenyen', 'The staff menu')}</b>
-        <small>{[w.tonightTeamGoal && L('Lagmålet nådd', 'Team goal reached'), L('du har {n}', 'you have {n}', { n: polletter(w.balance) })].filter(Boolean).join(' · ')}</small>
+        <small>{[w.tonightTeamGoal && !quiet && L('Lagmålet nådd', 'Team goal reached'), L('du har {n}', 'you have {n}', { n: polletter(w.balance) })].filter(Boolean).join(' · ')}</small>
       </span>
       <Icon name="chevR" className="lv-chev" />
     </button>

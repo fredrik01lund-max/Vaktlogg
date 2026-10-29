@@ -169,7 +169,14 @@ export function HealthDetail({ live }: { live: LiveState }) {
         <PulseChart idx={a.hrIdx} peak={stress.peak} />
       </Card>
 
-      <Card title={L('Bevegelse', 'Movement')} right={<span className="st-note num">{L('{n} skritt', '{n} steps', { n: num(a.steps) })}</span>}>
+      <Card
+        title={L('Bevegelse', 'Movement')}
+        right={
+          <span className="st-note num">
+            <Steps steps={a.steps} playing={playing} calm={quiet} /> {L('skritt', 'steps')}
+          </span>
+        }
+      >
         <MoveChart slots={move.slots} current={move.current} peakFrom={move.peak?.from ?? null} />
         {move.peak && (
           <p className="st-callout">

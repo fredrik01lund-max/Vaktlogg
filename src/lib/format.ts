@@ -11,13 +11,13 @@ const dec1En = new Intl.NumberFormat('en-GB', { minimumFractionDigits: 1, maximu
 
 /** Bytter tusenskille til vanlig hardt mellomrom og minus til typografisk minus. */
 function clean(s: string): string {
-  return s.replace(/[  ]/g, ' ')
+  return s.replace(/[\u202f\u2009 ]/g, '\u00a0').replace(/^-/, '\u2212')
 }
 
 export const num = (n: number): string => clean((isEn() ? intEn : intNo).format(Math.round(n)))
 export const dec1 = (n: number): string => clean((isEn() ? dec1En : dec1No).format(n))
-export const kr = (n: number): string => `${num(n)} kr`
-export const pct = (n: number): string => (isEn() ? `${num(n)}%` : `${num(n)} %`)
+export const kr = (n: number): string => `${num(n)}\u00a0kr`
+export const pct = (n: number): string => (isEn() ? `${num(n)}%` : `${num(n)}\u00a0%`)
 export const signedPct = (n: number): string => `${n >= 0 ? '+' : '−'}${pct(Math.abs(n))}`
 export const km = (n: number): string => `${dec1(n)} km`
 

@@ -184,13 +184,16 @@ let stopActive = () => {}
 // Han bor i demolinjen (DomeoHome) når han ikke er ute og viser deg rundt (Domeo3D). Det finnes bare ett lerret.
 let home: { L: Live; host: HTMLElement; here: (on: boolean) => void } | null = null
 let guiding = 0
+// Har han vært hjemme før? Da spretter han ikke frem igjen når demolinjen tegnes på nytt (språkbytte)
+let homeSeen = false
 /** Hjem til demolinjen – med en liten landing når han kommer flygende fra guiden. */
 const backHome = (land: boolean) =>
   preloadDomeo()
     .then((st) => {
       if (!home || guiding) return
       const L = home.L
-      L.entrance = land ? 'fly' : 'pop'
+      L.entrance = land || homeSeen ? 'fly' : 'pop'
+      homeSeen = true
       if (land) {
         L.action = 'land'
         L.actionAt = performance.now()

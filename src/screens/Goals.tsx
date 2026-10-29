@@ -78,8 +78,8 @@ export function Goals() {
   const meP = personalPeriod(done)
   const year = yearGoalAt(started && !hideLive ? live : null)
   const campState = { count: camp.units, target: camp.target, reached: camp.reached }
-  // Nyeste rekorder først
-  const recent = [...records].sort((a, b) => b.shift.date.localeCompare(a.shift.date))
+  // Nyeste rekorder først – og flaskerekorden sist når flere slås samme kveld (den feires aldri)
+  const recent = [...records].sort((a, b) => b.shift.date.localeCompare(a.shift.date) || +(a.metric === 'premiumBottles') - +(b.metric === 'premiumBottles'))
 
   return (
     <>

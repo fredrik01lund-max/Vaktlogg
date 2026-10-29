@@ -105,7 +105,9 @@ export function ReportPoster({ summary, data, show, animate }: { summary: ShiftS
     data.tables !== null ? { id: 'bord', icon: 'grid', tone: 'green', value: num(data.tables), label: L('bord', 'tables') } : { id: 'timer', icon: 'clock', tone: 'blue', value: dec1(summary.hours).replace(/[,.]0$/, ''), label: L('timer', 'hours') },
     { id: 'dessert', icon: 'dessert', tone: 'pink', value: num(summary.desserts), label: L('desserter', 'desserts') },
     { id: 'snitt', icon: 'receipt', tone: 'yellow', value: kr(summary.avgCheck), label: L('per gjest', 'per guest') },
-    data.watch && show.steps ? { id: 'skritt', icon: 'steps', tone: 'rose', value: num(summary.activity.steps), label: L('skritt · {km} km', 'steps · {km} km', { km: dec1(summary.activity.km) }) } : { id: 'timer2', icon: 'clock', tone: 'blue', value: dec1(summary.hours).replace(/[,.]0$/, ''), label: L('timer på jobb', 'hours at work') },
+    data.watch && show.steps ? { id: 'skritt', icon: 'steps', tone: 'rose', value: num(summary.activity.steps), label: L('skritt · {km} km', 'steps · {km} km', { km: dec1(summary.activity.km) }) } : data.tables === null
+        ? { id: 'pertime', icon: 'coins', tone: 'blue', value: num(summary.sales / Math.max(1, summary.hours)), label: L('kr per time', 'kr per hour') }
+        : { id: 'timer2', icon: 'clock', tone: 'blue', value: dec1(summary.hours).replace(/[,.]0$/, ''), label: L('timer på jobb', 'hours at work') },
   ]
   const shown = tiles.filter((t) => !t.hidden)
   const highlights = data.highlights.filter((h) => show.games || !h.competition)
@@ -226,9 +228,9 @@ function PrizeProgress({ quiet }: { quiet: boolean }) {
 }
 
 /** Deling: plakaten med valg for hva som er med. */
-function ShareReport({ summary, data, onClose }: { summary: ShiftSummary; data: Data; onClose: () => void }) {
+function ShareReport({ summary, data, quiet, onClose }: { summary: ShiftSummary; data: Data; quiet: boolean; onClose: () => void }) {
   const { pushToasts } = useStore()
-  const [show, setShow] = useState<Show>({ sales: true, tips: false, steps: true, games: true })
+  const [show, setShow] = useState<Show>({ sales: true, tips: false, steps: true, games: !quiet })
   const chips: { key: keyof Show; label: string }[] = [
     { key: 'sales', label: L('Salg', 'Sales') },
     { key: 'tips', label: L('Tips', 'Tips') },
@@ -245,8 +247,9 @@ function ShareReport({ summary, data, onClose }: { summary: ShiftSummary; data: 
       .join('\n')
     try {
       if (navigator.share) await navigator.share({ title: L('Sluttrapport', 'Shift report'), text })
-    } catch {
-      /* avbrutt */
+    } catch (err) {
+      // Avbrutt: arket blir stående, og ingenting er delt
+      if ((err as DOMException)?.name === 'AbortError') return
     }
     pushToasts([{ kind: 'info', title: L('Sluttrapporten er delt', 'Shift report shared'), body: L('Laget kan se den nå.', 'The team can see it now.') }])
     onClose()
@@ -319,7 +322,11 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
             <Icon name="check" /> {L('Lagret', 'Saved')}
           </span>
         )}
-        <button className="er-share-btn" onClick={() => setShare(true)}>
+        <button className="er-share-btn" onClick={() => {
+          // Sir Domeo går, så han ikke står oppå arket
+          setShare(true)
+          dismissGuide()
+        }}>
           <Icon name="share" /> {L('Del', 'Share')}
         </button>
       </div>
@@ -330,7 +337,11 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
           role="button"
           tabIndex={0}
           onClick={openBig}
-          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openBig()}
+          onKeyDown={(e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return
+            e.preventDefault()
+            openBig()
+          }}
           aria-label={L('Sluttrapporten. Trykk for å se hele', 'Shift report. Tap to see all of it')}
         >
           {poster}
@@ -356,7 +367,10 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
         <div className={`er-more ${card ? 'two' : ''}`}>
           <div className="er-duo">
           {card && (
-            <button className="er-card er-thanks" onClick={() => setThanks(true)}>
+            <button className="er-card er-thanks" onClick={() => {
+              setThanks(true)
+              dismissGuide()
+            }}>
               <span className="er-env" aria-hidden="true">
                 <Icon name="envelope" />
                 {!demo.cardOpened && <i />}
@@ -368,7 +382,7 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
               <Face id={config.employer.id} size={32} />
             </button>
           )}
-            <PolettCard />
+            <PolettCard quiet={quiet} />
           </div>
           <PrizeProgress quiet={quiet} />
         </div>
@@ -379,7 +393,7 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
           <Envelope card={card} opened={demo.cardOpened} onOpen={openCard} />
         </Sheet>
       )}
-      {share && <ShareReport summary={summary} data={data} onClose={() => setShare(false)} />}
+      {share && <ShareReport summary={summary} data={data} quiet={quiet} onClose={() => setShare(false)} />}
       {big && (
         <Sheet title={L('Sluttrapport', 'Shift report')} onClose={() => setBig(false)}>
           <ReportPoster summary={summary} data={data} show={{ sales: true, tips: true, steps: true, games: !quiet }} />
