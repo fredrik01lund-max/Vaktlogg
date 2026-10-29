@@ -8,6 +8,7 @@ import { promptInstall, useCanInstall } from './lib/install.ts'
 import type { Toast } from './state.tsx'
 import { Icon } from './ui.tsx'
 import './toast.css'
+import { DemoGuide, Klappen, openGuide } from './guide.tsx'
 import { Goals } from './screens/Goals.tsx'
 import { History, HistoryDetail } from './screens/History.tsx'
 import { Me } from './screens/Me.tsx'
@@ -157,7 +158,7 @@ function Toasts({ boss }: { boss: boolean }) {
 /** Bytt mellom Emmas og Karis telefon – ligger synlig i demo-kontrollen. */
 function RoleSwitch({ boss }: { boss: boolean }) {
   return (
-    <span className="role-switch" role="radiogroup" aria-label={L('Hvem sin telefon', 'Whose phone')}>
+    <span className="role-switch" data-guide="roles" role="radiogroup" aria-label={L('Hvem sin telefon', 'Whose phone')}>
       <button role="radio" aria-checked={!boss} className={!boss ? 'on' : ''} onClick={() => setMode('emma')} aria-label={L('Emmas telefon', 'Emma’s phone')}>
         <Face id={config.persona.id} size={26} />
       </button>
@@ -194,7 +195,17 @@ function DemoControl({ boss }: { boss: boolean }) {
       {menu && (
         <div className="demo-menu" role="menu">
           <div className="hint">
-            {L('{label}. Styrer demoen – er ikke en del av appen.', '{label}. Controls the demo – not part of the app.', { label: td(config.demoLabel) })}
+            {L('Regissørens meny · styrer demoen, er ikke en del av appen', 'Director’s menu · runs the demo, not part of the app')}
+          </div>
+          <div className="demo-lang" role="radiogroup" aria-label="Språk · Language">
+            <span aria-hidden="true">
+              <Icon name="globe" />
+            </span>
+            {(['no', 'en'] as const).map((l) => (
+              <button key={l} role="radio" aria-checked={settings.lang === l} onClick={() => updateSettings({ lang: l })}>
+                {l === 'no' ? 'Norsk' : 'English'}
+              </button>
+            ))}
           </div>
           {MANUAL ? (
             <button
@@ -246,19 +257,19 @@ function DemoControl({ boss }: { boss: boolean }) {
             role="menuitem"
             onClick={() => {
               setMenu(false)
-              updateSettings({ lang: settings.lang === 'en' ? 'no' : 'en' })
+              reset()
             }}
           >
-            <Icon name="globe" /> {settings.lang === 'en' ? 'Bytt til norsk' : 'Switch to English'}
+            <Icon name="reset" /> {L('Start demoen på nytt', 'Restart the demo')}
           </button>
           <button
             role="menuitem"
             onClick={() => {
               setMenu(false)
-              reset()
+              openGuide()
             }}
           >
-            <Icon name="reset" /> {L('Start demoen på nytt', 'Restart the demo')}
+            <Icon name="sparkle" /> {L('Vis Klappens guide', 'Show Clappy’s guide')}
           </button>
           <button
             role="menuitem"
@@ -271,33 +282,38 @@ function DemoControl({ boss }: { boss: boolean }) {
           </button>
         </div>
       )}
+      <DemoGuide />
       <div className="demo-ctl" aria-label={L('Demo-kontroll', 'Demo controls')}>
+        <button className="kg-mini" onClick={openGuide} aria-label={L('Klappens guide: slik styrer du prototypen', 'Clappy’s guide: how to run the prototype')}>
+          <Klappen mood="wink" size={30} />
+        </button>
         <RoleSwitch boss={boss} />
-        <span className="count">{stepLabel}</span>
+        {/* Før vakten sier «Start vakt» nok – klokka vises når vakten går */}
+        {demo.phase !== 'pre' && <span className="count">{stepLabel}</span>}
         {MANUAL
           ? demo.phase !== 'done' && (
               <>
                 <button onClick={togglePlay} aria-label={playing ? L('Pause', 'Pause') : L('Spill av hele vakten', 'Play the whole shift')}>
                   <Icon name={playing ? 'pause' : 'play'} />
                 </button>
-                <button className="primary" onClick={advance} aria-label={demo.phase === 'pre' ? L('Start vakt', 'Start shift') : L('Neste hendelse', 'Next event')}>
+                <button className="primary" data-guide="start" onClick={advance} aria-label={demo.phase === 'pre' ? L('Start vakt', 'Start shift') : L('Neste hendelse', 'Next event')}>
                   <Icon name="next" /> {nextLabel}
                 </button>
               </>
             )
           : demo.phase === 'pre'
             ? (
-                <button className="primary" onClick={startShift}>
+                <button className="primary" data-guide="start" onClick={startShift}>
                   <Icon name="play" /> {L('Start vakt', 'Start shift')}
                 </button>
               )
             : demo.phase === 'live' && (
                 // Vakten går av seg selv og starter på nytt hvert andre minutt – helt til den avsluttes her.
-                <button className="primary" onClick={finishShift}>
+                <button className="primary" data-guide="start" onClick={finishShift}>
                   <Icon name="stop" /> {L('Avslutt vakt', 'End shift')}
                 </button>
               )}
-        <button onClick={() => setMenu((m) => !m)} aria-label={L('Flere demo-valg', 'More demo options')} aria-expanded={menu}>
+        <button data-guide="more" onClick={() => setMenu((m) => !m)} aria-label={L('Flere demo-valg: språk og start på nytt', 'More demo options: language and restart')} aria-expanded={menu}>
           <Icon name={menu ? 'x' : 'more'} />
         </button>
       </div>

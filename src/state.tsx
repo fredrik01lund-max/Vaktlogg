@@ -27,6 +27,8 @@ export interface Settings {
   introDismissed: boolean
   /** Språk i appen: norsk eller engelsk (for å vise prototypen til folk som ikke leser norsk). */
   lang: Lang
+  /** Klappens guide til demolinjen er vist (eller hoppet over). */
+  guideSeen: boolean
 }
 
 export interface Demo {
@@ -64,6 +66,7 @@ const defaultSettings: Settings = {
   },
   introDismissed: false,
   lang: 'no',
+  guideSeen: false,
 }
 
 const defaultDemo: Demo = {

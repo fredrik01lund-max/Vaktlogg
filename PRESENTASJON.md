@@ -6,6 +6,8 @@ I demo-kontrollen er **E** Emmas telefon (servitøren), og **K** er Karis telefo
 
 ---
 
+> Deler du lenken med folk som skal teste selv, møter Klappen dem første gang og viser hvordan demoen styres. Skal du presentere selv, trykk «Hopp over» (eller åpne med `?manuell`).
+
 ### 1. Problemet (0:00–0:15) · *«Hei Emma»*
 
 > «Servitører sjekker allerede kasselappen etter vakten. De vil se tipsen, slå egne rekorder og konkurrere litt med kollegene. Men lappen havner i søpla. Vaktlogg tar vare på tallene og gjør kvelden til et lagspill.»
