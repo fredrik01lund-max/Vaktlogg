@@ -1,0 +1,297 @@
+/* ══ Gi tilbakemelding ═══════════════════════════════════════════════════════
+   Skjemaet i arket: kategorier som store valgbrikker, tekstfelt i appens myke stil,
+   og tydelige feil- og statusmeldinger. Følger pastellpaletten og brikkene ellers i appen (.pm/.pg). */
+
+.fb {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.fb-lead {
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+}
+.fb-group {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.fb-label {
+  display: block;
+  margin-bottom: 8px;
+  padding: 0;
+  font-size: var(--fs-sm);
+  font-weight: 750;
+  color: var(--text);
+}
+.fb-req,
+.fb-opt {
+  font-weight: 500;
+  color: var(--muted);
+  font-size: var(--fs-cap);
+}
+
+/* Kategoriene: fire store brikker, to og to */
+.fb-cats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.fb-cat {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  font-size: var(--fs-sm);
+  font-weight: 650;
+  line-height: 1.2;
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-micro) ease,
+    background var(--dur-micro) ease;
+}
+.fb-cat input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.fb-cat svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: var(--pink-ink);
+}
+.fb-cat.on {
+  border-color: var(--pink-strong);
+  background: var(--wine-soft);
+  color: var(--primary-ink);
+}
+.fb-cat:has(input:focus-visible) {
+  outline: 3px solid var(--pink-strong);
+  outline-offset: 2px;
+}
+.fb-cat:active {
+  transform: scale(0.98);
+}
+
+/* Tekstfeltene */
+.fb-field {
+  min-width: 0;
+}
+.fb textarea,
+.fb input[type='text'],
+.fb input[type='email'] {
+  display: block;
+  width: 100%;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  padding: 12px 14px;
+}
+.fb input[type='text'],
+.fb input[type='email'] {
+  min-height: 50px;
+}
+.fb textarea {
+  min-height: 132px;
+  resize: vertical;
+}
+.fb textarea::placeholder,
+.fb input::placeholder {
+  color: var(--faint);
+}
+.fb textarea:focus-visible,
+.fb input[type='text']:focus-visible,
+.fb input[type='email']:focus-visible {
+  outline: 3px solid var(--pink-fill);
+  outline-offset: 0;
+  border-color: var(--pink-strong);
+}
+.fb [aria-invalid='true'] {
+  border-color: var(--red-strong);
+  background: var(--red-bg);
+}
+.fb [readonly] {
+  opacity: 0.7;
+}
+.fb-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: -8px;
+}
+@media (max-width: 360px) {
+  .fb-two {
+    grid-template-columns: 1fr;
+  }
+}
+.fb-help {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 6px 2px 0;
+  font-size: var(--fs-cap);
+  color: var(--muted);
+  line-height: 1.4;
+}
+.fb-help .num {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+.fb-help .num.short {
+  color: var(--red-ink);
+}
+.fb-err {
+  margin: 6px 2px 0;
+  font-size: var(--fs-cap);
+  font-weight: 650;
+  color: var(--red-ink);
+}
+
+/* Det som sendes med, og personvernet */
+.fb-context {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--bg-deep);
+  font-size: var(--fs-cap);
+  color: var(--muted);
+  line-height: 1.4;
+}
+.fb-context b {
+  color: var(--text);
+  font-weight: 700;
+}
+.fb-privacy,
+.fb-off,
+.fb-fail {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 0;
+  font-size: var(--fs-cap);
+  line-height: 1.45;
+}
+.fb-privacy {
+  color: var(--muted);
+}
+.fb-privacy svg,
+.fb-off svg,
+.fb-fail svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+}
+.fb-off {
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--yellow-bg);
+  color: var(--yellow-ink);
+  font-weight: 600;
+}
+.fb-fail {
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--red-bg);
+  color: var(--red-ink);
+  font-weight: 600;
+}
+
+/* Sendeknappen, med en liten snurr mens den sender */
+.fb-send {
+  margin-top: 2px;
+}
+.fb-send[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.fb-spin {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2.5px solid currentColor;
+  border-right-color: transparent;
+  opacity: 0.8;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fb-spin {
+    animation: fbSpin 0.8s linear infinite;
+  }
+}
+@keyframes fbSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Sendt: bekreftelsen */
+.fb-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 12px 6px 4px;
+}
+.fb-done-ic {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--green-fill);
+  color: var(--green-ink);
+  margin-bottom: 4px;
+}
+.fb-done-ic svg {
+  width: 32px;
+  height: 32px;
+}
+.fb-done b {
+  font-size: var(--fs-title);
+}
+.fb-done p {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: var(--fs-sm);
+}
+.fb-done-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fb-done-ic {
+    animation: kgBubble 520ms var(--ease-pop) both;
+  }
+}
+
+/* Sir Domeo trekker seg unna mens skjemaet er åpent */
+.fb-open .kg-layer {
+  visibility: hidden;
+}
+
+/* Sidepanelet på stor skjerm: «Gi tilbakemelding» */
+.aside-feedback {
+  margin-top: 6px;
+}

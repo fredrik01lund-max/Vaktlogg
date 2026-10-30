@@ -13,6 +13,7 @@ import { MANUAL, useStore } from './state.tsx'
 import { D3D_BODY, D3D_PX, D3D_SIZE, Domeo3D, HOME_PX, onBody, preloadDomeo } from './domeo3d.tsx'
 import type { Action, Aim, Hand, Leaving, Mood } from './domeo3d.tsx'
 import { reduced } from './lib/motion.ts'
+import { openFeedback } from './feedback/Feedback.tsx'
 import './guide.css'
 
 // ── Liten felles tilstand: overlever at appen tegnes på nytt når språket byttes ──
@@ -548,17 +549,17 @@ const tourSteps = ({ watchOn, game, mate, fromKudos, phase }: TourCtx): TourStep
     text: () =>
       phase === 'live'
         ? L(
-            'Det var omvisningen! Vakten går fortsatt – trykk Avslutt vakt når du vil se sluttrapporten. Nede i linjen kan du også se sjefen Karis telefon, bytte språk og starte på nytt. Trenger du meg, trykk på meg. God vakt!',
-            'That’s the tour! The shift is still going – tap End shift whenever you want to see the shift report. Down in the bar you can also see Kari’s phone, switch language and start over. Need me? Tap me. Have a good shift!',
+            'Det var omvisningen! Vakten går fortsatt – trykk Avslutt vakt når du vil se sluttrapporten. Nede i linjen kan du også se sjefen Karis telefon, og under ⋯ bytter du språk, starter på nytt og gir oss tilbakemelding. Trenger du meg, trykk på meg. God vakt!',
+            'That’s the tour! The shift is still going – tap End shift whenever you want to see the shift report. Down in the bar you can also see Kari’s phone, and under ⋯ you switch language, start over and send us feedback. Need me? Tap me. Have a good shift!',
           )
         : phase === 'pre'
           ? L(
-              'Det var omvisningen! Trykk Start vakt nede i linjen når du er klar. Der kan du også se sjefen Karis telefon, bytte språk og starte på nytt. Trenger du meg, trykk på meg.',
-              'That’s the tour! Tap Start shift down in the bar when you’re ready. There you can also see Kari’s phone, switch language and start over. Need me? Tap me.',
+              'Det var omvisningen! Trykk Start vakt nede i linjen når du er klar. Der kan du også se sjefen Karis telefon, og under ⋯ bytter du språk, starter på nytt og gir oss tilbakemelding. Trenger du meg, trykk på meg.',
+              'That’s the tour! Tap Start shift down in the bar when you’re ready. There you can also see Kari’s phone, and under ⋯ you switch language, start over and send us feedback. Need me? Tap me.',
             )
           : L(
-              'Det var omvisningen! Trykk deg rundt som du vil. Nede i linjen kan du se sjefen Karis telefon, bytte språk og starte på nytt. Trenger du meg, trykk på meg.',
-              'That’s the tour! Tap around as you like. Down in the bar you can see Kari’s phone, switch language and start over. Need me? Tap me.',
+              'Det var omvisningen! Trykk deg rundt som du vil. Nede i linjen kan du se sjefen Karis telefon, og under ⋯ bytter du språk, starter på nytt og gir oss tilbakemelding. Trenger du meg, trykk på meg.',
+              'That’s the tour! Tap around as you like. Down in the bar you can see Kari’s phone, and under ⋯ you switch language, start over and send us feedback. Need me? Tap me.',
             ),
   },
 ]
@@ -976,7 +977,24 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
               ],
         }
   } else if (g.open && g.mode === 'kari') {
-    view = { key: 'kari', place: 'center', mood: 'wave', move: 'shrug', ...kariText(), buttons: [{ label: L('Skjønner!', 'Got it!'), kind: 'next', onClick: close }] }
+    view = {
+      key: 'kari',
+      place: 'center',
+      mood: 'wave',
+      move: 'shrug',
+      ...kariText(),
+      buttons: [
+        {
+          label: L('Gi innspill', 'Give input'),
+          kind: 'alt',
+          onClick: () => {
+            close()
+            openFeedback({ category: 'ny' })
+          },
+        },
+        { label: L('Skjønner!', 'Got it!'), kind: 'next', onClick: close },
+      ],
+    }
   } else if (g.open && g.mode === 'done') {
     view = {
       key: 'done',
@@ -1078,7 +1096,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   useEffect(() => {
     if (!g.open || !['help', 'self', 'kari', 'done'].includes(g.mode)) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return
+      if (e.key !== 'Escape' || document.body.classList.contains('fb-open')) return
       e.stopPropagation()
       closeRef.current()
     }

@@ -87,6 +87,11 @@ export const paths: Record<string, ReactNode> = {
   leafglass: <><path d="M7.5 3.5h7l-.9 7.5a2.6 2.6 0 0 1-5.2 0z" /><path d="M11 13.6v6.9M8 20.5h6" /><path d="M15.6 5.6c2.8-.3 4.4 1.1 4.4 4-2.8.3-4.4-1.2-4.4-4z" /></>,
   house: <><path d="M3.5 11 12 4l8.5 7" /><path d="M5.5 9.6v10.9h13V9.6" /><path d="M9.5 20.5v-5h5v5" /></>,
   chatheart: <><path d="M4 5.5h16v10.2h-9.6L6 19.6v-3.9H4z" /><path d="M12 13.4s-3-1.8-3-3.6a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 1.8-3 3.6-3 3.6z" /></>,
+  // Tilbakemelding: idé, forbedring, feil og prat
+  bulb: <><path d="M15 14c.2-1 .7-1.7 1.5-2.5A5.6 5.6 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" /><path d="M9 18h6M10 21.5h4" /></>,
+  wrench: <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z" />,
+  bug: <><rect x="7" y="7" width="10" height="13" rx="5" /><path d="M12 11v9M7 12H3.5M20.5 12H17M7.6 16.5 4.5 18.5M16.4 16.5l3.1 2M9 7.5 7.5 4.5M15 7.5l1.5-3" /></>,
+  chat: <><path d="M4 5.5h16v10.2h-9.6L6 19.6v-3.9H4z" /><path d="M8 9.5h8M8 12.5h5" /></>,
 }
 
 export function Icon({ name, className }: { name: keyof typeof paths | string; className?: string }) {

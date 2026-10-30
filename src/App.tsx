@@ -10,6 +10,7 @@ import { Icon } from './ui.tsx'
 import './toast.css'
 import { DemoGuide, Domeo, endGuide, openGuide, welcome } from './guide.tsx'
 import { DomeoHome } from './domeo3d.tsx'
+import { FeedbackHost, openFeedback } from './feedback/Feedback.tsx'
 import { Goals } from './screens/Goals.tsx'
 import { History, HistoryDetail } from './screens/History.tsx'
 import { Me } from './screens/Me.tsx'
@@ -270,6 +271,15 @@ function DemoControl({ boss, onReport }: { boss: boolean; onReport: boolean }) {
             role="menuitem"
             onClick={() => {
               setMenu(false)
+              openFeedback()
+            }}
+          >
+            <Icon name="chat" /> {L('Gi tilbakemelding', 'Give feedback')}
+          </button>
+          <button
+            role="menuitem"
+            onClick={() => {
+              setMenu(false)
               openGuide()
             }}
           >
@@ -378,6 +388,9 @@ function Shell() {
             { label: td(config.demoLabel) },
           )}
         </p>
+        <button className="btn secondary small aside-feedback" onClick={() => openFeedback()}>
+          <Icon name="chat" /> {L('Gi tilbakemelding', 'Give feedback')}
+        </button>
       </aside>
       <div className="device-col">
       <div className="device">
@@ -400,6 +413,7 @@ function Shell() {
           {overlayMonth && <Wrapped month={overlayMonth} />}
           <div id="app-overlays" />
           {!overlayMonth && <Toasts boss={boss} />}
+          <FeedbackHost />
         </div>
       </div>
       <DemoControl boss={boss} onReport={onReport} />

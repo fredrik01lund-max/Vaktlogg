@@ -173,11 +173,30 @@ Boksene ligger i `src/shift/` (`Overview.tsx` for forsiden, én fil per tema, `s
 
 Sluttoppgjøret viser fortsatt ringene og lagres automatisk i historikken når vakten avsluttes.
 
-Lette innstillinger (rolig modus, klokke, kveldens spill, Karis premievalg og hvor langt demoen har kommet) lagres i nettleserens `localStorage`. Appen virker like godt uten. «Start demoen på nytt» nullstiller vakten.
+Lette innstillinger (rolig modus, klokke, kveldens spill, Karis premievalg og hvor langt demoen har kommet) lagres i nettleserens `localStorage` – aldri tilbakemeldinger. Appen virker like godt uten. «Start demoen på nytt» nullstiller vakten.
+
+## Tilbakemelding (Formspree)
+
+Testere kan sende forslag, forbedringer og feil rett fra prototypen. Knappen «Gi tilbakemelding» ligger i ⋯ i demolinjen (på alle sider), i sidepanelet på stor skjerm, og i Sir Domeos beskjed på Karis telefon («Gi innspill»). Skjemaet er et ark med kategori (må velges), beskrivelse (10–2000 tegn), og navn og e-post (valgfritt – man kan sende anonymt).
+
+- **Hva som sendes:** kategori, beskrivelse, navn og e-post hvis de er fylt ut, og litt teknisk sammenheng: siden man var på (f.eks. «Vakt › Helse»), rollen (servitør Emma eller leder Kari), appversjon (`package.json` + commit) og tidspunkt. Skjemaet viser dette før man sender. Ingen helse- eller gjestedata, ingen nettleserdetaljer. Det som sendes er på norsk, uansett språk i appen.
+- **Hvordan:** rett fra appen til Formspree (`fetch` mot `https://formspree.io/f/<Form ID>`) – ingen egen server, ingen nøkler, ingen nye pakker. Suksess vises bare når Formspree har bekreftet mottak; ved feil blir teksten stående. Utkastet holdes i minnet mens siden er åpen, men lagres aldri i nettleseren.
+- **Form ID:** settes i `.env` (`VITE_FORMSPREE_FORM_ID=`). Hele adressen fra Formspree går også. Er den tom, er sendeknappen av og skjemaet forklarer hvorfor. Form ID-en er offentlig (den står i adressen) og trygg å ha i koden.
+- **Kode:** `src/feedback/` – `Feedback.tsx` (arket og skjemaet), `formspree.ts` (innsendingen og feilene), `context.ts` (side, rolle, versjon, tidspunkt), `feedback.css`. Versjonen settes av `vite.version.ts`.
+
+### Koble til Formspree (én gang)
+
+1. Opprett en gratis konto på [formspree.io](https://formspree.io/register) og bekreft e-postadressen (lenken i e-posten fra Formspree).
+2. Lag et nytt skjema med **+ New form**, gi det et navn (f.eks. «Vaktlogg tilbakemelding»), og velg e-postadressen varslene skal gå til.
+3. Kopier **Form ID** fra skjemaets fane **Integration**, under «Your form's endpoint is»: adressen ser slik ut `https://formspree.io/f/abcdwxyz` – Form ID-en er det siste leddet, `abcdwxyz`.
+4. Lim den inn i `.env`: `VITE_FORMSPREE_FORM_ID=abcdwxyz`, og publiser (commit og push – GitHub Pages bygger på nytt). For den nedlastbare filen og zip-pakken: bygg dem på nytt etterpå.
+5. E-postvarsler er på som standard for den bekreftede adressen (skjemaets **Settings → Email notifications**). Svarer du på varselet, går svaret til e-posten testeren eventuelt oppga.
+
+Gratisplanen: 50 innsendinger i måneden, 30 dagers arkiv i Formspree-dashbordet, varsler til to e-postadresser, enkel spamfiltrering. Er kvoten brukt opp, sier skjemaet fra, og teksten blir stående.
 
 ## Teknisk
 
-- Vite + React + TypeScript, ingen backend og ingen API-kall
+- Vite + React + TypeScript, ingen backend; den eneste forespørselen ut er tilbakemeldingsskjemaet (Formspree)
 - Selvhostede fonter via `@fontsource-variable` (Fraunces og Inter), ingen eksterne forespørsler
 - Mobil først (390 × 844), safe-area, trykkflater på minst 44 px, ingen avhengighet av hover
 - Tekststørrelser i `rem` via en fast skala i `src/styles.css` (`--fs-cap` … `--fs-mega`), så teksten følger nettleserens tekststørrelse
