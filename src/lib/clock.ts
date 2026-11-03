@@ -22,6 +22,9 @@ function subscribe(f: () => void) {
   }
 }
 
+/** Følg klokka (speilingen til storskjermen sender den videre). */
+export const paKlokke = subscribe
+
 /** Minuttene på den virtuelle vakten akkurat nå, eller null når klokka står. */
 export function useClock(): number | null {
   return useSyncExternalStore(subscribe, getClock, getClock)

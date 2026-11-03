@@ -175,6 +175,12 @@ Sluttoppgjøret viser fortsatt ringene og lagres automatisk i historikken når v
 
 Lette innstillinger (rolig modus, klokke, kveldens spill, Karis premievalg og hvor langt demoen har kommet) lagres i nettleserens `localStorage` – aldri tilbakemeldinger. Appen virker like godt uten. «Start demoen på nytt» nullstiller vakten.
 
+## Sensor prøver selv (`?sensor`) og speiling på eksamen (`?speil`)
+
+- **`?sensor`**: Sir Domeos egen omvisning for sensor – seks stopp der sensor trykker selv: Start vakt → Salg (kassarapporten) → tilbake til Vakt → kudos til en kollega → Avslutt vakt → sluttrapporten. Ingen spørsmål først, Kari-delen hoppes over, og hver replikk har stemme. Replikkene (norsk og engelsk) står i `src/sensor-replikker.json`.
+- **Stemmen**: `public/domeo/sensor-0.mp3` … `sensor-5.mp3`, laget med ElevenLabs (stemmen «Terje» fra stemmebiblioteket, modell Eleven v4, med lette lydtagger som `[chuckles]`). Endres teksten, må lydfilene lages på nytt. Stemme: Terje via ElevenLabs.
+- **`?speil=send` / `?speil=vis`**: på eksamen trykker sensor på en ekte mobil (`send`), og prototypen i presentasjonen (`vis`) viser det samme – tilstand, klokke, side, rulling og Sir Domeo. De kobler seg til en liten WebSocket-tjener på presentasjons-PC-en (`npm run eksamen` i Vaktlogg Experience) over et lokalt nett eller en mobil-hotspot – ingen internett. Stemmen spilles av storskjermen, aldri av mobilen. Uten tjener virker appen som vanlig. Koden ligger i `src/speil.ts`.
+
 ## Tilbakemelding (Formspree)
 
 Testere kan sende forslag, forbedringer og feil rett fra prototypen. Knappen «Gi tilbakemelding» ligger i ⋯ i demolinjen (på alle sider), i sidepanelet på stor skjerm, og i Sir Domeos beskjed på Karis telefon («Gi innspill»). Skjemaet er et ark med kategori (må velges), beskrivelse (10–2000 tegn), og navn og e-post (valgfritt – man kan sende anonymt).

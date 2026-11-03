@@ -5,7 +5,8 @@ import { employer, gameNight, staffMenu, team } from './data/demoData.ts'
 import type { GameId, KudosCategory } from './data/demoData.ts'
 import { lastStepIndex, liveAt, setInvites } from './lib/calc.ts'
 import type { Invites, SentCard } from './lib/calc.ts'
-import { setClock } from './lib/clock.ts'
+import { getClock, paKlokke, setClock } from './lib/clock.ts'
+import { SPEIL, paSpeil, sendSpeil, settSpeilAktiv } from './speil.ts'
 import { notificationsFor, startNotifications } from './lib/live.ts'
 import type { ToastMsg } from './lib/live.ts'
 import type { Order } from './lib/wallet.ts'
@@ -199,6 +200,66 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const toastId = useRef(1)
 
   useEffect(() => persist(settings, demo), [settings, demo])
+
+  // ── Speiling til storskjermen (eksamen, se speil.ts) ──
+  // Mobilen sensor holder (send) sender alt som vises; storskjermen (vis) viser det, uten egen avspilling.
+  const speilRef = useRef({ settings, demo, toasts, loop })
+  speilRef.current = { settings, demo, toasts, loop }
+  useEffect(() => {
+    if (SPEIL === 'send') sendSpeil({ type: 'tilstand', settings, demo, toasts, loop })
+  }, [settings, demo, toasts, loop])
+  useEffect(() => {
+    if (SPEIL === 'send') {
+      const rute = () => sendSpeil({ type: 'rute', hash: window.location.hash })
+      const klokke = () => sendSpeil({ type: 'klokke', m: getClock() })
+      // Rulling i appen følger med, så storskjermen viser det samme utsnittet
+      let siste = 0
+      const rull = (e: Event) => {
+        const el = e.target as HTMLElement
+        if (!el.classList?.contains('screen') || performance.now() - siste < 60) return
+        siste = performance.now()
+        sendSpeil({ type: 'rull', y: el.scrollTop })
+      }
+      rute()
+      window.addEventListener('hashchange', rute)
+      document.addEventListener('scroll', rull, true)
+      const avKlokke = paKlokke(klokke)
+      const avSpeil = paSpeil((m) => {
+        // En ny storskjerm har koblet seg til: send alt med en gang
+        if (m.type === 'hei') {
+          sendSpeil({ type: 'tilstand', ...speilRef.current })
+          rute()
+          klokke()
+        } else if (m.type === 'nullstill') window.location.reload()
+      })
+      return () => {
+        window.removeEventListener('hashchange', rute)
+        document.removeEventListener('scroll', rull, true)
+        avKlokke()
+        avSpeil()
+      }
+    }
+    if (SPEIL !== 'vis') return
+    return paSpeil((m) => {
+      if (m.type === 'tilstand') {
+        settSpeilAktiv()
+        setPlaying(false)
+        setSettings(m.settings as Settings)
+        setDemo(m.demo as Demo)
+        setToasts(m.toasts as Toast[])
+        setLoop(m.loop as number)
+      } else if (m.type === 'klokke') {
+        clockRef.current = (m.m as number | null) ?? clockRef.current
+        setClock(m.m as number | null)
+      } else if (m.type === 'rute') {
+        const h = (m.hash as string) || '#/vakt'
+        if (window.location.hash !== h) window.location.hash = h
+      } else if (m.type === 'rull') {
+        const el = document.querySelector('.screen')
+        if (el) el.scrollTop = m.y as number
+      }
+    })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const pushToasts = useCallback((msgs: ToastMsg[]) => {
     // Varsler hører til én telefon: Emmas varsler vises ikke mens Karis telefon er åpen, og omvendt.
