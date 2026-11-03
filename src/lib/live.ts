@@ -76,17 +76,18 @@ export function notificationsFor(prevIndex: number, nextIndex: number, opts: Not
   }
 
   // 2. Personlige rekorder – vises også i rolig modus, de er ikke en konkurranse.
-  // Salgsrekorden først (den slås samtidig med flaskerekorden), og flaskerekorden feires aldri (ingen salgskonkurranse på alkohol).
+  // Ingen varsel om flaskerekorden i det hele tatt: «ingen konkurranser om alkohol» er et designprinsipp, og et
+  // rekordvarsel om dyre flasker midt i vakten er nettopp en slik konkurranse (sensor ser det i omvisningen).
   const order: RecordMetric[] = ['sales', 'desserts', 'premiumBottles']
   for (const d of [...recordDefs].sort((a, b) => order.indexOf(a.metric) - order.indexOf(b.metric))) {
-    if (d.metric === 'avgCheck') continue
+    if (d.metric === 'avgCheck' || d.metric === 'premiumBottles') continue
     const best = historyBest[d.metric]
     if (liveMetric(prev, d.metric) <= best && liveMetric(next, d.metric) > best) {
       candidates.push({
         kind: 'record',
         title: L('Ny rekord: {record}', 'New record: {record}', { record: td(d.short).toLowerCase() }),
         body: recordBody(d.metric, liveMetric(next, d.metric), best),
-        celebrate: play && d.metric !== 'premiumBottles',
+        celebrate: play,
       })
     }
   }
