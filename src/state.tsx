@@ -6,7 +6,7 @@ import type { GameId, KudosCategory } from './data/demoData.ts'
 import { lastStepIndex, liveAt, setInvites } from './lib/calc.ts'
 import type { Invites, SentCard } from './lib/calc.ts'
 import { getClock, paKlokke, setClock } from './lib/clock.ts'
-import { SPEIL, paSpeil, sendSpeil, settSpeilAktiv } from './speil.ts'
+import { SPEIL, paSpeil, sendSpeil, settSpeilAktiv, skalNullstilles } from './speil.ts'
 import { notificationsFor, startNotifications } from './lib/live.ts'
 import type { ToastMsg } from './lib/live.ts'
 import type { Order } from './lib/wallet.ts'
@@ -230,7 +230,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           sendSpeil({ type: 'tilstand', ...speilRef.current })
           rute()
           klokke()
-        } else if (m.type === 'nullstill') window.location.reload()
+        } else if (m.type === 'nullstill' && skalNullstilles(m)) window.location.reload()
       })
       return () => {
         window.removeEventListener('hashchange', rute)

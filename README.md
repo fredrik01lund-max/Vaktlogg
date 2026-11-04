@@ -179,7 +179,11 @@ Lette innstillinger (rolig modus, klokke, kveldens spill, Karis premievalg og hv
 
 - **`?sensor`**: Sir Domeos egen omvisning for sensor – seks stopp der sensor trykker selv: Start vakt → Salg (kassarapporten) → tilbake til Vakt → kudos til en kollega → Avslutt vakt → sluttrapporten. Ingen spørsmål først, Kari-delen hoppes over, og hver replikk har stemme. Replikkene (norsk og engelsk) står i `src/sensor-replikker.json`.
 - **Stemmen**: `public/domeo/sensor-0.mp3` … `sensor-5.mp3`, laget med ElevenLabs (stemmen «Terje» fra stemmebiblioteket, modell Eleven v4, med lette lydtagger som `[chuckles]`). Endres teksten, må lydfilene lages på nytt. Stemme: Terje via ElevenLabs.
-- **`?speil=send` / `?speil=vis`**: på eksamen trykker sensor på en ekte mobil (`send`), og prototypen i presentasjonen (`vis`) viser det samme – tilstand, klokke, side, rulling og Sir Domeo. De kobler seg til en liten WebSocket-tjener på presentasjons-PC-en (`npm run eksamen` i Vaktlogg Experience) over et lokalt nett eller en mobil-hotspot – ingen internett. Stemmen spilles av storskjermen, aldri av mobilen. Uten tjener virker appen som vanlig. Koden ligger i `src/speil.ts`.
+- **`?speil=send` / `?speil=vis`**: på eksamen trykker sensor på en ekte mobil (`send`), og prototypen i presentasjonen (`vis`) viser det samme – tilstand, klokke, side, rulling og Sir Domeo. De møtes på én av to måter:
+  - **Med `&rom=<kode>`**: via reléet over internett (`src/lib/rele.ts`), offentlige MQTT-meglere over WebSocket med TLS, uten konto. Slik virker det fra GitHub Pages. Klienten kobler til to meglere og sender til begge, og mottakeren sorterer bort duplikatene. Mobilen sender en puls hvert 3. sekund, så presentasjonen ser at den er koblet til.
+  - **Uten rom**: via en liten WebSocket-tjener på presentasjons-PC-en (`npm run eksamen` i Vaktlogg Experience) over et lokalt nett eller en mobil-hotspot, uten internett.
+
+  Stemmen spilles av storskjermen, aldri av mobilen. Uten speil virker appen som vanlig. Ny demo (`&nullstill=n`) starter omvisningen på mobilen på nytt én gang per `n`. Koden ligger i `src/speil.ts`.
 
 ## Tilbakemelding (Formspree)
 
