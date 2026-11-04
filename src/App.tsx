@@ -26,6 +26,7 @@ import { ShiftDetail } from './shift/Detail.tsx'
 import { topicById } from './shift/topics.ts'
 import { designParam } from './designs/Directions.tsx'
 import { L, td } from './i18n.ts'
+import { SpeilMerke } from './speilmerke.tsx'
 
 // Fanene lages ved hver tegning, så navnene følger valgt språk. «Goals» heter det samme på begge språk.
 const tabList = () => [
@@ -432,6 +433,7 @@ export default function App() {
   return (
     <StoreProvider>
       <Root />
+      <SpeilMerke />
     </StoreProvider>
   )
 }

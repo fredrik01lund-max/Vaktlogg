@@ -96,11 +96,39 @@ function koble() {
   }
 }
 
+// ── Mobilen via reléet: finner den storskjermen? ──
+// Presentasjonen sier «skjerm» hvert 3. sekund i rommet (og prototypen på storskjermen sier «hei»).
+// Hører mobilen ingenting, er koden feil eller PC-en uten nett – det vises øverst på mobilen (SpeilMerke).
+export type SpeilStatus = { rele: boolean; skjerm: boolean; startet: number }
+let speilStatus: SpeilStatus = { rele: false, skjerm: false, startet: Date.now() }
+let sistSkjerm = 0
+const statusLyttere = new Set<() => void>()
+function oppdaterStatus() {
+  const ny = { ...speilStatus, rele: (rele?.apne() ?? 0) > 0, skjerm: Date.now() - sistSkjerm < 7000 }
+  if (ny.rele === speilStatus.rele && ny.skjerm === speilStatus.skjerm) return
+  speilStatus = ny
+  statusLyttere.forEach((f) => f())
+}
+export function paSpeilStatus(f: () => void) {
+  statusLyttere.add(f)
+  return () => {
+    statusLyttere.delete(f)
+  }
+}
+export const hentSpeilStatus = () => speilStatus
+
 function kobleViaRele(kode: string) {
   rele = kobleRele(kode, {
-    paMelding: (m) => lyttere.forEach((f) => f(m)),
+    paMelding: (m) => {
+      if (m.type === 'skjerm' || m.type === 'hei') {
+        sistSkjerm = Date.now()
+        oppdaterStatus()
+      }
+      lyttere.forEach((f) => f(m))
+    },
     paTilkoblet: () => {
       tilkoblet()
+      oppdaterStatus()
       // Mobilen sender alt den viser på nytt hver gang den (gjen)oppretter forbindelsen – som når
       // eksamenstjeneren sier «hei» til en ny tilkobling
       if (SPEIL === 'send') lyttere.forEach((f) => f({ type: 'hei' }))
@@ -108,6 +136,7 @@ function kobleViaRele(kode: string) {
   })
   // Pulsen forteller presentasjonen at mobilen er koblet til (vises i presentatørvisningen)
   if (SPEIL === 'send') window.setInterval(() => sendSpeil({ type: 'puls' }), 3000)
+  window.setInterval(oppdaterStatus, 1000)
 }
 
 if (SPEIL && typeof window !== 'undefined') {
