@@ -1,19 +1,24 @@
 // Reléet over internett: sensors mobil og storskjermen møtes i et «rom» med en kort kode, via offentlige
-// MQTT-meglere (WebSocket med TLS, ingen konto). Brukes når presentasjonen ikke kjøres fra eksamenstjeneren,
-// f.eks. fra GitHub Pages. Klienten kobler til flere meglere samtidig og sender hver melding til alle;
-// mottakeren sorterer bort duplikatene, så det holder at én megler svarer.
+// tjenester uten konto. Brukes når presentasjonen ikke kjøres fra eksamenstjeneren, f.eks. fra GitHub Pages.
 //
-// Meldingene er demotilstanden til den fiktive restauranten – ingen personopplysninger. Emnet er en hash av koden.
+// Tre veier samtidig, så det holder at én av dem kommer gjennom nettet dere er på:
+//  - to MQTT-meglere (HiveMQ og EMQX) over WebSocket med TLS, på port 8884 og 8084
+//  - Yjs sin demotjener (y-websocket) på vanlig port 443, som også slipper gjennom nett som stenger andre porter.
+//    Der sendes meldingene som «awareness»-tilstand, som tjeneren videresender til alle i samme rom.
+// Hver melding sendes på alle veiene som er åpne; mottakeren sorterer bort duplikatene.
+//
+// Meldingene er demotilstanden til den fiktive restauranten – ingen personopplysninger. Rommet er en hash av koden.
 //
 // Samme fil ligger i Vaktlogg Experience (src/lib/rele.ts) og i prototypen (src/lib/rele.ts): hold dem like.
 
 export const MEGLERE = ['wss://broker.hivemq.com:8884/mqtt', 'wss://broker.emqx.io:8084/mqtt']
+export const YJS = ['wss://demos.yjs.dev/ws/']
 
 export type ReleMelding = { type: string; [k: string]: unknown }
 export type Rele = {
-  /** Sender til alle meglere som er tilkoblet. false: ingen er tilkoblet akkurat nå. */
+  /** Sender på alle veier som er åpne. false: ingen er åpne akkurat nå. */
   send: (m: ReleMelding) => boolean
-  /** Antall meglere som er tilkoblet og lytter i rommet. */
+  /** Antall veier som er åpne og lytter i rommet. */
   apne: () => number
   lukk: () => void
 }
@@ -26,7 +31,7 @@ export const lagKode = (n = 5) => Array.from({ length: n }, () => ROMTEGN[Math.f
 const enc = new TextEncoder()
 const dec = new TextDecoder()
 
-/** Emnet i megleren: en hash av koden, så koden selv ikke står i klartekst der. */
+/** Rommet: en hash av koden, så koden selv ikke står i klartekst hos tjenestene. */
 function emne(kode: string) {
   let a = 0x811c9dc5
   let b = 0x01000193
@@ -73,10 +78,68 @@ const SUBSCRIBE = (t: string) => pakke(0x82, [new Uint8Array([0, 1]), tekst(t), 
 const PUBLISH = (t: string, data: string) => pakke(0x30, [tekst(t), enc.encode(data)])
 const PINGREQ = new Uint8Array([0xc0, 0])
 
-type Pakke = { f: string; n: number; m: ReleMelding }
+// ── y-websocket «awareness»: [varUint 1, varUint8Array([varUint antall, (varUint id, varUint klokke, varString json)…])] ──
+function varUint(n: number) {
+  const b: number[] = []
+  while (n > 127) {
+    b.push(128 | (n & 127))
+    n = Math.floor(n / 128)
+  }
+  b.push(n)
+  return b
+}
+function awareness(klient: number, klokke: number, json: string) {
+  const s = enc.encode(json)
+  const hode = [...varUint(1), ...varUint(klient), ...varUint(klokke), ...varUint(s.length)]
+  const innhold = hode.length + s.length
+  const ytre = [...varUint(1), ...varUint(innhold)]
+  const ut = new Uint8Array(ytre.length + innhold)
+  ut.set(ytre, 0)
+  ut.set(hode, ytre.length)
+  ut.set(s, ytre.length + hode.length)
+  return ut
+}
+/** Leser tilstandene i en awareness-melding (andre meldingstyper, som Yjs-synkronisering, hoppes over). */
+function lesAwareness(buf: Uint8Array): { id: number; json: string }[] {
+  let i = 0
+  const u = () => {
+    let n = 0
+    let m = 1
+    for (;;) {
+      if (i >= buf.length) throw new Error('kort')
+      const b = buf[i++]
+      n += (b & 127) * m
+      m *= 128
+      if (b < 128) return n
+    }
+  }
+  try {
+    if (u() !== 1) return []
+    u()
+    const antall = u()
+    const ut: { id: number; json: string }[] = []
+    for (let k = 0; k < antall; k++) {
+      const id = u()
+      u()
+      const l = u()
+      ut.push({ id, json: dec.decode(buf.subarray(i, i + l)) })
+      i += l
+    }
+    return ut
+  } catch {
+    return []
+  }
+}
+
+/** t: når meldingen ble sendt. Yjs-tjeneren gir en ny klient den siste tilstanden til alle i rommet idet den kobler
+ *  til – en gammel melding derfra (f.eks. en nullstilling fra for lenge siden) skal ikke gjøres på nytt. */
+type Pakke = { f: string; n: number; t?: number; m: ReleMelding }
+const FOR_GAMMEL = 5000
+
+type Vei = { klar: () => boolean; send: (data: string) => void; stopp: () => void }
 
 /** Koble til rommet. paMelding får meldinger fra de andre (aldri ens egne), paTilkoblet kalles hver gang
- *  en megler er klar – da bør avsenderen sende alt på nytt, slik eksamenstjeneren ber om med «hei». */
+ *  en vei er klar – da bør avsenderen sende alt på nytt, slik eksamenstjeneren ber om med «hei». */
 export function kobleRele(kode: string, { paMelding, paTilkoblet }: { paMelding: (m: ReleMelding) => void; paTilkoblet?: () => void }): Rele {
   const tema = emne(kode)
   const meg = Math.random().toString(36).slice(2, 10)
@@ -84,7 +147,7 @@ export function kobleRele(kode: string, { paMelding, paTilkoblet }: { paMelding:
   const sist = new Map<string, number>()
   let lukket = false
 
-  function motta(data: string) {
+  function motta(data: string, gamleMulig = false) {
     let p: Pakke
     try {
       p = JSON.parse(data) as Pakke
@@ -92,107 +155,64 @@ export function kobleRele(kode: string, { paMelding, paTilkoblet }: { paMelding:
       return
     }
     if (!p || p.f === meg || typeof p.n !== 'number' || !p.m || typeof p.m.type !== 'string') return
-    // Samme melding kommer fra hver megler: bare den første teller. Kommer en eldre melding av samme slag
-    // etter en nyere (fra en tregere megler), hoppes den over, så skjermen aldri går baklengs.
+    // Bare der gamle meldinger kan dukke opp (rett etter at Yjs-veien har koblet til): da teller klokka
+    if (gamleMulig && typeof p.t === 'number' && Date.now() - p.t > FOR_GAMMEL) return
+    // Samme melding kommer fra hver vei: bare den første teller. Kommer en eldre melding av samme slag
+    // etter en nyere (fra en tregere vei), hoppes den over, så skjermen aldri går baklengs.
     const nokkel = p.f + ':' + p.m.type
     if ((sist.get(nokkel) ?? 0) >= p.n) return
     sist.set(nokkel, p.n)
     paMelding(p.m)
   }
 
-  function forbind(url: string) {
-    const f = { ws: null as WebSocket | null, klar: false, venteTid: 1000, pong: 0, ping: 0 }
-    let buf = new Uint8Array(0)
-    let pingId = 0
-
+  /** Felles for alle veiene: koble til på nytt med økende ventetid, og sjekk forbindelsen når mobilen våkner. */
+  function vei(url: string, protokoll: string | undefined, h: { apnet: (ws: WebSocket) => void; melding: (ws: WebSocket, data: ArrayBuffer) => void; sjekk: (ws: WebSocket, dod: () => void) => void }) {
+    let ws: WebSocket | null = null
+    let klar = false
+    let venteTid = 1000
     const lukk = () => {
       try {
-        f.ws?.close()
+        ws?.close()
       } catch {
         /* allerede lukket */
       }
     }
-    const pakker = (type: number, flagg: number, kropp: Uint8Array) => {
-      if (type === 2) {
-        // CONNACK
-        if (kropp[1] === 0) f.ws?.send(SUBSCRIBE(tema))
-        else lukk()
-      } else if (type === 9) {
-        // SUBACK: vi lytter i rommet
-        f.klar = true
-        f.venteTid = 1000
-        paTilkoblet?.()
-      } else if (type === 3) {
-        // PUBLISH
-        const tl = (kropp[0] << 8) | kropp[1]
-        let i = 2 + tl
-        if ((flagg >> 1) & 3) i += 2
-        motta(dec.decode(kropp.subarray(i)))
-      } else if (type === 13) f.pong = Date.now()
-    }
-    const les = (data: ArrayBuffer) => {
-      const ny = new Uint8Array(data)
-      const samlet = new Uint8Array(buf.length + ny.length)
-      samlet.set(buf, 0)
-      samlet.set(ny, buf.length)
-      buf = samlet
-      // En WebSocket-ramme kan inneholde flere MQTT-pakker, eller bare en del av én
-      for (;;) {
-        if (buf.length < 2) return
-        let n = 0
-        let gang = 1
-        let i = 1
-        let b = 0
-        do {
-          if (i >= buf.length) return
-          b = buf[i++]
-          n += (b & 127) * gang
-          gang *= 128
-        } while (b & 128)
-        if (buf.length < i + n) return
-        const hode = buf[0]
-        const kropp = buf.slice(i, i + n)
-        buf = buf.slice(i + n)
-        pakker(hode >> 4, hode & 15, kropp)
-      }
-    }
-    const pingNa = () => {
-      if (!f.ws || f.ws.readyState !== 1) return
-      f.ping = Date.now()
-      f.ws.send(PINGREQ)
-      // Svarer ikke megleren, er forbindelsen død (f.eks. etter at mobilen har sovet): koble til på nytt
-      window.setTimeout(() => {
-        if (f.pong < f.ping) lukk()
-      }, 4000)
-    }
     const koble = () => {
       if (lukket) return
-      buf = new Uint8Array(0)
       try {
-        f.ws = new WebSocket(url, 'mqtt')
+        ws = protokoll ? new WebSocket(url, protokoll) : new WebSocket(url)
       } catch {
-        window.setTimeout(koble, f.venteTid)
+        window.setTimeout(koble, venteTid)
         return
       }
-      f.ws.binaryType = 'arraybuffer'
-      f.ws.onopen = () => f.ws?.send(CONNECT('vx' + meg + Math.random().toString(36).slice(2, 6)))
-      f.ws.onmessage = (e) => les(e.data as ArrayBuffer)
-      f.ws.onclose = () => {
-        f.klar = false
-        f.ws = null
+      const denne = ws
+      denne.binaryType = 'arraybuffer'
+      denne.onopen = () => h.apnet(denne)
+      denne.onmessage = (e) => h.melding(denne, e.data as ArrayBuffer)
+      denne.onclose = () => {
+        if (ws !== denne) return
+        klar = false
+        ws = null
         if (lukket) return
-        window.setTimeout(koble, f.venteTid)
-        f.venteTid = Math.min(f.venteTid * 1.6, 8000)
+        window.setTimeout(koble, venteTid)
+        venteTid = Math.min(venteTid * 1.6, 8000)
       }
-      f.ws.onerror = () => lukk()
+      denne.onerror = () => lukk()
     }
-    koble()
-    pingId = window.setInterval(pingNa, 20000)
+    const sjekkNa = () => ws && ws.readyState === 1 && h.sjekk(ws, lukk)
+    const pingId = window.setInterval(sjekkNa, 20000)
     // Mobilen våkner: sjekk med en gang om forbindelsen fortsatt lever
-    const synlig = () => document.visibilityState === 'visible' && pingNa()
+    const synlig = () => document.visibilityState === 'visible' && sjekkNa()
     document.addEventListener('visibilitychange', synlig)
+    koble()
     return {
-      f,
+      klarNa: () => {
+        klar = true
+        venteTid = 1000
+        paTilkoblet?.()
+      },
+      ws: () => ws,
+      klar: () => klar && ws?.readyState === 1,
       stopp: () => {
         clearInterval(pingId)
         document.removeEventListener('visibilitychange', synlig)
@@ -201,25 +221,110 @@ export function kobleRele(kode: string, { paMelding, paTilkoblet }: { paMelding:
     }
   }
 
-  const forbindelser = MEGLERE.map((url) => forbind(url))
+  function mqtt(url: string): Vei {
+    let buf = new Uint8Array(0)
+    let ping = 0
+    let pong = 0
+    const v = vei(url, 'mqtt', {
+      apnet: (ws) => {
+        buf = new Uint8Array(0)
+        ws.send(CONNECT('vx' + meg + Math.random().toString(36).slice(2, 6)))
+      },
+      melding: (ws, data) => {
+        const ny = new Uint8Array(data)
+        const samlet = new Uint8Array(buf.length + ny.length)
+        samlet.set(buf, 0)
+        samlet.set(ny, buf.length)
+        buf = samlet
+        // En WebSocket-ramme kan inneholde flere MQTT-pakker, eller bare en del av én
+        for (;;) {
+          if (buf.length < 2) return
+          let n = 0
+          let gang = 1
+          let i = 1
+          let b = 0
+          do {
+            if (i >= buf.length) return
+            b = buf[i++]
+            n += (b & 127) * gang
+            gang *= 128
+          } while (b & 128)
+          if (buf.length < i + n) return
+          const hode = buf[0]
+          const kropp = buf.slice(i, i + n)
+          buf = buf.slice(i + n)
+          const type = hode >> 4
+          if (type === 2) {
+            // CONNACK
+            if (kropp[1] === 0) ws.send(SUBSCRIBE(tema))
+            else ws.close()
+          } else if (type === 9) v.klarNa() // SUBACK: vi lytter i rommet
+          else if (type === 3) {
+            const tl = (kropp[0] << 8) | kropp[1]
+            let j = 2 + tl
+            if (((hode & 15) >> 1) & 3) j += 2
+            motta(dec.decode(kropp.subarray(j)))
+          } else if (type === 13) pong = Date.now()
+        }
+      },
+      sjekk: (ws, dod) => {
+        ping = Date.now()
+        ws.send(PINGREQ)
+        // Svarer ikke megleren, er forbindelsen død (f.eks. etter at mobilen har sovet): koble til på nytt
+        window.setTimeout(() => pong < ping && dod(), 4000)
+      },
+    })
+    return { klar: v.klar, send: (data) => v.ws()?.send(PUBLISH(tema, data)), stopp: v.stopp }
+  }
+
+  function yjs(base: string): Vei {
+    // Klient-id og klokke slik Yjs vil ha dem: tjeneren videresender bare tilstander med høyere klokke enn sist
+    const id = Math.floor(Math.random() * 0x7fffffff)
+    let klokke = 0
+    let ekko = 0
+    let ping = 0
+    let apnet = 0
+    const v = vei(base + tema.replace('/', '-'), undefined, {
+      apnet: () => {
+        apnet = Date.now()
+        v.klarNa()
+      },
+      melding: (_ws, data) => {
+        const tidlig = Date.now() - apnet < 2500
+        for (const t of lesAwareness(new Uint8Array(data))) {
+          if (t.id === id) ekko = Date.now()
+          else if (t.json !== 'null') motta(t.json, tidlig)
+        }
+      },
+      sjekk: (ws, dod) => {
+        // Tjeneren sender vår egen tilstand tilbake til oss også: det er svaret på pingen
+        ping = Date.now()
+        ws.send(awareness(id, ++klokke, JSON.stringify({ f: meg, n: 0, m: { type: 'ping' } })))
+        window.setTimeout(() => ekko < ping && dod(), 5000)
+      },
+    })
+    return { klar: v.klar, send: (data) => v.ws()?.send(awareness(id, ++klokke, data)), stopp: v.stopp }
+  }
+
+  const veier: Vei[] = [...MEGLERE.map(mqtt), ...YJS.map(yjs)]
   return {
     send(m) {
-      const apne = forbindelser.filter((x) => x.f.klar && x.f.ws?.readyState === 1)
+      const apne = veier.filter((x) => x.klar())
       if (!apne.length) return false
-      const data = JSON.stringify({ f: meg, n: ++nr, m } satisfies Pakke)
+      const data = JSON.stringify({ f: meg, n: ++nr, t: Date.now(), m } satisfies Pakke)
       for (const x of apne) {
         try {
-          x.f.ws!.send(PUBLISH(tema, data))
+          x.send(data)
         } catch {
           /* forbindelsen ble borte akkurat nå */
         }
       }
       return true
     },
-    apne: () => forbindelser.filter((x) => x.f.klar).length,
+    apne: () => veier.filter((x) => x.klar()).length,
     lukk() {
       lukket = true
-      forbindelser.forEach((x) => x.stopp())
+      veier.forEach((x) => x.stopp())
     },
   }
 }
