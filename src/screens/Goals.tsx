@@ -67,7 +67,7 @@ export function Goals() {
   const { demo, quiet } = useStore()
   const { all } = useShifts()
   const [sheet, setSheet] = useState<null | 'premier' | 'rekorder'>(null)
-  const records = computeRecords(all)
+  const records = computeRecords(all).filter((r) => r.metric !== 'premiumBottles') // ingen flaskerekord: «ingen konkurranser om alkohol»
   const started = demo.phase !== 'pre'
   const done = demo.phase === 'done'
   const live = liveAt(started ? demo.step : -1)

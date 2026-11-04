@@ -64,7 +64,9 @@ function More({ icon, title, summary, children }: { icon: string; title: string;
 
 // Rekkefølgen følger det servitørene ser etter på kasselappen:
 // tallene → rekorder → laget og ros → del. Detaljene ligger samlet nederst.
-export function Report({ summary, records, isTonight }: { summary: ShiftSummary; records: RecordDetail[]; isTonight: boolean }) {
+export function Report({ summary, records: alleRekorder, isTonight }: { summary: ShiftSummary; records: RecordDetail[]; isTonight: boolean }) {
+  // Ingen rekord for dyre flasker i visningen: «ingen konkurranser om alkohol»
+  const records = alleRekorder.filter((r) => r.metric !== 'premiumBottles')
   const { settings, demo, saveShift, giveKudos, pushToasts, openCard } = useStore()
   const [share, setShare] = useState(false)
   // En rolig vakt viser ikke konkurransene i oppgjøret før Emma selv vil se dem.
@@ -104,7 +106,6 @@ export function Report({ summary, records, isTonight }: { summary: ShiftSummary;
     { id: 'salg', label: L('Totalsalg', 'Total sales'), value: kr(summary.sales), on: false },
     { id: 'tips', label: L('Tips', 'Tips'), value: num(summary.tips), on: false },
     { id: 'gjester', label: L('Gjester', 'Guests'), value: num(summary.guests), on: records.length === 0 },
-    { id: 'flasker', label: L('Flasker over 1 500 kr', 'Bottles over 1,500 kr'), value: num(summary.premiumBottles), on: false },
     ...(duelOn && showCompetition ? [{ id: 'duell', label: L('Dessertduell mot {name}', 'Dessert duel vs {name}', { name: duel.opponent.name }), value: duel.leader === 'me' ? L('Vant', 'Won') : L('Tapte', 'Lost'), on: false }] : []),
     ...(showCompetition ? [{ id: 'lag', label: L('Lagmålet', 'Team goal'), value: team.reachedSales ? L('Nådd', 'Reached') : L('Ikke nådd', 'Not reached'), on: false }] : []),
     ...(settings.watch ? [{ id: 'km', label: L('Gått på jobb', 'Walked at work'), value: fmtKm(summary.activity.km), on: false }] : []),
@@ -344,7 +345,6 @@ export function Report({ summary, records, isTonight }: { summary: ShiftSummary;
           </div>
           <div className="grid2 mt12">
             <Stat label={L('Desserter', 'Desserts')} value={num(summary.desserts)} />
-            <Stat label={L('Flasker over 1 500 kr', 'Bottles over 1,500 kr')} value={num(summary.premiumBottles)} />
           </div>
         </More>
         {settings.watch && (

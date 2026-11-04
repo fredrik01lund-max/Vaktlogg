@@ -95,7 +95,6 @@ export function SalesDetail({ live }: { live: LiveState }) {
               </li>
             ))}
           </ul>
-          <p className="st-foot small">{L('Flasker over 1 500 kr: {n}', 'Bottles over 1,500 kr: {n}', { n: num(s.premiumBottles) })}</p>
         </Card>
       )}
     </>
