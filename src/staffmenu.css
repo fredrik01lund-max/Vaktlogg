@@ -1,0 +1,826 @@
+/* ══ Personalmenyen ═════════════════════════════════════════════════════════════
+   Lommeboka øverst, kategorier som fem små faner, rettene som rader med pris i poletter.
+   Fargene følger appen: Tid blå, Smak oransje, Gaver rosa, Laget grønn, Hemmelig gull. */
+
+[data-tone='blue'] {
+  --tone-fill: var(--blue-fill);
+  --tone-bg: var(--blue-bg);
+  --tone-ink: var(--blue-ink);
+  --tone-strong: var(--blue-strong);
+}
+.pm-item[data-tone='orange'],
+.pm-tabs [data-tone='orange'],
+.pm-orders [data-tone='orange'],
+.pm-sheet[data-tone='orange'] {
+  --tone-bg: var(--orange-bg);
+  --tone-strong: var(--orange-strong);
+}
+.pm-item[data-tone='pink'],
+.pm-tabs [data-tone='pink'],
+.pm-orders [data-tone='pink'],
+.pm-sheet[data-tone='pink'] {
+  --tone-bg: var(--pink-bg);
+  --tone-strong: var(--pink-strong);
+}
+.pm-item[data-tone='green'],
+.pm-tabs [data-tone='green'],
+.pm-orders [data-tone='green'],
+.pm-sheet[data-tone='green'] {
+  --tone-bg: var(--green-bg);
+  --tone-strong: var(--green-strong);
+}
+.pm-item[data-tone='yellow'],
+.pm-tabs [data-tone='yellow'],
+.pm-orders [data-tone='yellow'],
+.pm-sheet[data-tone='yellow'] {
+  --tone-bg: var(--yellow-bg);
+  --tone-strong: var(--yellow-strong);
+}
+
+.polett {
+  flex: none;
+  display: block;
+  filter: drop-shadow(0 1px 1.5px rgba(214, 120, 150, 0.35));
+}
+
+/* ── Raden på Meg (under LVL-kortet) ── */
+.pm-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 22px;
+  text-align: left;
+  color: var(--text);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.pm-row:active {
+  transform: scale(0.99);
+}
+.pm-row b,
+.pm-row small {
+  display: block;
+}
+.pm-row small {
+  font-size: var(--fs-cap);
+  color: var(--muted);
+}
+.pm-row small b {
+  display: inline;
+  color: var(--text);
+}
+.pm-plus {
+  flex: none;
+  font-style: normal;
+  font-size: var(--fs-cap);
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: var(--green-fill);
+  color: var(--green-ink);
+}
+
+/* ── Menyskjermen ── */
+.pm-title {
+  margin: 2px 0 12px;
+}
+.pm-wallet {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 26px;
+  background: linear-gradient(150deg, #fff4e6 0%, #fdeaf2 60%, #fff6dc 100%);
+  box-shadow: var(--shadow);
+}
+.pm-bal {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pm-bal-n {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+.pm-bal-n b {
+  font-size: 2.125rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.pm-bal-n span {
+  font-size: var(--fs-cap);
+  font-weight: 700;
+  color: var(--muted);
+}
+.pm-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  min-height: 36px;
+  padding: 0 6px 0 12px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.8);
+  font-size: var(--fs-cap);
+  font-weight: 700;
+  color: var(--primary-ink);
+  white-space: nowrap;
+}
+.pm-info svg {
+  width: 16px;
+  height: 16px;
+}
+.pm-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.pm-box {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.75);
+}
+.pm-box-h {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pm-box small {
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pm-stamps {
+  display: flex;
+  gap: 6px;
+}
+.pm-stamps i {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px dashed #e3c9b8;
+}
+.pm-stamps i.on {
+  border: none;
+  background: var(--primary-grad);
+  color: var(--primary-ink);
+}
+.pm-stamps svg {
+  width: 13px;
+  height: 13px;
+}
+.pm-goalbar {
+  display: block;
+  height: 10px;
+  margin: 6px 0 4px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: inset 0 0 0 1px rgba(110, 42, 60, 0.08);
+  overflow: hidden;
+}
+.pm-goalbar.thin {
+  height: 6px;
+  margin: 6px 0 0;
+  background: var(--bg-deep, #f1ece4);
+}
+.pm-goalbar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--orange-strong), var(--pink-strong));
+  transition: width var(--dur-medium) var(--ease-standard);
+}
+
+/* Kategoriene: fem like faner med ikon over navnet */
+.pm-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 16px 0 10px;
+}
+.pm-tabs button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  padding: 8px 2px 7px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.pm-tabs button svg {
+  width: 20px;
+  height: 20px;
+  color: var(--tone-ink);
+  opacity: 0.75;
+}
+.pm-tabs button[aria-selected='true'] {
+  background: var(--tone-fill);
+  color: var(--tone-ink);
+  box-shadow: inset 0 0 0 2px var(--tone-strong);
+}
+.pm-tabs button[aria-selected='true'] svg {
+  opacity: 1;
+}
+
+/* Rettene */
+.pm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pm-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 68px;
+  padding: 10px 12px;
+  border-radius: 20px;
+  text-align: left;
+  color: var(--text);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.pm-item:active {
+  transform: scale(0.99);
+}
+.pm-item b,
+.pm-item small {
+  display: block;
+}
+.pm-item b {
+  font-size: var(--fs-sm);
+  line-height: 1.25;
+}
+.pm-item small {
+  margin-top: 2px;
+  font-size: var(--fs-cap);
+  color: var(--muted);
+  line-height: 1.3;
+}
+.pm-item.secret {
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(120deg, #f6d27a, #f7b3c9) border-box;
+  border: 2px solid transparent;
+}
+.pm-item.locked {
+  background: var(--bg-deep, #f3eee7);
+  box-shadow: none;
+}
+.pm-item.locked b {
+  color: var(--muted);
+}
+.pm-ic {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--tone-fill, var(--pink-fill));
+  color: var(--tone-ink, var(--pink-ink));
+}
+.pm-ic svg {
+  width: 22px;
+  height: 22px;
+}
+.pm-ic.small {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+}
+.pm-ic.small svg {
+  width: 18px;
+  height: 18px;
+}
+.pm-ic.big {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+}
+.pm-ic.big svg {
+  width: 28px;
+  height: 28px;
+}
+.pm-item.locked .pm-ic {
+  background: #e9e3da;
+  color: #8d847a;
+}
+.pm-price-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex: none;
+}
+.pm-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  padding: 4px 10px 4px 5px;
+  border-radius: 99px;
+  background: var(--tone-bg, var(--pink-bg));
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  color: var(--primary-ink);
+}
+.pm-price.off {
+  background: #eee8e0;
+  color: #8d847a;
+  padding: 4px 10px;
+}
+.pm-price.off .polett {
+  filter: grayscale(0.6) opacity(0.7);
+}
+.pm-short {
+  font-size: 0.6875rem !important;
+  font-weight: 650;
+  color: var(--muted);
+  margin: 0 !important;
+}
+
+/* Dine bestillinger (og Karis lister) */
+.pm-orders {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 4px 12px;
+  list-style: none;
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.pm-orders li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+}
+.pm-orders li:last-child {
+  border-bottom: none;
+}
+.pm-orders b,
+.pm-orders small {
+  display: block;
+}
+.pm-orders b {
+  font-size: var(--fs-sm);
+  line-height: 1.25;
+}
+.pm-orders small {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.pm-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  padding: 4px 9px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.pm-status svg {
+  width: 13px;
+  height: 13px;
+}
+.pm-status.ok {
+  background: var(--green-fill);
+  color: var(--green-ink);
+}
+.pm-status.wait {
+  background: var(--yellow-fill);
+  color: var(--yellow-ink);
+}
+.pm-status.used {
+  background: #eee8e0;
+  color: #7b7268;
+}
+
+/* ── Bestillingsarket ── */
+.pm-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.pm-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 22px;
+  background: var(--tone-bg, var(--pink-bg));
+}
+.pm-hero b,
+.pm-hero small {
+  display: block;
+}
+.pm-hero b {
+  font-size: var(--fs-body);
+}
+.pm-hero small {
+  margin-top: 2px;
+  font-size: var(--fs-cap);
+  color: var(--muted);
+}
+.pm-dates {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.pm-dates button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-height: 58px;
+  padding: 8px 4px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--text);
+}
+.pm-dates button b {
+  font-size: var(--fs-sm);
+  text-transform: capitalize;
+}
+.pm-dates button span {
+  font-size: var(--fs-cap);
+  color: var(--muted);
+}
+.pm-dates button[aria-checked='true'] {
+  background: var(--tone-fill);
+  box-shadow: inset 0 0 0 2px var(--tone-strong);
+  color: var(--tone-ink);
+}
+.pm-dates button[aria-checked='true'] span {
+  color: var(--tone-ink);
+}
+.pm-dates button:disabled {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+.pm-dates button small {
+  position: absolute;
+  top: -6px;
+  right: -2px;
+  padding: 1px 6px;
+  border-radius: 99px;
+  background: #eee8e0;
+  font-size: 0.625rem;
+  font-weight: 750;
+  color: #7b7268;
+  text-decoration: none;
+}
+.pm-order {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 56px;
+  border-radius: 18px;
+  background: var(--primary-grad);
+  color: var(--primary-ink);
+  font-size: var(--fs-body);
+  font-weight: 800;
+  box-shadow: 0 6px 18px -8px rgba(214, 120, 150, 0.6);
+}
+.pm-order:active {
+  transform: scale(0.98);
+}
+.pm-order:disabled {
+  background: #eee8e0;
+  color: #8d847a;
+  box-shadow: none;
+}
+.pm-have {
+  margin: -6px 0 0;
+  text-align: center;
+  font-size: var(--fs-cap);
+  color: var(--muted);
+}
+
+.pm-fact {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+}
+.pm-fact svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  color: var(--tone-ink);
+}
+.pm-fact.warn svg {
+  color: var(--orange-ink);
+}
+.pm-rules b {
+  font-size: var(--fs-sm);
+}
+
+/* Bongen skrives ut */
+.pm-done {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.pm-printer {
+  height: 10px;
+  margin: 0 18px -14px;
+  border-radius: 99px;
+  background: #e7ded3;
+  position: relative;
+  z-index: 1;
+}
+.pm-bong {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 30px;
+  padding: 18px 16px 16px;
+  background: #fff;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 10px 24px -14px rgba(60, 40, 25, 0.45);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  color: #3a2a24;
+  /* Takket nederkant som en ekte bong */
+  -webkit-mask: radial-gradient(circle 5px at 50% 100%, transparent 98%, #000) 0 0 / 14px 100% repeat-x;
+  mask: radial-gradient(circle 5px at 50% 100%, transparent 98%, #000) 0 0 / 14px 100% repeat-x;
+  padding-bottom: 22px;
+}
+.pm-bong-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a7a70;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed #d8cbbf;
+}
+.pm-bong b {
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+}
+.pm-bong-date {
+  font-size: var(--fs-cap);
+}
+.pm-bong-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--fs-cap);
+  padding-top: 6px;
+  border-top: 1px dashed #d8cbbf;
+}
+.pm-bong-line .num {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 800;
+}
+.pm-bong .pm-status {
+  align-self: flex-start;
+  font-family: var(--sans);
+}
+
+/* Reglene */
+.pm-rules {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pm-rules li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--line);
+}
+.pm-rules .pm-ic {
+  --tone-fill: var(--orange-bg);
+  --tone-ink: var(--primary-ink);
+}
+.pm-earned {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 800;
+}
+.pm-note {
+  margin: 12px 2px 0;
+  font-size: var(--fs-cap);
+  color: var(--muted);
+}
+
+
+/* ── Karis telefon ── */
+.pm-tool {
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-top: 8px;
+  padding: 12px 14px !important;
+}
+.pm-tool .tool-body {
+  flex: 1;
+}
+.pm-badge {
+  flex: none;
+  font-style: normal;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 9px;
+  border-radius: 99px;
+  background: var(--yellow-fill);
+  color: var(--yellow-ink);
+}
+.pm-kari {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pm-budget {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px;
+  border-radius: 22px;
+  background: linear-gradient(150deg, #fff4e6 0%, #fdeaf2 100%);
+}
+.pm-budget b {
+  font-size: 1.375rem;
+  font-weight: 800;
+}
+.pm-budget small {
+  font-size: var(--fs-cap);
+  color: var(--muted);
+}
+.pm-h3 {
+  margin: 8px 2px 0;
+  font-size: var(--fs-sm);
+}
+.pm-approve {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: var(--green-fill);
+  color: var(--green-ink);
+  font-size: var(--fs-cap);
+  font-weight: 800;
+}
+.pm-approve svg {
+  width: 15px;
+  height: 15px;
+}
+.pm-count {
+  font-weight: 800;
+  color: var(--muted);
+}
+
+/* Bevegelse: bongen skrives ut, polletten spretter inn */
+@media (prefers-reduced-motion: no-preference) {
+  .pm-bong {
+    animation: pmPrint 900ms var(--ease-decel) both;
+  }
+  .pm-list > * {
+    animation: pmIn 260ms var(--ease-decel) both;
+  }
+  .pm-list > :nth-child(2) {
+    animation-delay: 40ms;
+  }
+  .pm-list > :nth-child(3) {
+    animation-delay: 80ms;
+  }
+  .pm-list > :nth-child(4) {
+    animation-delay: 120ms;
+  }
+  .pm-plus {
+    animation: pmPop 500ms 300ms var(--ease-pop) backwards;
+  }
+}
+@keyframes pmPrint {
+  from {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(-40px);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+  }
+}
+@keyframes pmIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes pmPop {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* Smale telefoner */
+@media (max-width: 380px) {
+  .pm-tabs {
+    gap: 4px;
+  }
+  .pm-tabs button {
+    font-size: 0.6875rem;
+  }
+  .pm-info {
+    padding-left: 10px;
+  }
+}
+
+/* Lave skjermer (iPhone med Safari-linjene): menyen får plass uten scrolling */
+@media (max-height: 700px) {
+  .pm-title {
+    font-size: 1.375rem;
+    margin-bottom: 8px;
+  }
+  .pm-wallet {
+    padding: 12px 14px;
+    gap: 8px;
+  }
+  .pm-box {
+    padding: 8px 10px;
+    gap: 5px;
+  }
+  .pm-tabs {
+    margin: 10px 0 8px;
+  }
+  .pm-tabs button {
+    padding: 6px 2px 5px;
+  }
+  .pm-list {
+    gap: 6px;
+  }
+  .pm-item {
+    min-height: 58px;
+    padding: 8px 12px;
+  }
+  .pm-ic {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* Kortet i sluttrapporten: samme oppbygging som takkekortet */
+.er-polett {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+}
+.er-polett b,
+.er-polett small {
+  display: block;
+}
+.er-polett small {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}

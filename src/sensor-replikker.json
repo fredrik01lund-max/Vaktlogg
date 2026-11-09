@@ -1,0 +1,26 @@
+{
+  "sensor-0": {
+    "no": "God dag! Sir Domeo, til tjeneste. I kveld er du Emma, servitør på Brasserie Fjordgata. Trykk på Start vakt, så er vi i gang før suppa rekker å bli kald.",
+    "en": "Good day! Sir Domeo, at your service. Tonight you're Emma, a server at Brasserie Fjordgata. Tap Start shift, and we're off before the soup gets cold."
+  },
+  "sensor-1": {
+    "no": "Vakten er i gang, og tallene vokser mens du løper. Trykk på Salg – det er der pengene bor.",
+    "en": "The shift is on, and the numbers grow while you run. Tap Sales – that's where the money lives."
+  },
+  "sensor-2": {
+    "no": "Dette er kassarapporten servitørene sjekket etter vakten. Nå er den din, mens du jobber – ingen lapp i søpla i kveld! Trykk på Vakt nederst for å gå tilbake.",
+    "en": "This is the till report servers checked after their shift. Now it's yours, while you work – no slip in the bin tonight! Tap Shift at the bottom to go back."
+  },
+  "sensor-3": {
+    "no": "Det kassen ikke ser, skal også telle. Gi en kollega kudos – trykk på et av ansiktene. Ikke vær gjerrig, det er gratis!",
+    "en": "What the till can't see should count too. Give a colleague kudos – tap one of the faces. Don't be stingy, it's free!"
+  },
+  "sensor-4": {
+    "no": "Kvelden går fortere enn en dessert på bord seksten. Trykk Avslutt vakt, nede i den mørke linjen.",
+    "en": "The evening goes faster than a dessert at table sixteen. Tap End shift, down in the dark bar."
+  },
+  "sensor-5": {
+    "no": "Voilà! Dette sitter du igjen med: salget, rekordene, kudos fra kollegene – og et takkekort fra lederen. Takk for at du prøvde. Jeg letter på lokket for deg!",
+    "en": "Voilà! This is what you take home: your sales, records, kudos from colleagues – and a thank-you card from the manager. Thanks for trying. I raise my lid to you!"
+  }
+}

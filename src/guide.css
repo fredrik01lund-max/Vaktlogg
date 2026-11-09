@@ -1,0 +1,507 @@
+/* ══ Sir Domeo – guiden til demolinjen ═══════════════════════════════════════════
+   Han svever fritt over skjermen: først midt på, så rett over knappen han forklarer,
+   og etter vakten rett under sluttrapporten. En rund snakkeboble følger ham, med halen ned mot ham. */
+
+.kg-layer {
+  position: absolute;
+  /* Over månedsoppsummeringen (85) og arkene, under varslene (90) */
+  z-index: 88;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.kg-float,
+.kg-say {
+  position: absolute;
+  visibility: hidden;
+}
+.kg-layer.placed .kg-float,
+.kg-layer.placed .kg-say {
+  visibility: visible;
+}
+.kg-float {
+  width: 200px;
+  height: 200px;
+  transform-origin: center;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 14px rgba(110, 42, 60, 0.22));
+}
+.k3d,
+.k3d canvas {
+  display: block;
+  width: 200px;
+  height: 200px;
+}
+.k3d .domeo {
+  margin: 40px auto 0;
+}
+/* Snakkeboblen: rund og blank, svakt fersken øverst og rosa nederst, med en buet hale */
+.kg-say {
+  pointer-events: auto;
+  padding: 14px 18px 12px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, #fff7f1 0%, #ffeff2 100%);
+  color: #33202a;
+  box-shadow:
+    0 0 0 1.5px rgba(232, 140, 170, 0.32),
+    inset 0 2px 0 rgba(255, 255, 255, 0.9),
+    0 16px 34px -12px rgba(60, 30, 25, 0.45);
+}
+/* Glansen oppe til venstre gjør den til en boble */
+.kg-say::before {
+  content: '';
+  position: absolute;
+  top: 7px;
+  left: 18px;
+  width: 44px;
+  height: 7px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.95);
+  transform: rotate(-4deg);
+  pointer-events: none;
+}
+.kg-tail {
+  position: absolute;
+  top: calc(100% - 1px);
+  left: calc(var(--tail, 50%) - 13px);
+  overflow: visible;
+  pointer-events: none;
+}
+.kg-tail .f {
+  fill: #ffeff2;
+}
+.kg-tail .o {
+  fill: none;
+  stroke: rgba(232, 140, 170, 0.32);
+  stroke-width: 1.5;
+}
+.kg-text b {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 1.0625rem;
+  font-weight: 800;
+}
+.kg-text p {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.42;
+}
+.kg-lang {
+  display: inline-flex;
+  gap: 3px;
+  margin-top: 10px;
+  padding: 3px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+}
+.kg-lang button {
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 11px;
+  font-size: var(--fs-cap);
+  font-weight: 750;
+  color: #7b6670;
+}
+.kg-lang button[aria-checked='true'] {
+  background: #fff;
+  color: var(--primary-ink);
+  box-shadow: 0 1px 3px rgba(110, 42, 60, 0.15);
+}
+.kg-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.kg-dots {
+  display: inline-flex;
+  gap: 4px;
+  margin-right: auto;
+}
+.kg-dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  background: #ecd9d6;
+  transition: width var(--dur-medium) var(--ease-standard);
+}
+.kg-dots i.on {
+  width: 16px;
+  background: var(--pink-strong);
+}
+.kg-skip {
+  min-height: 38px;
+  padding: 0 6px;
+  font-size: var(--fs-cap);
+  font-weight: 650;
+  color: #8a7480;
+}
+.kg-next {
+  min-height: 38px;
+  padding: 0 18px;
+  border-radius: 13px;
+  background: var(--primary-grad);
+  color: var(--primary-ink);
+  font-weight: 800;
+  box-shadow: 0 4px 14px -6px rgba(214, 120, 150, 0.6);
+}
+.kg-next:active,
+.kg-skip:active {
+  transform: scale(0.97);
+}
+
+/* Når han står under det han forklarer, står boblen under ham med halen opp */
+.kg-say.up .kg-tail {
+  top: auto;
+  bottom: calc(100% - 1px);
+  transform: scaleY(-1);
+}
+.kg-say.up .kg-tail .f {
+  fill: #fff7f1;
+}
+/* Kapittelet i omvisningen */
+.kg-eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pink-ink);
+}
+.kg-text .kg-note {
+  margin-top: 6px;
+  font-size: var(--fs-cap);
+  color: #8a7480;
+}
+/* Spørsmålet i starten: valgene under hverandre */
+.kg-foot.choices {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+.kg-foot.choices > * {
+  min-height: 42px;
+}
+.kg-alt {
+  white-space: nowrap;
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--primary-ink);
+  font-weight: 750;
+  box-shadow: 0 0 0 1.5px rgba(232, 140, 170, 0.35);
+}
+.kg-foot:not(.choices) .kg-skip {
+  margin-right: auto;
+}
+/* Programlederen i månedsoppsummeringen: liten boble som ikke tar trykk, og som blekner når han er ferdig */
+.kg-say.host {
+  padding: 10px 14px 9px;
+  border-radius: 22px;
+}
+.kg-say.host .kg-text p {
+  font-size: var(--fs-cap);
+  line-height: 1.38;
+}
+.kg-say.quiet {
+  pointer-events: none;
+}
+.kg-say.faded {
+  opacity: 0;
+  transform: translateY(6px) scale(0.96);
+  transition:
+    opacity 500ms var(--ease-standard),
+    transform 500ms var(--ease-standard);
+}
+
+/* «Prøv selv»: en myk, pulserende ring rundt det han ber deg trykke på */
+.kg-ring {
+  outline: 3px solid rgba(255, 190, 150, 0.95);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .kg-ring {
+    animation: kgRing 1.4s ease-out infinite;
+  }
+}
+@keyframes kgRing {
+  0% {
+    outline-color: rgba(255, 175, 140, 0.95);
+    outline-offset: 2px;
+  }
+  70% {
+    outline-color: rgba(255, 175, 140, 0);
+    outline-offset: 10px;
+  }
+  100% {
+    outline-color: rgba(255, 175, 140, 0);
+    outline-offset: 10px;
+  }
+}
+
+/* Sir Domeo bor i demolinjen: liten og levende i 3D, og henter guiden frem når du trykker på ham.
+   Han er litt høyere enn knappen, men holder seg innenfor linjen. */
+.demo-ctl .kg-mini {
+  min-width: 66px;
+  padding: 0;
+}
+.kg-home {
+  position: relative;
+  display: block;
+  width: 66px;
+  height: 48px;
+  margin: -4px 0;
+}
+.kg-home canvas {
+  display: block;
+}
+/* Sigarrøyken: et lerret fra ham og ut over vakt-knappen, over knappene, uten å ta trykk */
+.kg-home .kg-smoke {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.demo-ctl .kg-home svg {
+  width: 40px;
+  height: 40px;
+  margin: 4px auto 0;
+}
+/* Når han er ute og viser deg rundt, står fatet hans igjen */
+.kg-home.out::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  width: 34px;
+  height: 7px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+/* Smale skjermer: klokka står allerede øverst i appen, så demolinjen får plass til ham */
+@media (max-width: 420px) {
+  .demo-ctl .count {
+    display: none;
+  }
+}
+
+/* ── Figuren (flat) ── */
+.domeo {
+  display: block;
+  overflow: visible;
+}
+.k-arm-r {
+  transform-box: view-box;
+  transform-origin: 82px 77px;
+}
+.mood-point .k-arm-r {
+  transform: rotate(40deg);
+}
+.k-lid {
+  transform-box: view-box;
+  transform-origin: 16px 74px;
+}
+.k-eyes {
+  transform-box: view-box;
+  transform-origin: 50px 52px;
+}
+.k-spark {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* ── Bevegelse: han flyr mellom stoppene, boblen spretter frem fra halen ── */
+@media (prefers-reduced-motion: no-preference) {
+  .kg-float {
+    transition:
+      left 700ms cubic-bezier(0.34, 1.2, 0.5, 1),
+      top 700ms cubic-bezier(0.34, 1.2, 0.5, 1),
+      transform 700ms cubic-bezier(0.34, 1.2, 0.5, 1);
+  }
+  .kg-say {
+    transition:
+      left 600ms var(--ease-standard),
+      top 600ms var(--ease-standard),
+      width 600ms var(--ease-standard);
+  }
+  .kg-layer.placed .kg-float > .kg-bob {
+    animation: kgPop 600ms var(--ease-pop) both;
+  }
+  .kg-layer.placed .kg-say.up {
+    transform-origin: var(--tail, 50%) -16px;
+  }
+  .kg-layer.placed .kg-say {
+    transform-origin: var(--tail, 50%) calc(100% + 16px);
+    animation: kgBubble 520ms 180ms var(--ease-pop) both;
+  }
+  .kg-text {
+    animation: kgIn 280ms var(--ease-decel) both;
+  }
+  .kg-layer.leaving .kg-say {
+    animation: kgOut 400ms var(--ease-accel) forwards;
+  }
+  /* Han letter på lokket og spretter opp og bort (selve sprettet tegnes i 3D) */
+  .kg-layer.leaving .kg-float {
+    animation: kgAway 280ms 120ms var(--ease-accel) forwards;
+  }
+  /* Han flyr ut fra demolinjen der han bor (i stedet for å sprette frem) … */
+  .kg-layer.from-home.placed .kg-float > .kg-bob {
+    animation: none;
+  }
+  /* … og hjem igjen når han er ferdig */
+  .kg-layer.leaving.home .kg-float {
+    animation: none;
+    transition:
+      left 460ms cubic-bezier(0.5, 0, 0.3, 1),
+      top 460ms cubic-bezier(0.5, 0, 0.3, 1),
+      transform 460ms cubic-bezier(0.5, 0, 0.3, 1);
+  }
+  /* Den flate figuren: lokket går opp og ned når han snakker */
+  .k-lid {
+    animation: kgTalk 260ms 350ms ease-in-out 6;
+  }
+  .mood-wave .k-arm-r {
+    animation: kgWave 1.4s 500ms ease-in-out 2;
+  }
+  .k-eyes {
+    animation: kgBlink 4.2s 1.2s infinite;
+  }
+  .k-spark {
+    animation: kgSpark 1.2s 400ms var(--ease-pop) both;
+  }
+}
+@keyframes kgPop {
+  from {
+    opacity: 0;
+    transform: translateY(60px) scale(0.4) rotate(-12deg);
+  }
+}
+@keyframes kgIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+}
+@keyframes kgOut {
+  to {
+    opacity: 0;
+    transform: translateY(16px) scale(0.9);
+  }
+}
+@keyframes kgAway {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes kgBubble {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes kgTalk {
+  50% {
+    transform: translateY(-3px) rotate(-7deg);
+  }
+}
+@keyframes kgWave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-22deg);
+  }
+  75% {
+    transform: rotate(14deg);
+  }
+}
+@keyframes kgBlink {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  97% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes kgSpark {
+  from {
+    opacity: 0;
+    transform: scale(0) rotate(-40deg);
+  }
+}
+
+/* Den flate Sir Domeo i demolinjen (uten WebGL) står stille */
+.kg-mini .domeo *,
+.kg-mini .domeo {
+  animation: none !important;
+}
+/* «Start demoen på nytt» er det presentatøren trenger oftest – litt tydeligere enn resten */
+.demo-menu .demo-restart {
+  margin: 4px 0;
+  background: rgba(255, 190, 160, 0.16);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 190, 160, 0.5);
+  color: #ffdcc8;
+  font-weight: 750;
+}
+.demo-menu .demo-restart svg {
+  opacity: 1;
+  color: #ffb894;
+}
+.demo-menu .demo-restart:active {
+  background: rgba(255, 190, 160, 0.26);
+}
+
+/* ⋯-menyen: språk øverst som to knapper */
+.demo-menu .demo-lang {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin: 0 4px 6px;
+  padding: 3px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+}
+.demo-lang > span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  opacity: 0.7;
+}
+.demo-menu .demo-lang button {
+  flex: 1;
+  width: auto;
+  min-height: 38px;
+  justify-content: center;
+  padding: 0;
+  border-radius: 11px;
+  font-weight: 700;
+}
+.demo-menu .demo-lang button[aria-checked='true'] {
+  background: #fbf3ea;
+  color: #231d1a;
+}
+
+/* Demolinjen holder seg på én linje, også på engelsk */
+.demo-ctl button,
+.demo-ctl .count {
+  white-space: nowrap;
+}

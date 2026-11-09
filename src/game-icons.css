@@ -1,0 +1,30 @@
+/* Spillkortene: den illustrerte flisen erstatter den gamle maskerte ikonskiva */
+.game-card .gc-icon.gi {
+  width: 40px;
+  height: 40px;
+  background: none;
+  -webkit-mask: none;
+  mask: none;
+  filter: drop-shadow(0 2px 4px rgb(110 42 60 / 0.14));
+  transition: scale var(--dur-medium, 0.24s) var(--ease-standard, ease);
+}
+.game-card .gc-icon.gi .game-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.game-card.on .gc-icon.gi {
+  scale: 1.08;
+}
+@media (max-height: 760px) {
+  .game-card .gc-icon.gi {
+    width: 34px;
+    height: 34px;
+  }
+}
+@media (max-height: 620px) {
+  .game-pick:has(.invite) .gc-icon.gi {
+    width: 30px;
+    height: 30px;
+  }
+}

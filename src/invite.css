@@ -1,0 +1,249 @@
+/* ══ Kveldens spill: invitasjonen før vakten ══════════════════════════════════
+   Velg Duell eller Makker → kollegaene på vakt dukker opp under spillene. Trykk på én for å invitere.
+   Pastell: valgt spill og valgt kollega får samme ferskenrosa kant som bunnmenyen. */
+
+.game-pick {
+  flex-wrap: wrap;
+}
+.game-card.on {
+  border-color: #f2a6b8;
+  box-shadow: 0 6px 18px -10px rgba(214, 110, 140, 0.55);
+}
+.gc-yes {
+  background: #8fd4b1;
+  color: #1f6a48;
+}
+
+.invite {
+  flex: 1 1 100%;
+  min-width: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  animation: invIn 320ms var(--ease-decel) backwards;
+}
+@keyframes invIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+.inv-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--fs-cap);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.inv-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px 3px 7px;
+  border-radius: 99px;
+  background: #e7f6ee;
+  color: #1f6a48;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+}
+.inv-status svg {
+  width: 13px;
+  height: 13px;
+}
+.inv-status.wait {
+  padding-left: 9px;
+  background: #fff2e4;
+  color: #87500f;
+}
+.inv-faces {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+.inv-face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 4px 0;
+  border-radius: 16px;
+  color: var(--muted);
+  transition: background var(--dur-short) var(--ease-standard);
+}
+.inv-face.on {
+  background: linear-gradient(160deg, #fff1e4, #fde6ef);
+  color: var(--ink);
+}
+.inv-ava {
+  position: relative;
+  display: inline-grid;
+  border-radius: 50%;
+  transition: transform var(--dur-short) var(--ease-standard), box-shadow var(--dur-short) var(--ease-standard);
+}
+.inv-face:not(.on) .inv-ava {
+  opacity: 0.62;
+}
+.inv-face.on .inv-ava {
+  box-shadow: 0 0 0 3px #f2a6b8;
+}
+.inv-face:active .inv-ava {
+  transform: scale(0.92);
+}
+.inv-name {
+  font-size: var(--fs-cap);
+  font-weight: 700;
+}
+.inv-badge {
+  position: absolute;
+  right: -4px;
+  bottom: -3px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #8fd4b1;
+  color: #1f6a48;
+  box-shadow: 0 0 0 2px #fff;
+  animation: invPop 360ms var(--ease-pop);
+}
+.inv-badge svg {
+  width: 11px;
+  height: 11px;
+}
+.inv-badge.wait {
+  background: #ffd9b3;
+}
+/* Venter på svar: tre små prikker som pulserer */
+.inv-badge.wait i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #87500f;
+  box-shadow: -5px 0 0 #87500f, 5px 0 0 #87500f;
+  animation: invWait 900ms ease-in-out infinite;
+}
+@keyframes invPop {
+  from {
+    transform: scale(0.3);
+  }
+}
+@keyframes invWait {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Med invitasjon: de fire spillene på én rad, så alt får plass uten scrolling.
+   Hvem som er med står i raden under, så kortet trenger ikke ansiktene i hjørnene. */
+.game-pick:has(.invite) {
+  gap: 10px;
+}
+.game-pick:has(.invite) .game-cards {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.game-pick:has(.invite) .game-card {
+  flex-direction: column;
+  min-height: 70px;
+  gap: 5px;
+  padding: 8px 2px;
+}
+.game-pick:has(.invite) .gc-word {
+  font-size: 0.8125rem;
+}
+.game-pick:has(.invite) .gc-me,
+.game-pick:has(.invite) .gc-other {
+  display: none;
+}
+
+/* Lave skjermer: mindre ansikter, samme rad */
+@media (max-height: 760px) {
+  .invite {
+    padding-top: 8px;
+  }
+  .inv-faces {
+    margin-top: 6px;
+  }
+  .inv-face {
+    flex-direction: row;
+    justify-content: center;
+    gap: 5px;
+    padding: 4px 2px;
+  }
+  .inv-ava .face {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  .game-pick:has(.invite) .game-card {
+    min-height: 58px;
+    gap: 3px;
+    padding: 6px 2px;
+  }
+  .game-pick:has(.invite) .gc-icon {
+    width: 28px;
+    height: 28px;
+  }
+}
+@media (max-height: 620px) {
+  .inv-name {
+    display: none;
+  }
+  .inv-ava .face {
+    width: 30px !important;
+    height: 30px !important;
+  }
+}
+
+/* Startsiden med invitasjon skal heller ikke scrolle på lave skjermer */
+@media (max-height: 760px) {
+  .screen:has(.invite) .start-cta {
+    padding-top: 8px;
+    padding-bottom: 10px;
+  }
+  .screen:has(.invite) .start-cta .btn {
+    min-height: 50px !important;
+  }
+  .screen:has(.invite) .hello + .card {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .screen:has(.invite) .section {
+    margin-top: 12px;
+  }
+}
+@media (max-height: 620px) {
+  /* Kollegaene står i invitasjonsraden – datoen og ansiktene i vaktkortet kan vike */
+  .screen:has(.invite) .eyebrow,
+  .screen:has(.invite) .hello + .card .face-stack {
+    display: none;
+  }
+  .screen:has(.invite) .hello {
+    margin-top: 0;
+  }
+  .screen:has(.invite) .invite {
+    padding-top: 6px;
+  }
+  .screen:has(.invite) .inv-faces {
+    margin-top: 4px;
+  }
+}
+/* iPhone SE med Safari-linjene: logoen viker også, så kollegaene og «Start vakt» får plass */
+@media (max-height: 580px) {
+  .screen:has(.invite) .topbar {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .invite,
+  .inv-badge,
+  .inv-badge.wait i {
+    animation: none;
+  }
+}
