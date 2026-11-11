@@ -1,26 +1,42 @@
 {
   "sensor-0": {
-    "no": "God dag! Sir Domeo, til tjeneste. I kveld er du Emma, servitør på Brasserie Fjordgata. Trykk på Start vakt, så er vi i gang før suppa rekker å bli kald.",
-    "en": "Good day! Sir Domeo, at your service. Tonight you're Emma, a server at Brasserie Fjordgata. Tap Start shift, and we're off before the soup gets cold."
+    "no": "God dag! Sir Domeo, til tjeneste. I kveld er du Emma, servitør på Brasserie Fjordgata. Først velger du kveldens spill. Trykk på ett.",
+    "en": "Good day! Sir Domeo, at your service. Tonight you're Emma, a server at Brasserie Fjordgata. First you pick tonight's game. Tap one."
   },
-  "sensor-1": {
-    "no": "Vakten er i gang, og tallene vokser mens du løper. Trykk på Salg – det er der pengene bor.",
-    "en": "The shift is on, and the numbers grow while you run. Tap Sales – that's where the money lives."
+  "sensor-1-duell": {
+    "no": "Duell! Da måler du deg mot en kollega i kveld. Trykk Start vakt, før suppa blir kald.",
+    "en": "Duel! Tonight you measure yourself against a colleague. Tap Start shift, before the soup gets cold."
+  },
+  "sensor-1-makker": {
+    "no": "Makker! Da jobber du sammen med en kollega mot et felles mål. Trykk Start vakt, før suppa blir kald.",
+    "en": "Buddy! You and a colleague work toward a shared goal. Tap Start shift, before the soup gets cold."
+  },
+  "sensor-1-laget": {
+    "no": "Laget! Da spiller hele vaktlaget sammen i kveld. Trykk Start vakt, før suppa blir kald.",
+    "en": "Team! The whole shift team plays together tonight. Tap Start shift, before the soup gets cold."
+  },
+  "sensor-1-rolig": {
+    "no": "Rolig kveld. Ingen konkurranse, bare jobben. Trykk Start vakt, før suppa blir kald.",
+    "en": "A calm evening. No competition, just the job. Tap Start shift, before the soup gets cold."
   },
   "sensor-2": {
-    "no": "Dette er kassarapporten servitørene sjekket etter vakten. Nå er den din, mens du jobber – ingen lapp i søpla i kveld! Trykk på Vakt nederst for å gå tilbake.",
-    "en": "This is the till report servers checked after their shift. Now it's yours, while you work – no slip in the bin tonight! Tap Shift at the bottom to go back."
+    "no": "Vakten er i gang, og statistikken samles opp mens den går. Trykk på Salg.",
+    "en": "The shift is on, and the statistics build up as it goes. Tap Sales."
   },
   "sensor-3": {
-    "no": "Det kassen ikke ser, skal også telle. Gi en kollega kudos – trykk på et av ansiktene. Ikke vær gjerrig, det er gratis!",
-    "en": "What the till can't see should count too. Give a colleague kudos – tap one of the faces. Don't be stingy, it's free!"
+    "no": "Dette er kassarapporten servitørene pleide å kaste etter vakten. Her blir den lagret til profilen din. Trykk på Vakt nederst for å gå tilbake.",
+    "en": "This is the till report servers used to throw away after their shift. Here it's saved to your profile. Tap Shift at the bottom to go back."
   },
   "sensor-4": {
-    "no": "Kvelden går fortere enn en dessert på bord seksten. Trykk Avslutt vakt, nede i den mørke linjen.",
-    "en": "The evening goes faster than a dessert at table sixteen. Tap End shift, down in the dark bar."
+    "no": "Kassa ser ikke alt. Gi en kollega kudos, trykk på en av dem. Det dukker opp på klokka eller skjermen deres.",
+    "en": "The till doesn't see everything. Give a colleague kudos, tap one of them. It shows up on their watch or screen."
   },
   "sensor-5": {
-    "no": "Voilà! Dette sitter du igjen med: salget, rekordene, kudos fra kollegene – og et takkekort fra lederen. Takk for at du prøvde. Jeg letter på lokket for deg!",
-    "en": "Voilà! This is what you take home: your sales, records, kudos from colleagues – and a thank-you card from the manager. Thanks for trying. I raise my lid to you!"
+    "no": "Sånn, der gikk kvelden, og ingen mistet et brett. Trykk Avslutt vakt, nede i den mørke linjen.",
+    "en": "There, that was the evening, and nobody dropped a tray. Tap End shift, down in the dark bar."
+  },
+  "sensor-6": {
+    "no": "Voilà, dette sitter du igjen med: salget, rekordene og kudos fra kollegene. Salg, tips og rekorder blir XP, så nivået ditt stiger. Polettene du tjener, bytter du i goder som fri, mat eller et gavekort. Takk for at du prøvde. Jeg letter på lokket for deg!",
+    "en": "Voilà, this is what you take home: your sales, records and kudos from colleagues. Sales, tips and records become XP, so your level rises. The tokens you earn, you trade for perks like time off, food or a gift card. Thanks for trying. I raise my lid to you!"
   }
 }

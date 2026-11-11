@@ -576,21 +576,25 @@ const tourSteps = ({ watchOn, game, mate, fromKudos, phase }: TourCtx): TourStep
             ),
   },
 ]
-// ── Sensor-omvisningen (?sensor): fem stopp der sensor trykker selv, med stemme (public/domeo/sensor-N.mp3).
+// ── Sensor-omvisningen (?sensor): sju stopp der sensor trykker selv, med stemme (public/domeo/sensor-N.mp3).
+// Stopp 2 bekrefter spillet sensor valgte: én replikk og én lydfil per spill (sensor-1-duell.mp3 …).
 // Replikkene står i sensor-replikker.json – lag nye lydfiler hvis de endres (se Vaktlogg Experience).
 type Replikk = { no: string; en: string }
-const linje = (n: number) => () => {
+const linje = (n: number | string) => () => {
   const r = (replikker as Record<string, Replikk>)['sensor-' + n]
   return L(r.no, r.en)
 }
-export const SENSOR_SLUTT = 5
-const sensorSteps = (): TourStep[] => [
-  { ch: 1, phase: 'pre', route: '/vakt', at: '.screen .btn.block', aim: ['.screen .btn.block'], tap: ['.screen .btn.block', "[data-guide='start']"], start: true, mood: 'wave', move: 'tip', text: linje(0) },
-  { ch: 2, phase: 'live', route: '/vakt', at: tile('salg'), aim: [tile('salg')], tap: [tile('salg')], mood: 'point', move: 'dance', text: linje(1) },
-  { ch: 2, phase: 'live', route: '/vakt/salg', place: 'corner', scroll: '.st-hero', aim: ['.st-hero'], tap: [tab('vakt')], mood: 'point', move: 'monocle', text: linje(2) },
-  { ch: 2, phase: 'live', route: '/vakt', at: '.kd-row', aim: ['.kd-row'], tap: ['.kd-person'], tapDelay: 1400, mood: 'point', move: 'hop', text: linje(3) },
-  { ch: 2, phase: 'live', route: '/vakt', place: 'bar', at: "[data-guide='start']", aim: ["[data-guide='start']"], tap: ["[data-guide='start']"], mood: 'point', move: 'watch', text: linje(4) },
-  { ch: 7, route: '/vakt', place: 'report', at: '.er-peek', aim: ['.er-peek-more'], hand: 'palm', mood: 'cheer', move: 'present', text: linje(5), last: true },
+export const SENSOR_SLUTT = 6
+/** Lydfilen til et stopp i sensor-omvisningen. Stopp 2 (indeks 1) har én per spill. */
+const sensorLyd = (step: number, game: string) => (step === 1 ? `sensor-1-${game}` : `sensor-${step}`)
+const sensorSteps = (game: string): TourStep[] => [
+  { ch: 1, phase: 'pre', route: '/vakt', at: '.game-pick', aim: ['.game-pick .game-cards'], tap: ['.game-pick .game-card'], tapDelay: 700, mood: 'wave', move: 'tip', text: linje(0) },
+  { ch: 1, phase: 'pre', route: '/vakt', at: '.screen .btn.block', aim: ['.screen .btn.block'], tap: ['.screen .btn.block', "[data-guide='start']"], start: true, mood: 'point', move: 'pick', text: linje('1-' + game) },
+  { ch: 2, phase: 'live', route: '/vakt', at: tile('salg'), aim: [tile('salg')], tap: [tile('salg')], mood: 'point', move: 'dance', text: linje(2) },
+  { ch: 2, phase: 'live', route: '/vakt/salg', place: 'corner', scroll: '.st-hero', aim: ['.st-hero'], tap: [tab('vakt')], mood: 'point', move: 'monocle', text: linje(3) },
+  { ch: 2, phase: 'live', route: '/vakt', at: '.kd-row', aim: ['.kd-row'], tap: ['.kd-person'], tapDelay: 1400, mood: 'point', move: 'hop', text: linje(4) },
+  { ch: 2, phase: 'live', route: '/vakt', place: 'bar', at: "[data-guide='start']", aim: ["[data-guide='start']"], tap: ["[data-guide='start']"], mood: 'point', move: 'watch', text: linje(5) },
+  { ch: 7, route: '/vakt', place: 'report', at: '.er-peek', aim: ['.er-peek-more'], hand: 'palm', mood: 'cheer', move: 'present', text: linje(6), last: true },
 ]
 
 /** Stoppet i omvisningen som passer der du er nå (−1 = ingen), så han kan vise deg rundt herfra. */
@@ -699,7 +703,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   const [tapGone, setTapGone] = useState(false)
   const held = useRef(false)
   const storyOpened = useRef(false)
-  const steps = SENSOR ? sensorSteps() : tourSteps({ watchOn: settings.watch, game: demo.game, mate: colleagueName(demo.invites[demo.game === 'makker' ? 'makker' : 'duell']), fromKudos: lastStep === 11, phase: demo.phase })
+  const steps = SENSOR ? sensorSteps(demo.game) : tourSteps({ watchOn: settings.watch, game: demo.game, mate: colleagueName(demo.invites[demo.game === 'makker' ? 'makker' : 'duell']), fromKudos: lastStep === 11, phase: demo.phase })
   // Stoppet som passer der du er nå
   const here = stepFor(steps, path, demo.phase)
   const touring = g.open && g.mode === 'tour'
@@ -1048,11 +1052,13 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   const vkey = view?.key ?? ''
 
   // Sensor-omvisningen har stemme: hver replikk spilles av (på storskjermen når sensor bruker en mobil)
+  // Velger sensor et annet spill mens han står på stopp 2, bekrefter han det nye valget
+  const tm = SENSOR ? vkey.match(/^tour-(\d+)$/) : null
+  const lydId = tm ? sensorLyd(Number(tm[1]), demo.game) : null
   useEffect(() => {
     if (!SENSOR) return
-    const m = vkey.match(/^tour-(\d+)$/)
-    si(m ? `sensor-${m[1]}` : null)
-  }, [vkey])
+    si(lydId)
+  }, [lydId])
 
   // «Prøv selv»: en myk, pulserende ring rundt det han ber deg trykke på – trykket tar omvisningen videre
   useEffect(() => {
@@ -1361,7 +1367,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
 /** Hvor lenge han høyst snakker: korte replikker sier han helt, de lange bare begynnelsen av (så leser du resten selv). */
 function talkFor(v: View) {
   // Med stemme (sensor-omvisningen) snakker han like lenge som lydfilen – ca. 70 ms per tegn
-  if (SENSOR && v.key.startsWith('tour-')) return Math.min(14000, 400 + v.text.length * 70)
+  if (SENSOR && v.key.startsWith('tour-')) return Math.min(19000, 400 + v.text.length * 70)
   return Math.min(3600, 600 + ((v.title ?? '') + v.text).length * 60)
 }
 /** Omtrent så lenge det tar å lese boblen. */
