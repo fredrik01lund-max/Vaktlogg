@@ -505,3 +505,15 @@
 .demo-ctl .count {
   white-space: nowrap;
 }
+
+/* Sensor-omvisningen: ingen tekstboble – stemmen forklarer, og han viser hva han snakker om */
+.kg-layer.placed .kg-say.stum {
+  visibility: hidden;
+  pointer-events: none;
+}
+/* Det Sir Domeo snakker om akkurat nå i sensor-omvisningen: rolig ramme, ingen puls */
+.kg-her {
+  outline: 3px solid rgba(184, 58, 108, 0.75);
+  outline-offset: 3px;
+  transition: outline-color 0.3s;
+}

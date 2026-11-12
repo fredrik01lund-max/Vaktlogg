@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { config } from './config.ts'
 import { num } from './lib/format.ts'
 import { L } from './i18n.ts'
+import { SPEIL } from './speil.ts'
 import { DUR, PlaybackPaused, easeData, reduced, useReducedMotion } from './lib/motion.ts'
 
 // ── Ikoner (enkle strek-ikoner, 24×24) ──────────────────────────────────────
@@ -337,7 +338,8 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
     const previous = document.activeElement as HTMLElement | null
     const behind = [...document.querySelectorAll<HTMLElement>('.screen, .tabbar')]
     behind.forEach((el) => (el.inert = true))
-    ref.current?.focus()
+    // Storskjermen i presentasjonen (speil=vis) viser bare: tar arket fokus der, slutter tastene i presentasjonen å virke
+    if (SPEIL !== 'vis') ref.current?.focus()
     return () => {
       behind.forEach((el) => (el.inert = false))
       previous?.focus?.()

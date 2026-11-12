@@ -14,7 +14,7 @@ import { D3D_BODY, D3D_PX, D3D_SIZE, Domeo3D, HOME_PX, onBody, preloadDomeo } fr
 import type { Action, Aim, Hand, Leaving, Mood } from './domeo3d.tsx'
 import { reduced } from './lib/motion.ts'
 import { openFeedback } from './feedback/Feedback.tsx'
-import { SENSOR, SPEIL, paSpeil, sendSpeil, si } from './speil.ts'
+import { SENSOR, SPEIL, paSpeil, sendSpeil, si, speilAktiv } from './speil.ts'
 import replikker from './sensor-replikker.json'
 import './guide.css'
 
@@ -176,7 +176,7 @@ export function Domeo({ mood = 'wave', size = 84, talkKey = 0 }: { mood?: Mood; 
 // ── Omvisningen ──
 // Hvor han står: midt på (stor eller vanlig), ved en knapp i demolinjen, over eller under noe i appen,
 // nede i hjørnet (detaljsider), som programleder i månedsoppsummeringen, eller under sluttrapporten.
-type Place = 'big' | 'center' | 'bar' | 'stack' | 'corner' | 'story' | 'report'
+type Place = 'big' | 'center' | 'bar' | 'stack' | 'corner' | 'story' | 'report' | 'on'
 /** Ekstra forklaring for de nysgjerrige: en knapp i boblen åpner noen bobler til, så tilbake til omvisningen. */
 type Extra = { at: string; aim?: string[]; mood: Mood; move: Action; text: () => string }
 type More = { label: () => string; title: () => string; steps: Extra[] }
@@ -207,6 +207,13 @@ type TourStep = {
   /** Månedsoppsummeringen: programlederen tar over, og omvisningen går videre når den lukkes. */
   story?: boolean
   last?: boolean
+  /** Sensor-omvisningen: steder han flyr til mens han snakker, `t` sekunder etter at stoppet begynte. Han peker
+   *  på `aim`. Ringen rundt det som skal trykkes på, kommer først på veipunktet med `ring`. */
+  punkt?: { t: number; at?: string; aim?: string[]; place?: Place; ring?: boolean }[]
+  /** Sensor-omvisningen: går videre av seg selv etter så mange sekunder (replikken pluss litt tid til å se). */
+  auto?: number
+  /** Sensor-omvisningen: sluttrapporten åpnes i stort format mens han snakker om den. */
+  rapport?: boolean
 }
 const MONTH = '/maned/2026-09'
 const chapters = () => [L('Velkommen', 'Welcome'), L('Før vakten', 'Before the shift'), L('Under vakten', 'During the shift'), L('Historikk', 'History'), L('Måneden din', 'Your month'), 'Goals', L('Meg', 'Me'), L('Ferdig', 'Done')]
@@ -576,7 +583,9 @@ const tourSteps = ({ watchOn, game, mate, fromKudos, phase }: TourCtx): TourStep
             ),
   },
 ]
-// ── Sensor-omvisningen (?sensor): sju stopp der sensor trykker selv, med stemme (public/domeo/sensor-N.mp3).
+// ── Sensor-omvisningen (?sensor): åtte stopp der sensor trykker selv, med stemme (public/domeo/sensor-N.mp3).
+// Uten tekstbobler (12.11): stemmen forklarer, og han flyr til det han snakker om og peker på det. Tidene i
+// `punkt` følger lydfilene – endres en replikk, må tidene sjekkes mot den nye lydfilen.
 // Stopp 2 bekrefter spillet sensor valgte: én replikk og én lydfil per spill (sensor-1-duell.mp3 …).
 // Replikkene står i sensor-replikker.json – lag nye lydfiler hvis de endres (se Vaktlogg Experience).
 type Replikk = { no: string; en: string }
@@ -590,11 +599,36 @@ const sensorLyd = (step: number, game: string) => (step === 1 ? `sensor-1-${game
 const sensorSteps = (game: string): TourStep[] => [
   { ch: 1, phase: 'pre', route: '/vakt', at: '.game-pick', aim: ['.game-pick .game-cards'], tap: ['.game-pick .game-card'], tapDelay: 700, mood: 'wave', move: 'tip', text: linje(0) },
   { ch: 1, phase: 'pre', route: '/vakt', at: '.screen .btn.block', aim: ['.screen .btn.block'], tap: ['.screen .btn.block', "[data-guide='start']"], start: true, mood: 'point', move: 'pick', text: linje('1-' + game) },
-  { ch: 2, phase: 'live', route: '/vakt', at: tile('salg'), aim: [tile('salg')], tap: [tile('salg')], mood: 'point', move: 'dance', text: linje(2) },
-  { ch: 2, phase: 'live', route: '/vakt/salg', place: 'corner', scroll: '.st-hero', aim: ['.st-hero'], tap: [tab('vakt')], mood: 'point', move: 'monocle', text: linje(3) },
-  { ch: 2, phase: 'live', route: '/vakt', at: '.kd-row', aim: ['.kd-row'], tap: ['.kd-person'], tapDelay: 1400, mood: 'point', move: 'hop', text: linje(4) },
+  // «Vakten er i gang. Helse viser … og Konkurranse viser … Trykk på Salg.» (10,5 s)
+  {
+    ch: 2, phase: 'live', route: '/vakt', at: tile('salg'), aim: [tile('salg')], tap: [tile('salg')], mood: 'point', move: 'dance', text: linje(2),
+    punkt: [
+      { t: 0, at: tile('helse'), aim: [tile('helse')], place: 'on' },
+      { t: 4.6, at: tile('konkurranse'), aim: [tile('konkurranse')], place: 'on' },
+      { t: 8.5, at: tile('salg'), aim: [tile('salg')], place: 'on', ring: true },
+    ],
+  },
+  // «Dette er salget ditt, live. Du ser kvelden målt mot din egen rekord … Trykk på Vakt nederst …» (9,4 s)
+  {
+    ch: 2, phase: 'live', route: '/vakt/salg', place: 'corner', scroll: '.st-hero', aim: ['.st-hero'], tap: [tab('vakt')], mood: 'point', move: 'monocle', text: linje(3),
+    punkt: [
+      { t: 0, at: '.st-hero', aim: ['.st-hero'], place: 'on' },
+      { t: 2.4, at: '.st-card:has(.st-meter)', aim: ['.st-card:has(.st-meter)'], place: 'on' },
+      { t: 6.2, place: 'corner', aim: [tab('vakt')], ring: true },
+    ],
+  },
+  { ch: 2, phase: 'live', route: '/vakt', at: '.kd-row', aim: ['.kd-row'], tap: ['.kd-person'], tapDelay: 6500, mood: 'point', move: 'hop', text: linje(4) }, // lang pause: sensor skal rekke å trykke mange ganger
   { ch: 2, phase: 'live', route: '/vakt', place: 'bar', at: "[data-guide='start']", aim: ["[data-guide='start']"], tap: ["[data-guide='start']"], mood: 'point', move: 'watch', text: linje(5) },
-  { ch: 7, route: '/vakt', place: 'report', at: '.er-peek', aim: ['.er-peek-more'], hand: 'palm', mood: 'cheer', move: 'present', text: linje(6), last: true },
+  // «Voilà! Dette er kassalappen …» (8,9 s): rapporten åpner seg selv, og de får fem sekunder til å se på den
+  {
+    ch: 7, route: '/vakt', place: 'corner', mood: 'cheer', move: 'present', text: linje(6), rapport: true, auto: 14,
+    punkt: [
+      { t: 0, place: 'corner' },
+      { t: 1.9, place: 'corner', aim: ['.sheet .er-poster'] },
+    ],
+  },
+  // Til slutt (10,3 s): han peker på Meg (XP og belønninger) og slipper sensorene løs. Resten tar presentatørene muntlig.
+  { ch: 7, route: '/vakt', at: tab('meg'), aim: [tab('meg')], mood: 'wink', move: 'tip', text: linje(7), auto: 11.5, last: true },
 ]
 
 /** Stoppet i omvisningen som passer der du er nå (−1 = ingen), så han kan vise deg rundt herfra. */
@@ -701,6 +735,8 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   const [away, setAway] = useState(false)
   const [faded, setFaded] = useState(false)
   const [tapGone, setTapGone] = useState(false)
+  // Sensor-omvisningen: hvilket veipunkt han er på i stoppet han står på
+  const [vp, setVp] = useState({ step: -1, i: 0 })
   const held = useRef(false)
   const storyOpened = useRef(false)
   const steps = SENSOR ? sensorSteps(demo.game) : tourSteps({ watchOn: settings.watch, game: demo.game, mate: colleagueName(demo.invites[demo.game === 'makker' ? 'makker' : 'duell']), fromKudos: lastStep === 11, phase: demo.phase })
@@ -708,6 +744,8 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
   const here = stepFor(steps, path, demo.phase)
   const touring = g.open && g.mode === 'tour'
   const ts = touring ? steps[Math.min(g.step, steps.length - 1)] : null
+  const wpI = vp.step === g.step ? vp.i : 0
+  const pk = SENSOR && ts?.punkt ? ts.punkt[Math.min(wpI, ts.punkt.length - 1)] : null
   // Har siden et eget stopp i omvisningen (ikke bare et i nærheten, som en tidligere vakt eller Gjester)?
   const hereOwn = !!ts && here >= 0 && here !== g.step && (steps[here].story ? path.startsWith('/maned') : steps[here].route === path)
   // Programleder i månedsoppsummeringen – men ikke for den som valgte å utforske selv
@@ -996,12 +1034,12 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
           }
       : {
           key: `tour-${g.step}`,
-          place: ts.place ?? (ts.at ? 'stack' : 'center'),
-          at: ts.at,
-          aim: ts.aim,
+          place: pk ? (pk.place ?? (pk.at ? 'stack' : 'center')) : (ts.place ?? (ts.at ? 'stack' : 'center')),
+          at: pk ? pk.at : ts.at,
+          aim: pk ? pk.aim : ts.aim,
           hand: ts.hand,
           tap: ts.tap,
-          ring: ts.ring,
+          ring: pk ? (pk.ring ? ts.tap : []) : ts.ring,
           scroll: ts.scroll,
           mood: ts.mood,
           move: ts.move,
@@ -1050,6 +1088,57 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     }
   }
   const vkey = view?.key ?? ''
+  // Sensor-omvisningen har ingen tekstboble: stemmen forklarer, og han viser hva han snakker om
+  const stum = SENSOR && vkey.startsWith('tour-')
+
+  // Veipunktene: han flyr videre til neste sted når replikken kommer dit
+  useEffect(() => {
+    if (!SENSOR || !touring || !ts?.punkt) return
+    const step = g.step
+    setVp({ step, i: 0 })
+    const ids = ts.punkt.map((p, i) => (i > 0 ? window.setTimeout(() => setVp({ step, i }), p.t * 1000) : 0))
+    return () => ids.forEach((id) => window.clearTimeout(id))
+  }, [touring, g.step]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Det han snakker om akkurat nå, får en rolig ramme (ikke den pulserende «trykk her»-ringen)
+  useEffect(() => {
+    if (!pk?.aim?.length || pk.ring) return
+    const sel = pk.aim.join(',')
+    let merket: Element[] = []
+    const merk = () => {
+      merket.forEach((e) => e.classList.remove('kg-her'))
+      merket = [...document.querySelectorAll(sel)]
+      merket.forEach((e) => e.classList.add('kg-her'))
+    }
+    merk()
+    const t = window.setTimeout(merk, 450)
+    return () => {
+      window.clearTimeout(t)
+      merket.forEach((e) => e.classList.remove('kg-her'))
+    }
+  }, [vkey, path, wpI]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Stopp uten noe å trykke på går videre av seg selv. Styrer en mobil storskjermen, følger storskjermen bare
+  // mobilen – men uten mobil (C styrer med musen) må storskjermen gå videre selv.
+  useEffect(() => {
+    if (!SENSOR || (SPEIL === 'vis' && speilAktiv) || !touring || !ts?.auto) return
+    const step = g.step
+    const siste = !!ts.last
+    const t = window.setTimeout(() => {
+      if (!state.open || state.mode !== 'tour' || state.step !== step) return
+      if (siste) closeRef.current()
+      else go(step + 1)
+    }, ts.auto * 1000)
+    return () => window.clearTimeout(t)
+  }, [touring, g.step]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Sluttrapporten åpner seg i stort format mens han snakker om den, og lukkes når han går videre
+  const rapportNa = SENSOR && touring && !!ts?.rapport
+  useEffect(() => {
+    if (!rapportNa) return
+    const t = window.setTimeout(() => window.dispatchEvent(new CustomEvent('vaktlogg:rapport', { detail: true })), 900)
+    return () => {
+      window.clearTimeout(t)
+      window.dispatchEvent(new CustomEvent('vaktlogg:rapport', { detail: false }))
+    }
+  }, [rapportNa])
 
   // Sensor-omvisningen har stemme: hver replikk spilles av (på storskjermen når sensor bruker en mobil)
   // Velger sensor et annet spill mens han står på stopp 2, bekrefter han det nye valget
@@ -1087,7 +1176,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
       document.removeEventListener('click', onClick, true)
       marked.forEach((e) => e.classList.remove('kg-ring'))
     }
-  }, [vkey, path]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [vkey, path, wpI]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // «Her!»: venter du lenge, eller trykker et annet sted på siden, minner han deg på hvor du skal trykke – han spretter og peker dit
   const [remind, setRemind] = useState({ n: 0, at: [] as Aim[] })
@@ -1226,14 +1315,15 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
       const tabs = document.querySelector('.tabbar')?.getBoundingClientRect()
       const floor = tabs && tabs.height ? tabs.top : A.bottom
       const kind = v.place
-      const scale = { big: 1.3, center: 1.05, bar: 0.9, stack: 0.85, corner: 0.72, story: 0.62, report: 1.05 }[kind]
+      const scale = { big: 1.3, center: 1.05, bar: 0.9, stack: 0.85, corner: 0.72, story: 0.62, report: 1.05, on: 0.74 }[kind]
       const px = D3D_PX * scale
       const half = D3D_BODY.half * px
       const feet = D3D_BODY.feet * px
       const head = D3D_BODY.head * px
       const bw = Math.min(v.host ? 250 : 296, A.width - 24)
       say.style.width = `${bw}px`
-      const bh = say.offsetHeight
+      // Uten boble (sensor-omvisningen) kan han stå tett på det han viser
+      const bh = SENSOR && v.key.startsWith('tour-') ? 0 : say.offsetHeight
       let cx = A.left + A.width / 2 - B.left
       let cy = A.top + A.height * 0.6 - B.top
       let up = false
@@ -1243,6 +1333,11 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
         const r = el.getBoundingClientRect()
         cx = A.right - B.left - half - 14
         cy = Math.min(r.bottom - B.top + 10 + bh + 22 + head, A.bottom - B.top - feet - 4)
+      } else if (kind === 'on' && el) {
+        // Sensor-omvisningen: han setter seg nede til høyre PÅ det han snakker om, så det ikke er tvil om hvilken boks
+        const r = el.getBoundingClientRect()
+        cx = r.right - B.left - half - 2
+        cy = Math.min(r.bottom, floor - 6) - B.top + 8 - feet
       } else if (kind === 'bar' && el) {
         // Ved siden av knappen i demolinjen (der det er mest plass), med skoene på høyde med toppen av den
         const r = el.getBoundingClientRect()
@@ -1299,14 +1394,14 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
       timers.forEach((t) => window.clearTimeout(t))
       window.removeEventListener('resize', place)
     }
-  }, [vkey, path, settings.lang, demo.phase]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [vkey, path, settings.lang, demo.phase, wpI]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!view) return null
   const talk = talkFor(view)
   // Hvor han er akkurat nå: hjemme (rett før han flyr ut), på vei hjem, eller der han forklarer noe
   const f = pos && (pos.back ?? pos.from ?? pos)
   const key = hash(vkey)
-  const cls = ['kg-say', pos?.up ? 'up' : '', view.host ? 'host' : '', view.host && !view.buttons.length ? 'quiet' : '', faded ? 'faded' : ''].filter(Boolean).join(' ')
+  const cls = ['kg-say', stum ? 'stum' : '', pos?.up ? 'up' : '', view.host ? 'host' : '', view.host && !view.buttons.length ? 'quiet' : '', faded ? 'faded' : ''].filter(Boolean).join(' ')
   return (
     <div className={`kg-layer ${leaving ? `leaving ${leaving}` : ''} ${pos ? 'placed' : ''} ${pos?.home ? 'from-home' : ''}`} ref={ref} role="dialog" aria-label={L('Sir Domeos guide til prototypen', 'Sir Domeo’s guide to the prototype')}>
       <div

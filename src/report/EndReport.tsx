@@ -21,6 +21,7 @@ import { useStore } from '../state.tsx'
 import { Confetti, CountUp, Icon, Sheet } from '../ui.tsx'
 import { PolettCard } from '../staffmenu.tsx'
 import { congratulate, dismissGuide } from '../guide.tsx'
+import { SENSOR } from '../speil.ts'
 import { Envelope, Face, nameOf } from '../game-ui.tsx'
 import { L, td } from '../i18n.ts'
 import type { RecordDetail } from '../screens/Report.tsx'
@@ -310,8 +311,16 @@ export function EndReport({ summary, records, isTonight, left }: { summary: Shif
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const openBig = () => {
     setBig(true)
-    dismissGuide()
+    // I sensor-omvisningen står han i hjørnet uten boble og snakker videre
+    if (!SENSOR) dismissGuide()
   }
+  // Sensor-omvisningen: rapporten åpner seg selv mens Sir Domeo snakker om den, og lukkes når han går videre
+  useEffect(() => {
+    if (!compact) return
+    const pa = (e: Event) => setBig(!!(e as CustomEvent).detail)
+    window.addEventListener('vaktlogg:rapport', pa)
+    return () => window.removeEventListener('vaktlogg:rapport', pa)
+  }, [compact])
   const poster = <ReportPoster summary={summary} data={data} show={{ sales: true, tips: true, steps: true, games: !quiet }} animate={animate} />
 
   return (

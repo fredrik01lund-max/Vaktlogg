@@ -4,7 +4,7 @@
 //  • KudosRain: når en kollega sender Emma ros, regner det emoji bak boksene (synlig i sprekkene).
 //    Laget tar ingen trykk, varer noen sekunder og vises ikke ved redusert bevegelse.
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { colleagueName, config } from '../config.ts'
 import { L } from '../i18n.ts'
@@ -22,6 +22,9 @@ function Colleague({ id, i, count, onSend }: { id: string; i: number; count: num
   // Trykk i rask rekkefølge bygger en kombo: utbruddet blir litt større for hvert trykk.
   const [puff, setPuff] = useState<{ n: number; combo: number; at: number } | null>(null)
   const [showCount, setShowCount] = useState(false)
+  // Vibrasjonen følger komboen: ett kort tikk for et enkelt trykk, og et lite dobbeltslag som blir kraftigere når
+  // man trykker fort flere ganger. (Virker på Android. iPhone lar ikke nettsider vibrere.)
+  const vib = useRef({ at: 0, combo: 0 })
   useEffect(() => {
     if (!puff) return
     const t = window.setTimeout(() => setShowCount(false), 1600)
@@ -40,7 +43,9 @@ function Colleague({ id, i, count, onSend }: { id: string; i: number; count: num
         const now = performance.now()
         setPuff((p) => ({ n: (p?.n ?? 0) + 1, combo: p && now - p.at < 700 ? Math.min(p.combo + 1, 6) : 0, at: now }))
         setShowCount(true)
-        navigator.vibrate?.(14)
+        vib.current = { at: now, combo: now - vib.current.at < 700 ? Math.min(vib.current.combo + 1, 6) : 0 }
+        const c = vib.current.combo
+        navigator.vibrate?.(c === 0 ? 22 : [14, 34, 22 + c * 6])
       }}
     >
       <span key={puff?.n ?? 0} className={`kd-face ${puff ? 'pop' : ''}`} style={vars({ '--burst': 1 + combo * 0.12 })}>
