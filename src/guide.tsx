@@ -21,8 +21,10 @@ import './guide.css'
 // ── Liten felles tilstand: overlever at appen tegnes på nytt når språket byttes ──
 type Mode = 'welcome' | 'self' | 'tour' | 'kari' | 'done' | 'help'
 /** `extra`: hvilken boble i en ekstra forklaring («Mer om XP») som vises. */
-type GuideState = { open: boolean; step: number; mode: Mode; bye?: number; extra?: number }
-let state: GuideState = { open: false, step: 0, mode: 'welcome' }
+/** `forside`: sensor-demoen står på forsiden («Åpne Vaktlogg») – omvisningen har ikke begynt. */
+type GuideState = { open: boolean; step: number; mode: Mode; bye?: number; extra?: number; forside?: boolean }
+// Sensor-demoen begynner på forsiden (forside.tsx). Den er en del av tilstanden, så storskjermen viser det samme.
+let state: GuideState = SENSOR ? { open: false, step: 0, mode: 'tour', forside: true } : { open: false, step: 0, mode: 'welcome' }
 let autoTried = false
 /** Karis beskjed vises én gang per besøk i prototypen. */
 let kariShown = false
@@ -47,7 +49,8 @@ export const dismissGuide = () => state.open && setGuide({ ...state, bye: (state
 const gated = () => !SENSOR && !new URLSearchParams(window.location.search).has('guide') && (MANUAL || navigator.webdriver)
 /** Demoen er startet på nytt: han dukker opp og spør om omvisning, akkurat som når appen åpnes. */
 export function welcome() {
-  if (gated()) return
+  // Sensor-demoen har forsiden i stedet for spørsmålet om omvisning
+  if (gated() || SENSOR) return
   window.setTimeout(() => setGuide({ open: true, step: 0, mode: 'welcome' }), 500)
 }
 /** Rett etter vakten: han kommer raskt, gratulerer og presenterer sluttrapporten. */
@@ -55,7 +58,8 @@ export function congratulate() {
   if (gated()) return
   // Sensor-omvisningen: siste stopp er sluttrapporten
   if (SENSOR) {
-    window.setTimeout(() => setGuide({ open: true, step: SENSOR_SLUTT, mode: 'tour' }), 300)
+    // Står forsiden oppe (mobilen er nettopp nullstilt mens sluttrapporten sto der), skal han vente på «Åpne Vaktlogg»
+    window.setTimeout(() => !state.forside && setGuide({ open: true, step: SENSOR_SLUTT, mode: 'tour' }), 300)
     return
   }
   if (state.open && state.mode === 'kari') return
@@ -88,6 +92,8 @@ const useExternal = <T,>(set: Set<() => void>, get: () => T): T =>
     get,
   )
 export const useGuide = () => useExternal(subs, () => state)
+/** Sensor har trykket «Åpne Vaktlogg» på forsiden: appen åpner seg, og Sir Domeo begynner omvisningen. */
+export const apneFraForside = () => state.forside && setGuide({ open: true, step: 0, mode: 'tour' })
 
 /** Sir Domeo flat: sølvklokke med brune øyne under sølvlokk, handlebar-bart, monokkel, vinrød sløyfe, frakkeermer og lakksko. */
 export function Domeo({ mood = 'wave', size = 84, talkKey = 0 }: { mood?: Mood; size?: number; talkKey?: number }) {
@@ -830,7 +836,7 @@ export function DemoGuide({ boss, onReport }: { boss: boolean; onReport: boolean
     if (SENSOR) {
       reset()
       updateSettings({ guide: 'tour', guideSeen: true, watch: true, introDismissed: true })
-      window.setTimeout(() => setGuide({ open: true, step: 0, mode: 'tour' }), 700)
+      // Omvisningen begynner når sensor trykker «Åpne Vaktlogg» på forsiden
       return
     }
     window.setTimeout(() => !state.open && setGuide({ open: true, step: 0, mode: 'welcome' }), 700)

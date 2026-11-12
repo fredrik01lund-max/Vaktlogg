@@ -27,6 +27,7 @@ import { topicById } from './shift/topics.ts'
 import { designParam } from './designs/Directions.tsx'
 import { L, td } from './i18n.ts'
 import { SpeilMerke } from './speilmerke.tsx'
+import { Forside } from './forside.tsx'
 
 // Fanene lages ved hver tegning, så navnene følger valgt språk. «Goals» heter det samme på begge språk.
 const tabList = () => [
@@ -418,6 +419,7 @@ function Shell() {
         </div>
       </div>
       <DemoControl boss={boss} onReport={onReport} />
+      <Forside />
       </div>
     </div>
   )
